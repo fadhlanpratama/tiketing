@@ -21,31 +21,23 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ================= AREA: USER =================
-Route::prefix('user')->name('user.')->group(function () {
-    
+Route::prefix('user')->name('user.')->group(function () { 
     Route::get('/dashboard', function () {
-        // Proteksi Akses User
         if (!session()->has('user_logged') || session('user_role') !== 'user') {
             return redirect()->route('home');
         }
-
         return view('user.dashboard');
     })->name('dashboard');
-
 });
 
 // ================= AREA: ADMIN =================
-Route::prefix('admin')->name('admin.')->group(function () {
-    
+Route::prefix('admin')->name('admin.')->group(function () {   
     Route::get('/dashboard', function () {
-        // Proteksi Akses Admin
         if (!session()->has('user_logged') || session('user_role') !== 'admin') {
             return redirect()->route('home');
         }
-
         return view('admin.dashboard');
     })->name('dashboard');
-
 });
 
 // ================= UTILITAS / DEBUGGING =================
