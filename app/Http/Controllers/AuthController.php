@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\UserCustom;
+use App\Models\Users;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller;
 
 class AuthController extends Controller
@@ -14,46 +15,50 @@ class AuthController extends Controller
         return view('auth.auth-page');
     }
 
-    // ================= REGISTER =================
     public function register(Request $request)
     {
         $request->validate([
-            'username' => 'required|string|min:4|max:25|unique:user,username',
-            'password' => 'required|string|min:4|max:20'
+            'nama_lengkap' => 'required|string|max:150',
+            'email'        => 'required|email|max:100|unique:users,email',
+            'no_telp'      => 'required|string|max:20',
+            'password'     => 'required|string|min:4|max:20'
         ]);
 
-        UserCustom::create([
-            'username' => $request->username,
-            'password' => $request->password,
-            'role'     => 'user'
+        Users::create([
+            'nama_lengkap' => $request->nama_lengkap,
+            'email'        => $request->email,
+            'no_telp'      => $request->no_telp,
+            'password'     => Hash::make($request->password),
+            'role'         => 'user'          
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Registrasi berhasil.'
+            'message' => 'Registrasi berhasil. Silakan login.'
         ]);
     }
 
-    // ================= LOGIN =================
     public function login(Request $request)
     {
         $request->validate([
-            'username' => 'required|string',
+            'Email' => 'required|string',
             'password' => 'required|string'
         ]);
 
-        $user = UserCustom::where('username', $request->username)->first();
+        $user = Users::where('email', $request->Email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Username atau password salah.'
+                'message' => 'Email atau password salah.'
             ], 401);
         }
 
         $request->session()->put([
-            'user_logged' => $user->username,
-            'user_role'   => $user->role
+            'user_id'      => $user->id,
+            'user_logged'  => $user->email,
+            'nama_lengkap' => $user->nama_lengkap,
+            'user_role'    => $user->role
         ]);
         
         $request->session()->save();
@@ -69,7 +74,6 @@ class AuthController extends Controller
         ]);
     }
 
-    // ================= LOGOUT =================
     public function logout(Request $request)
     {
         $request->session()->invalidate();
