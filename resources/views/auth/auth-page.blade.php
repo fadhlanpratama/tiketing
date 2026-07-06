@@ -58,6 +58,7 @@
                 <div class="space-y-2 mb-5">
                     <input type="text" id="nama_lengkap_register" placeholder="Nama Lengkap" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
                     <input type="email" id="email_register" placeholder="Alamat Email" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                    <input type="text" id="divisi_register" placeholder="Divisi" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
                     <input type="tel" id="no_telp_register" placeholder="Nomor Telepon" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
                     <input type="password" id="password_register" placeholder="Masukan Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
                 </div>
@@ -171,11 +172,12 @@
         document.getElementById('submitRegisterBtn').addEventListener('click', async () => {
             const nama_lengkap = document.getElementById('nama_lengkap_register').value;
             const email = document.getElementById('email_register').value;
+            const divisi = document.getElementById('divisi_register').value;
             const no_telp = document.getElementById('no_telp_register').value;
             const password = document.getElementById('password_register').value;
             const alertBox = document.getElementById('registerAlert');
 
-            if(!nama_lengkap || !email || !no_telp || !password) {
+            if(!nama_lengkap || !email || !divisi || !no_telp || !password) {
                 return alert('Semua data registrasi wajib diisi!');
             }
 
@@ -190,6 +192,7 @@
                     body: JSON.stringify({ 
                         nama_lengkap,
                         email, 
+                        divisi,
                         no_telp,
                         password 
                     })
@@ -202,6 +205,7 @@
                     
                     document.getElementById('nama_lengkap_register').value = "";
                     document.getElementById('email_register').value = "";
+                    document.getElementById('divisi_register').value = "";
                     document.getElementById('no_telp_register').value = "";
                     document.getElementById('password_register').value = "";
                     
