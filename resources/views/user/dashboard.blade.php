@@ -24,10 +24,10 @@
             <div class="flex items-center gap-4">
                 <div class="text-right hidden sm:block">
                     <p class="text-xs text-slate-300">Selamat datang,</p>
-                    <p class="text-sm font-bold text-white">{{ session('user_logged') }}</p>
+                    <p class="text-sm font-bold text-white">{{ session('nama_lengkap', 'Pegawai ESDM') }}</p>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center text-[#0a2540] font-bold uppercase shadow-inner">
-                    {{ substr(session('user_logged'), 0, 2) }}
+                    {{ substr(session('nama_lengkap', 'PE'), 0, 2) }}
                 </div>
                 <div class="h-6 w-px bg-slate-700 hidden sm:block"></div>
                 <a href="{{ route('logout') }}" class="flex items-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition">
@@ -46,7 +46,7 @@
                 <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Butuh Bantuan IT atau Fasilitas?</h2>
                 <p class="text-slate-300 text-sm mt-1">Buat, pantau, dan kelola semua permintaan tiket internal Anda dengan mudah.</p>
             </div>
-            <button class="bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition transform active:scale-95 flex items-center gap-2 shrink-0 self-stretch sm:self-auto justify-center">
+            <button id="btnOpenModal" class="bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition transform active:scale-95 flex items-center gap-2 shrink-0 self-stretch sm:self-auto justify-center">
                 <i class="fa-solid fa-plus"></i> Buat Tiket Baru
             </button>
         </div>
@@ -108,12 +108,12 @@
                         <tr class="hover:bg-slate-50/50 transition">
                             <td class="p-4 pl-6 font-semibold text-slate-700">#TX-00482</td>
                             <td class="p-4">
-                                <p class="font-medium text-slate-800">Gangguan Jaringan Pusdatin</p>
+                                <p class="font-medium text-slate-800">IT — Jaringan</p>
                                 <span class="text-xs text-slate-400">Koneksi internet lambat di Lantai 3</span>
                             </td>
                             <td class="p-4">02 Jul 2026</td>
                             <td class="p-4">
-                                <span class="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Pending</span>
+                                <span class="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Open</span>
                             </td>
                             <td class="p-4 pr-6 text-center">
                                 <button class="text-slate-600 hover:text-slate-800 font-semibold text-xs px-3 py-1.5 bg-slate-100 rounded-lg transition">Detail</button>
@@ -122,26 +122,12 @@
                         <tr class="hover:bg-slate-50/50 transition">
                             <td class="p-4 pl-6 font-semibold text-slate-700">#TX-00431</td>
                             <td class="p-4">
-                                <p class="font-medium text-slate-800">Permintaan Akun Aplikasi</p>
-                                <span class="text-xs text-slate-400">Akses modul pelaporan database</span>
+                                <p class="font-medium text-slate-800">IT — Software</p>
+                                <span class="text-xs text-slate-400">Instalasi aplikasi modul pelaporan database</span>
                             </td>
                             <td class="p-4">28 Jun 2026</td>
                             <td class="p-4">
-                                <span class="bg-blue-100 text-blue-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Diproses</span>
-                            </td>
-                            <td class="p-4 pr-6 text-center">
-                                <button class="text-slate-600 hover:text-slate-800 font-semibold text-xs px-3 py-1.5 bg-slate-100 rounded-lg transition">Detail</button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-slate-50/50 transition">
-                            <td class="p-4 pl-6 font-semibold text-slate-700">#TX-00390</td>
-                            <td class="p-4">
-                                <p class="font-medium text-slate-800">Perbaikan Hardware</p>
-                                <span class="text-xs text-slate-400">Kabel proyektor ruang rapat utama rusak</span>
-                            </td>
-                            <td class="p-4">15 Jun 2026</td>
-                            <td class="p-4">
-                                <span class="bg-green-100 text-green-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Selesai</span>
+                                <span class="bg-blue-100 text-blue-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">In Progress</span>
                             </td>
                             <td class="p-4 pr-6 text-center">
                                 <button class="text-slate-600 hover:text-slate-800 font-semibold text-xs px-3 py-1.5 bg-slate-100 rounded-lg transition">Detail</button>
@@ -153,5 +139,133 @@
         </div>
     </main>
 
+    <div id="ticketModal" class="fixed inset-0 bg-slate-900/50 items-center justify-center p-4 z-50 overflow-y-auto hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden transform transition-all my-8">
+            <div class="bg-[#0a2540] text-white p-6 flex justify-between items-center">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-square-plus text-amber-400 text-xl"></i>
+                    <h3 class="text-lg font-bold tracking-tight">Formulir Pengaduan Layanan</h3>
+                </div>
+                <button id="btnCloseModal" class="text-slate-400 hover:text-white transition text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form action="#" method="POST" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-xs text-slate-500">
+                    <div>
+                        <p class="font-semibold text-slate-400">Nama Pelapor:</p>
+                        <p class="font-bold text-slate-700 mt-0.5">{{ session('nama_lengkap', 'Pegawai ESDM') }}</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-slate-400">Kontak Email:</p>
+                        <p class="font-bold text-slate-700 mt-0.5">{{ session('user_logged', 'email@esdm.go.id') }}</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Kategori Utama</label>
+                    <select id="selectKategori" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 transition text-sm text-slate-700">
+                        <option value="">-- Pilih Kategori Masalah --</option>
+                        <option value="it_hardware">IT — Hardware</option>
+                        <option value="it_software">IT — Software</option>
+                        <option value="it_jaringan">IT — Jaringan</option>
+                        <option value="sarpras">Sarana-Prasarana</option>
+                        <option value="administrasi">Administrasi</option>
+                        <option value="lainnya">Lainnya</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Sub-Kategori</label>
+                    <select id="selectSubKategori" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 transition text-sm text-slate-700" disabled>
+                        <option value="">Silakan pilih kategori utama terlebih dahulu</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tingkat Urgensi / Prioritas</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="border border-slate-200 rounded-xl p-3 flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer hover:bg-slate-50 transition">
+                            <input type="radio" name="prioritas" value="Rendah" class="accent-green-600" checked> Rendah
+                        </label>
+                        <label class="border border-slate-200 rounded-xl p-3 flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer hover:bg-slate-50 transition">
+                            <input type="radio" name="prioritas" value="Sedang" class="accent-amber-500"> Sedang
+                        </label>
+                        <label class="border border-slate-200 rounded-xl p-3 flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer hover:bg-slate-50 transition">
+                            <input type="radio" name="prioritas" value="Tinggi" class="accent-red-600"> Tinggi
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Deskripsi Masalah</label>
+                    <textarea placeholder="Tuliskan kronologi singkat kerusakan/kebutuhan layanan secara detail agar memudahkan petugas..." rows="4" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 transition text-sm"></textarea>
+                </div>
+
+                <div class="flex gap-3 justify-end pt-2 border-t border-slate-100">
+                    <button type="button" id="btnCancelModal" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm px-5 py-2.5 rounded-xl transition">Batal</button>
+                    <button type="submit" class="bg-[#0a2540] hover:bg-slate-800 text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-md transition">Kirim Tiket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const ticketModal = document.getElementById('ticketModal');
+        const btnOpenModal = document.getElementById('btnOpenModal');
+        const btnCloseModal = document.getElementById('btnCloseModal');
+        const btnCancelModal = document.getElementById('btnCancelModal');
+
+        // Fungsi Buka Tutup Modal
+        const toggleModal = (show) => {
+            if(show) {
+                ticketModal.classList.remove('hidden');
+                ticketModal.classList.add('flex');
+            } else {
+                ticketModal.classList.add('hidden');
+                ticketModal.classList.remove('flex');
+            }
+        };
+
+        btnOpenModal.addEventListener('click', () => toggleModal(true));
+        btnCloseModal.addEventListener('click', () => toggleModal(false));
+        btnCancelModal.addEventListener('click', () => toggleModal(false));
+
+        // Pemetaan Data Sub-Kategori Sesuai Dokumen image_b2c75b.png
+        const dataSubKategori = {
+            it_hardware: ['Komputer rusak', 'Monitor bermasalah', 'Printer mati'],
+            it_software: ['Instalasi aplikasi', 'Error sistem', 'Akun terkunci'],
+            it_jaringan: ['Internet lambat', 'WiFi tidak konek', 'VPN bermasalah'],
+            sarpras: ['AC rusak', 'Kebersihan', 'Kerusakan furnitur', 'Kelistrikan'],
+            administrasi: ['Permintaan dokumen', 'ATK', 'Surat-menyurat'],
+            lainnya: ['Di luar kategori di atas']
+        };
+
+        const selectKategori = document.getElementById('selectKategori');
+        const selectSubKategori = document.getElementById('selectSubKategori');
+
+        // Logika Pengubah Isi Dropdown Sub-Kategori Secara Dinamis
+        selectKategori.addEventListener('change', function() {
+            const key = this.value;
+            selectSubKategori.innerHTML = ''; // Kosongkan data lama
+
+            if(key && dataSubKategori[key]) {
+                selectSubKategori.disabled = false;
+                dataSubKategori[key].forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub;
+                    opt.innerText = sub;
+                    selectSubKategori.appendChild(opt);
+                });
+            } else {
+                selectSubKategori.disabled = true;
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.innerText = "Silakan pilih kategori utama terlebih dahulu";
+                selectSubKategori.appendChild(opt);
+            }
+        });
+    </script>
 </body>
 </html>

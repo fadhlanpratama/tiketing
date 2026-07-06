@@ -51,16 +51,31 @@
                 </div>
 
                 <h2 class="text-2xl font-extrabold text-slate-900 mb-1 tracking-tight">Buat Akun Baru</h2>
-                <p class="text-xs text-slate-500 mb-4">Daftarkan identitas Anda untuk akses layanan internal</p>
+                <p class="text-xs text-slate-500 mb-4">Daftarkan identitas Anda untuk akses layanan</p>
                 
                 <div id="registerAlert" class="hidden mb-3 p-3 rounded-xl text-xs font-semibold"></div>
 
-                <div class="space-y-2 mb-5">
+                <div class="space-y-2 mb-4 text-left">
                     <input type="text" id="nama_lengkap_register" placeholder="Nama Lengkap" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
                     <input type="email" id="email_register" placeholder="Alamat Email" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
-                    <input type="text" id="divisi_register" placeholder="Divisi" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
                     <input type="tel" id="no_telp_register" placeholder="Nomor Telepon" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                    <input type="text" id="divisi_register" placeholder="Divisi" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                    
                     <input type="password" id="password_register" placeholder="Masukan Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                    
+                    <div id="passwordRequirements" class="hidden bg-slate-50 border border-slate-100 rounded-xl p-2.5 space-y-1 text-[11px] font-medium text-slate-500">
+                        <div id="req-length" class="flex items-center gap-1.5 transition-colors">
+                            <span class="icon">❌</span> Minimal 8 Karakter
+                        </div>
+                        <div id="req-letters" class="flex items-center gap-1.5 transition-colors">
+                            <span class="icon">❌</span> Harus Mengandung Huruf (a-z)
+                        </div>
+                        <div id="req-number" class="flex items-center gap-1.5 transition-colors">
+                            <span class="icon">❌</span> Harus Mengandung Angka (0-9)
+                        </div>
+                    </div>
+
+                    <input type="password" id="password_confirmation_register" placeholder="Konfirmasi Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
                 </div>
                 
                 <button type="button" id="submitRegisterBtn" class="w-full bg-[#0a2540] hover:bg-[#113357] text-white font-semibold py-3 rounded-xl shadow-lg transition transform active:scale-95 text-sm uppercase tracking-wider">
@@ -131,13 +146,67 @@
 
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
+        function showAlertBox(alertId, message, isSuccess = false) {
+            const alertBox = document.getElementById(alertId);
+            alertBox.innerText = message;
+            alertBox.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'bg-green-100', 'text-green-800');
+            
+            if (isSuccess) {
+                alertBox.classList.add('bg-green-100', 'text-green-800', 'block');
+            } else {
+                alertBox.classList.add('bg-red-100', 'text-red-800', 'block');
+            }
+        }
+
+        let passwordStatus = {
+            length: false,
+            letters: false,
+            number: false
+        };
+
+        function updateRuleUI(elementId, conditionMet) {
+            const el = document.getElementById(elementId);
+            const icon = el.querySelector('.icon');
+            
+            if (conditionMet) {
+                icon.innerText = "✅";
+                el.classList.remove('text-slate-500');
+                el.classList.add('text-green-600');
+            } else {
+                icon.innerText = "❌";
+                el.classList.remove('text-green-600');
+                el.classList.add('text-slate-500');
+            }
+        }
+
+        document.getElementById('password_register').addEventListener('input', (e) => {
+            const val = e.target.value;
+            const requirementsPanel = document.getElementById('passwordRequirements');
+
+            if (val.length === 0) {
+                requirementsPanel.classList.add('hidden');
+                return;
+            } else {
+                requirementsPanel.classList.remove('hidden');
+            }
+
+            passwordStatus.length = val.length >= 8;
+            passwordStatus.letters = /[a-zA-Z]/.test(val);
+            passwordStatus.number = /[0-9]/.test(val);
+
+            updateRuleUI('req-length', passwordStatus.length);
+            updateRuleUI('req-letters', passwordStatus.letters);
+            updateRuleUI('req-number', passwordStatus.number);
+        });
+
         // ==================== PROSES LOGIN ====================
         document.getElementById('submitLoginBtn').addEventListener('click', async () => {
-            const email = document.getElementById('email_login').value;
+            const email = document.getElementById('email_login').value.trim();
             const password = document.getElementById('password_login').value;
-            const alertBox = document.getElementById('loginAlert');
 
-            if(!email || !password) return alert('Email dan password wajib diisi!');
+            if (!email || !password) {
+                return showAlertBox('loginAlert', 'Email dan password wajib diisi!', false);
+            }
 
             try {
                 let response = await fetch('/login', {
@@ -152,33 +221,39 @@
                 
                 let result = await response.json();
 
-                if(response.ok && result.success) {
-                    alertBox.className = "mb-4 p-3 rounded-xl text-xs font-semibold bg-green-100 text-green-800 block";
-                    alertBox.innerText = result.message;
-                    
+                if (response.ok && result.success) {
+                    showAlertBox('loginAlert', result.message || "Berhasil masuk...", true);
                     setTimeout(() => {
                         window.location.href = result.redirect ? result.redirect : '/dashboard';
                     }, 800);
                 } else {
-                    throw new Error(result.message || "Akses ditolak.");
+                    throw new Error(result.message || "Email atau password salah.");
                 }
             } catch (err) {
-                alertBox.className = "mb-4 p-3 rounded-xl text-xs font-semibold bg-red-100 text-red-800 block";
-                alertBox.innerText = err.message || "Gagal masuk portal.";
+                showAlertBox('loginAlert', err.message, false);
             }
         });
 
         // ==================== PROSES REGISTER ====================
         document.getElementById('submitRegisterBtn').addEventListener('click', async () => {
-            const nama_lengkap = document.getElementById('nama_lengkap_register').value;
-            const email = document.getElementById('email_register').value;
-            const divisi = document.getElementById('divisi_register').value;
-            const no_telp = document.getElementById('no_telp_register').value;
+            const nama_lengkap = document.getElementById('nama_lengkap_register').value.trim();
+            const email = document.getElementById('email_register').value.trim();
+            const divisi = document.getElementById('divisi_register').value.trim();
+            const no_telp = document.getElementById('no_telp_register').value.trim();
             const password = document.getElementById('password_register').value;
-            const alertBox = document.getElementById('registerAlert');
+            const password_confirmation = document.getElementById('password_confirmation_register').value;
 
-            if(!nama_lengkap || !email || !divisi || !no_telp || !password) {
-                return alert('Semua data registrasi wajib diisi!');
+            if (!nama_lengkap || !email || !divisi || !no_telp || !password || !password_confirmation) {
+                return showAlertBox('registerAlert', 'Semua data registrasi wajib diisi!', false);
+            }
+
+            // Memastikan 3 kriteria terpenuhi sebelum submit
+            if (!passwordStatus.length || !passwordStatus.letters || !passwordStatus.number) {
+                return showAlertBox('registerAlert', 'Password harus minimal 8 karakter serta kombinasi huruf dan angka!', false);
+            }
+
+            if (password !== password_confirmation) {
+                return showAlertBox('registerAlert', 'Konfirmasi password tidak cocok dengan password utama!', false);
             }
 
             try {
@@ -189,33 +264,32 @@
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ 
-                        nama_lengkap,
-                        email, 
-                        divisi,
-                        no_telp,
-                        password 
-                    })
+                    body: JSON.stringify({ nama_lengkap, email, divisi, no_telp, password, password_confirmation })
                 });
+                
                 let result = await response.json();
 
-                if(response.ok && result.success) {
-                    alertBox.className = "mb-4 p-3 rounded-xl text-xs font-semibold bg-green-100 text-green-800 block";
-                    alertBox.innerText = result.message;
+                if (response.ok && result.success) {
+                    showAlertBox('registerAlert', result.message || "Registrasi berhasil!", true);
                     
                     document.getElementById('nama_lengkap_register').value = "";
                     document.getElementById('email_register').value = "";
                     document.getElementById('divisi_register').value = "";
                     document.getElementById('no_telp_register').value = "";
                     document.getElementById('password_register').value = "";
+                    document.getElementById('password_confirmation_register').value = "";
                     
+                    document.getElementById('passwordRequirements').classList.add('hidden');
+                    
+                    const items = ['req-length', 'req-letters', 'req-number'];
+                    items.forEach(id => updateRuleUI(id, false));
+
                     setTimeout(() => btnToggleAuth.click(), 1200);
                 } else {
-                    throw new Error(result.message || "Gagal mendaftar.");
+                    throw new Error(result.message || "Gagal membuat akun.");
                 }
             } catch (err) {
-                alertBox.className = "mb-4 p-3 rounded-xl text-xs font-semibold bg-red-100 text-red-800 block";
-                alertBox.innerText = err.message || "Gagal membuat akun.";
+                showAlertBox('registerAlert', err.message, false);
             }
         });
     </script>
