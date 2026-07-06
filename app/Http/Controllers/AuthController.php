@@ -20,6 +20,7 @@ class AuthController extends Controller
         $request->validate([
             'nama_lengkap' => 'required|string|max:150',
             'email'        => 'required|email|max:100|unique:users,email',
+            'divisi'       => 'required|string|max:100',
             'no_telp'      => 'required|string|max:20',
             'password'     => 'required|string|min:4|max:20'
         ]);
@@ -27,6 +28,7 @@ class AuthController extends Controller
         Users::create([
             'nama_lengkap' => $request->nama_lengkap,
             'email'        => $request->email,
+            'divisi'       => $request->divisi,
             'no_telp'      => $request->no_telp,
             'password'     => Hash::make($request->password),
             'role'         => 'user'          
