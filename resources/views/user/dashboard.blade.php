@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard User - Sistem Tiketing</title>
+    <title>ESDM - Sistem Tiketing - Dashboard   </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </head>
@@ -25,7 +25,7 @@
                 </div>
                 <div class="h-6 w-px bg-slate-700 hidden sm:block"></div>
                 
-                <form action="{{ route('user.logout') }}" method="POST" class="inline">
+                <form action="{{ route('logout') }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="flex items-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs font-semibold transition shadow-sm cursor-pointer">
                         <i class="fa-solid fa-right-from-bracket"></i> 

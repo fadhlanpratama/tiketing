@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Users; 
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
@@ -78,6 +77,8 @@ class AuthController extends Controller
                 'message' => 'Email atau password salah.'
             ], 401);
         }
+
+        $request->session()->regenerate();
 
         $request->session()->put([
             'user_id'      => $user->id,
