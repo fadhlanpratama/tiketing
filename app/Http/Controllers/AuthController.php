@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Users;
+use App\Models\Users; 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -17,16 +19,32 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
-            'nama_lengkap' => 'required|string|max:150',
-            'email'        => 'required|email|max:100|unique:users,email',
-            'no_telp'      => 'required|string|max:20',
-            'password'     => 'required|string|min:4|max:20'
-        ]);
+        try {
+            $request->validate([
+                'nama_lengkap' => 'required|string|min:3|max:150',
+                'email'        => 'required|email:rfc,dns|max:254|unique:users,email',
+                'divisi'       => 'required|string|max:150',
+                'no_telp'      => ['required', 'regex:/^[0-9+\-\s()]{8,20}$/'],
+                'password'     => [
+                    'required', 
+                    'string', 
+                    'confirmed', 
+                    Password::min(8)
+                        ->letters()
+                        ->numbers()
+                ]
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->validator->errors()->first()
+            ], 422);
+        }
 
         Users::create([
             'nama_lengkap' => $request->nama_lengkap,
             'email'        => $request->email,
+            'divisi'       => $request->divisi,
             'no_telp'      => $request->no_telp,
             'password'     => Hash::make($request->password),
             'role'         => 'user'          
@@ -40,10 +58,17 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'Email' => 'required|string',
-            'password' => 'required|string'
-        ]);
+        try {
+            $request->validate([
+                'Email'    => 'required|email:rfc,dns',
+                'password' => 'required|string'
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->validator->errors()->first()
+            ], 422);
+        }
 
         $user = Users::where('email', $request->Email)->first();
 
