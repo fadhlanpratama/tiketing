@@ -6,6 +6,7 @@
     <title>Buat Tiket Baru - Sistem Tiketing</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body class="bg-slate-50 min-h-screen font-sans antialiased flex flex-col p-4 sm:p-6 lg:p-8 items-center justify-center">
 
@@ -91,6 +92,7 @@
             </div>
 
             <div class="flex flex-row gap-3 justify-end pt-3 border-t border-slate-100">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <a href="{{ route('user.dashboard') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm px-5 py-2.5 rounded-xl transition text-center w-1/2 sm:w-auto">Batal</a>
                 <button type="submit" class="bg-[#0a2540] hover:bg-slate-800 text-white font-semibold text-sm px-6 py-2.5 rounded-xl shadow-md transition transform active:scale-95 cursor-pointer w-1/2 sm:w-auto text-center">Kirim Tiket</button>
             </div>
@@ -171,7 +173,7 @@
                 popupMessage.innerHTML = errors.map(err => `<div>${err}</div>`).join("");
                 popupNotification.classList.remove('hidden');
             } else {
-                ticketForm.submit();
+                ticketForm.submit(); 
             }
         });
     </script>

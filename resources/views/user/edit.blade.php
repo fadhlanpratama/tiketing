@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Tiket Pengaduan</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>ESDM - Sistem Tiketing - Edit Tiket</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </head>
@@ -16,9 +17,6 @@
                 <i class="fa-solid fa-pen-to-square text-amber-400 text-xl"></i>
                 <h3 class="text-sm sm:text-lg font-bold tracking-tight">Edit Tiket Laporan #TX-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</h3>
             </div>
-            <!-- <a href="{{ route('user.dashboard') }}" class="flex items-center gap-1.5 bg-slate-800 text-slate-300 hover:bg-amber-500 hover:text-[#0a2540] px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors duration-200 border border-slate-700 shadow-sm whitespace-nowrap">
-                <i class="fa-solid fa-arrow-left"></i> Kembali
-            </a> -->
         </div>
 
         <form id="ticketForm" action="{{ route('user.ticket.update', $ticket->id) }}" method="POST" enctype="multipart/form-data" class="p-5 sm:p-6 space-y-4" novalidate>

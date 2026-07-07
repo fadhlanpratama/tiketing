@@ -10,14 +10,16 @@ use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('cek.login');
+    }
+
     public function index()
     {
-        if (!session()->has('user_logged') || session('user_role') !== 'user') {
-            return redirect()->route('home');
-        }
-
-        $tickets = Ticket::with('pelapor')->latest()->paginate(5);
-        $counts = Ticket::selectRaw("
+        $userId = session('user_id');
+        $tickets = Ticket::where('user_id', $userId)->with('pelapor')->latest()->paginate(5);
+        $counts = Ticket::where('user_id', $userId)->selectRaw("
             COUNT(CASE WHEN status IN ('Open', 'In Progress') THEN 1 END) as aktif,
             COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as proses,
             COUNT(CASE WHEN status = 'Resolved' THEN 1 END) as selesai
@@ -33,13 +35,9 @@ class TicketController extends Controller
 
     public function create()
     {
-        if (!session()->has('user_logged') || session('user_role') !== 'user') {
-            return redirect()->route('home');
-        }
-
         $userId = session('user_id');
         $user = Users::find($userId);
-        $counts = Ticket::selectRaw("
+        $counts = Ticket::where('user_id', $userId)->selectRaw("
             COUNT(CASE WHEN status IN ('Open', 'In Progress') THEN 1 END) as aktif,
             COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as proses,
             COUNT(CASE WHEN status = 'Resolved' THEN 1 END) as selesai
@@ -65,7 +63,7 @@ class TicketController extends Controller
         ]);
 
         $ticket = new Ticket();
-        $ticket->user_id           = session('user_id', 1); 
+        $ticket->user_id           = session('user_id');
         $ticket->kategori          = $request->kategori;
         $ticket->sub_kategori      = $request->sub_kategori;
         $ticket->deskripsi_masalah = strip_tags($request->deskripsi_masalah);
@@ -85,13 +83,9 @@ class TicketController extends Controller
 
     public function edit(string $id)
     {
-        if (!session()->has('user_logged') || session('user_role') !== 'user') {
-            return redirect()->route('home');
-        }
-
-        $ticket = Ticket::findOrFail($id);
-
-        $counts = Ticket::selectRaw("
+        $userId = session('user_id');
+        $ticket = Ticket::where('id', $id)->where('user_id', $userId)->firstOrFail();
+        $counts = Ticket::where('user_id', $userId)->selectRaw("
             COUNT(CASE WHEN status IN ('Open', 'In Progress') THEN 1 END) as aktif,
             COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as proses,
             COUNT(CASE WHEN status = 'Resolved' THEN 1 END) as selesai
@@ -116,7 +110,8 @@ class TicketController extends Controller
             'attachment_foto'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048', 
         ]);
 
-        $ticket = Ticket::findOrFail($id);
+        $userId = session('user_id');
+        $ticket = Ticket::where('id', $id)->where('user_id', $userId)->firstOrFail();
         $ticket->kategori          = $request->kategori;
         $ticket->sub_kategori      = $request->sub_kategori;
         $ticket->deskripsi_masalah = strip_tags($request->deskripsi_masalah);
@@ -139,7 +134,8 @@ class TicketController extends Controller
 
     public function destroy(string $id)
     {
-        $ticket = Ticket::findOrFail($id);
+        $userId = session('user_id');
+        $ticket = Ticket::where('id', $id)->where('user_id', $userId)->firstOrFail();
         
         if ($ticket->attachment_foto) {
             Storage::disk('public')->delete($ticket->attachment_foto);
