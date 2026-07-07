@@ -45,9 +45,14 @@
                     <span class="text-[11px] bg-amber-400/20 text-amber-400 px-2 py-0.5 rounded-md uppercase font-bold">{{ session('user_role') }}</span>
                 </div>
             </div>
-            <a href="{{ route('logout') }}" class="flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white w-full py-2.5 rounded-xl text-xs font-semibold transition">
-                <i class="fa-solid fa-right-from-bracket"></i> Keluar Aplikasi
-            </a>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit"
+                    class="flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white w-full py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Keluar Aplikasi
+                </button>
+            </form>
         </div>
     </aside>
 
