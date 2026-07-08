@@ -60,7 +60,7 @@ class TicketController extends Controller
             'deskripsi_masalah' => 'required|string|max:2000',
             'nomor_bmn'         => 'nullable|string|max:30',
             'prioritas'         => 'required|in:Rendah,Sedang,Tinggi',
-            'attachment_foto'   => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'attachment_foto'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $ticket = new Ticket();
