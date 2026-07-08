@@ -50,15 +50,30 @@
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Sub-Kategori <span class="text-red-500">*</span></label>
-                <input type="text" id="inputSubKategori" name="sub_kategori" value="{{ $ticket->sub_kategori }}"
-                    placeholder="Ketik detail sub-kategori masalah di sini..." 
-                    class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:bg-white transition text-sm text-slate-700">
+                <div class="relative w-full text-left" id="subDropdownWrapper">
+                    <input type="hidden" id="selectSubKategori" name="sub_kategori" value="">
+
+                    <button type="button" id="subDropdownBtn" class="w-full bg-slate-50 border border-slate-200 p-3 pr-10 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-sm text-slate-700 font-medium flex justify-between items-center cursor-pointer hover:bg-slate-100/60">
+                        <span id="subDropdownLabel" class="truncate pr-2">-- Pilih Sub-Kategori --</span>
+                        <svg id="subDropdownArrow" class="h-4 w-4 text-[#0a2540]/70 transition-transform duration-200 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div id="subDropdownMenu" class="hidden absolute left-0 z-50 mt-1 w-full max-w-full box-border max-h-52 overflow-y-auto bg-white border border-slate-200 shadow-2xl rounded-xl p-1 space-y-0.5 text-sm text-slate-700 font-medium whitespace-normal break-words">
+                    </div>
+                </div>
+            </div>
+
+            <div id="wrapperSubKategoriManual" class="hidden transition-all duration-200">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Sebutkan Sub-Kategori Anda <span class="text-red-500">*</span></label>
+                <input type="text" id="inputSubKategoriManual" name="sub_kategori_manual" placeholder="Tulis sub-kategori secara spesifik di sini..." 
+                    class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:bg-white transition text-sm">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nomor BMN (Barang Milik Negara)</label>
                 <input type="text" id="inputBMN" name="nomor_bmn" 
-                    value="{{ $ticket->nomor_bmn == 'Bukan Aset BMN' ? '' : $ticket->nomor_bmn }}" 
+                    value="{{ $ticket->nomor_bmn == 'Non-BMN' ? '' : $ticket->nomor_bmn }}" 
                     placeholder="Format: BMN-TAHUN-NOMOR-JENIS" 
                     class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:bg-white transition text-sm font-mono">
                 <p class="text-[10px] text-slate-400 mt-1">*Ubah jika ada penyesuaian aset BMN, atau biarkan jika data sudah sesuai.</p>
@@ -85,7 +100,7 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Ganti Lampiran Foto <span class="text-red-500">*</span></label>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Ganti Lampiran Foto</label>
                 <input type="file" id="inputFoto" name="attachment_foto" accept="image/*" class="w-full text-xs sm:text-sm text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 file:cursor-pointer">
                 @if($ticket->attachment_foto)
                     <div class="flex items-center gap-2 mt-2 text-xs text-green-600 bg-green-50 p-2 rounded-lg border border-green-100">
@@ -93,7 +108,7 @@
                         <span>File lampiran foto saat ini aman tersimpan di sistem.</span>
                     </div>
                 @endif
-                <p class="text-[10px] text-slate-400 mt-1">*Format gambar (.jpg, .png), maksimal file 2MB</p>
+                <p class="text-[10px] text-slate-400 mt-1">*Format gambar (.jpg, .png), maksimal file 2MB. Kosongkan jika tidak ingin mengubah foto.</p>
             </div>
 
             <div class="flex flex-row gap-3 justify-end pt-3 border-t border-slate-100">
@@ -119,9 +134,30 @@
     </div>
 
     <script>
+        const dataSubKategori = {
+            "IT—Hardware": ["Komputer rusak", "Monitor bermasalah", "Printer mati"],
+            "IT—Software": ["Instalasi aplikasi", "Error sistem", "Akun terkunci"],
+            "IT—Jaringan": ["Internet lambat", "WiFi tidak konek", "VPN bermasalah"],
+            "Sarana - Prasarana": ["AC rusak", "Kebersihan", "Kerusakan furnitur", "Listrik"],
+            "Administrasi": ["Permintaan dokumen", "ATK", "Surat-menyurat"]
+        };
+
         const selectKategori = document.getElementById('selectKategori');
-        const inputSubKategori = document.getElementById('inputSubKategori');
-        const inputBMN = document.getElementById('inputBMN');
+        const selectSubKategori = document.getElementById('selectSubKategori');
+        
+        const dropdownBtn = document.getElementById('dropdownBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const dropdownLabel = document.getElementById('dropdownLabel');
+        const dropdownArrow = document.getElementById('dropdownArrow');
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+        const subDropdownBtn = document.getElementById('subDropdownBtn');
+        const subDropdownMenu = document.getElementById('subDropdownMenu');
+        const subDropdownLabel = document.getElementById('subDropdownLabel');
+        const subDropdownArrow = document.getElementById('subDropdownArrow');
+
+        const wrapperSubKategoriManual = document.getElementById('wrapperSubKategoriManual');
+        const inputSubKategoriManual = document.getElementById('inputSubKategoriManual');
         const deskripsiMasalah = document.getElementById('deskripsiMasalah');
         const inputFoto = document.getElementById('inputFoto');
         const ticketForm = document.getElementById('ticketForm');
@@ -131,23 +167,36 @@
         const closePopup = document.getElementById('closePopup');
         const hasExistingPhoto = '{{ $ticket->attachment_foto ? "true" : "false" }}' === 'true';
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const dropdownBtn = document.getElementById('dropdownBtn');
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            const dropdownLabel = document.getElementById('dropdownLabel');
-            const dropdownArrow = document.getElementById('dropdownArrow');
-            const dropdownItems = document.querySelectorAll('.dropdown-item');
+        const savedKategori = selectKategori.value;
+        const savedSubKategori = "{{ $ticket->sub_kategori }}";
 
-            const initialValue = selectKategori.value;
-            if (initialValue) {
-                const selectedItem = Array.from(dropdownItems).find(item => item.getAttribute('data-value') === initialValue);
-                if (selectedItem) {
-                    dropdownLabel.innerText = selectedItem.innerText;
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            if (savedKategori) {
+                const activeItem = Array.from(dropdownItems).find(item => item.getAttribute('data-value') === savedKategori);
+                if (activeItem) {
+                    dropdownLabel.innerText = activeItem.innerText;
+                }
+                
+                buildSubDropdownMenu(savedKategori);
+                
+                const currentGroup = dataSubKategori[savedKategori] || [];
+                if (currentGroup.includes(savedSubKategori)) {
+                    selectSubKategori.value = savedSubKategori;
+                    subDropdownLabel.innerText = savedSubKategori;
+                } else if(savedSubKategori && savedSubKategori.trim() !== "") {
+                    selectSubKategori.value = "Lainnya";
+                    subDropdownLabel.innerText = "Lainnya";
+                    wrapperSubKategoriManual.classList.remove('hidden');
+                    inputSubKategoriManual.value = savedSubKategori;
                 }
             }
 
             dropdownBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                subDropdownMenu.classList.add('hidden');
+                subDropdownArrow.classList.remove('rotate-180');
+
                 const isOpen = !dropdownMenu.classList.contains('hidden');
                 if (isOpen) {
                     dropdownMenu.classList.add('hidden');
@@ -161,28 +210,77 @@
             dropdownItems.forEach(item => {
                 item.addEventListener('click', () => {
                     const val = item.getAttribute('data-value');
-                    const text = item.innerText;
-                    
                     selectKategori.value = val;
-                    dropdownLabel.innerText = text;
+                    dropdownLabel.innerText = item.innerText;
                     
                     dropdownMenu.classList.add('hidden');
                     dropdownArrow.classList.remove('rotate-180');
 
+                    selectSubKategori.value = "";
+                    subDropdownLabel.innerText = "-- Pilih Sub-Kategori --";
+                    wrapperSubKategoriManual.classList.add('hidden');
+                    inputSubKategoriManual.value = '';
+
                     if(val) {
-                        inputSubKategori.disabled = false;
-                        inputSubKategori.placeholder = "Ketik detail sub-kategori masalah di sini...";
-                        inputSubKategori.classList.remove('bg-slate-100');
-                        inputSubKategori.classList.add('bg-slate-50');
+                        buildSubDropdownMenu(val);
                     }
                 });
+            });
+
+            subDropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.add('hidden');
+                dropdownArrow.classList.remove('rotate-180');
+
+                const isOpen = !subDropdownMenu.classList.contains('hidden');
+                if (isOpen) {
+                    subDropdownMenu.classList.add('hidden');
+                    subDropdownArrow.classList.remove('rotate-180');
+                } else {
+                    subDropdownMenu.classList.remove('hidden');
+                    subDropdownArrow.classList.add('rotate-180');
+                }
             });
 
             document.addEventListener('click', () => {
                 dropdownMenu.classList.add('hidden');
                 dropdownArrow.classList.remove('rotate-180');
+                subDropdownMenu.classList.add('hidden');
+                subDropdownArrow.classList.remove('rotate-180');
             });
         });
+
+        function buildSubDropdownMenu(kategoriValue) {
+            subDropdownMenu.innerHTML = "";
+            let listItems = dataSubKategori[kategoriValue] ? [...dataSubKategori[kategoriValue]] : [];
+            listItems.push("Lainnya");
+
+            listItems.forEach(itemText => {
+                let div = document.createElement('div');
+                div.className = "sub-dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900";
+                div.setAttribute('data-value', itemText);
+                div.innerText = itemText;
+
+                div.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const val = div.getAttribute('data-value');
+                    
+                    selectSubKategori.value = val;
+                    subDropdownLabel.innerText = val;
+
+                    subDropdownMenu.classList.add('hidden');
+                    subDropdownArrow.classList.remove('rotate-180');
+
+                    if (val === "Lainnya") {
+                        wrapperSubKategoriManual.classList.remove('hidden');
+                    } else {
+                        wrapperSubKategoriManual.classList.add('hidden');
+                        inputSubKategoriManual.value = '';
+                    }
+                });
+                subDropdownMenu.appendChild(div);
+            });
+        }
 
         closePopup.addEventListener('click', () => {
             popupNotification.classList.add('hidden');
@@ -195,8 +293,11 @@
             if (!selectKategori.value) {
                 errors.push("• Silakan pilih kategori utama.");
             }
-            if (inputSubKategori.disabled || !inputSubKategori.value.trim()) {
-                errors.push("• Silakan isi sub-kategori.");
+            if (!selectSubKategori.value) {
+                errors.push("• Silakan pilih sub-kategori.");
+            }
+            if (selectSubKategori.value === "Lainnya" && !inputSubKategoriManual.value.trim()) {
+                errors.push("• Silakan ketik detail sub-kategori manual Anda.");
             }
             if (!deskripsiMasalah.value.trim()) {
                 errors.push("• Silakan isi deskripsi masalah.");
@@ -204,6 +305,7 @@
             if (!hasExistingPhoto && inputFoto.files.length === 0) {
                 errors.push("• Silakan unggah lampiran foto.");
             }
+
             if (errors.length > 0) {
                 popupMessage.innerHTML = errors.map(err => `<div>${err}</div>`).join("");
                 popupNotification.classList.remove('hidden');

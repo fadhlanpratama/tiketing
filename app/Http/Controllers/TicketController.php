@@ -56,6 +56,7 @@ class TicketController extends Controller
         $request->validate([
             'kategori'          => 'required|string|max:50',
             'sub_kategori'      => 'required|string|max:100',
+            'sub_kategori_manual'  => 'required_if:sub_kategori,Lainnya|nullable|string|max:100',
             'deskripsi_masalah' => 'required|string|max:2000',
             'nomor_bmn'         => 'nullable|string|max:30',
             'prioritas'         => 'required|in:Rendah,Sedang,Tinggi',
@@ -70,6 +71,12 @@ class TicketController extends Controller
         $ticket->nomor_bmn         = strip_tags($request->nomor_bmn);
         $ticket->prioritas         = $request->prioritas;
         $ticket->status            = 'Open'; 
+
+        if ($request->sub_kategori === 'Lainnya') {
+            $ticket->sub_kategori  = strip_tags($request->sub_kategori_manual);
+        } else {
+            $ticket->sub_kategori  = $request->sub_kategori;
+        }
 
         if ($request->filled('nomor_bmn')) {
             $ticket->nomor_bmn = strip_tags($request->nomor_bmn);
@@ -110,8 +117,9 @@ class TicketController extends Controller
         $request->validate([
             'kategori'          => 'required|string|max:50',
             'sub_kategori'      => 'required|string|max:100',
+            'sub_kategori_manual'  => 'required_if:sub_kategori,Lainnya|nullable|string|max:100',
             'deskripsi_masalah' => 'required|string|max:2000',
-            'nomor_bmn'         => 'required|string|max:30',
+            'nomor_bmn'         => 'nullable|string|max:30',
             'prioritas'         => 'required|in:Rendah,Sedang,Tinggi',
             'attachment_foto'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048', 
         ]);
@@ -123,6 +131,18 @@ class TicketController extends Controller
         $ticket->deskripsi_masalah = strip_tags($request->deskripsi_masalah);
         $ticket->nomor_bmn         = strip_tags($request->nomor_bmn);
         $ticket->prioritas         = $request->prioritas;
+        
+        if ($request->sub_kategori === 'Lainnya') {
+            $ticket->sub_kategori  = strip_tags($request->sub_kategori_manual);
+        } else {
+            $ticket->sub_kategori  = $request->sub_kategori;
+        }
+
+        if ($request->filled('nomor_bmn')) {
+            $ticket->nomor_bmn = strip_tags($request->nomor_bmn);
+        } else {
+            $ticket->nomor_bmn = 'Non-BMN';
+        }
 
         if ($request->hasFile('attachment_foto')) {
             if ($ticket->attachment_foto) {
