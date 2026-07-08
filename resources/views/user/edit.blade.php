@@ -76,7 +76,7 @@
                     value="{{ $ticket->nomor_bmn == 'Non-BMN' ? '' : $ticket->nomor_bmn }}" 
                     placeholder="Format: BMN-TAHUN-NOMOR-JENIS" 
                     class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:bg-white transition text-sm font-mono">
-                <p class="text-[10px] text-slate-400 mt-1">*Ubah jika ada penyesuaian aset BMN, atau biarkan jika data sudah sesuai.</p>
+                <p class="text-[10px] text-slate-400 mt-1">*Ubah jika ada penyesuaian aset BMN, atau Kosongkan jika masalah tidak berkaitan dengan aset BMN.</p>
             </div>
 
             <div>
@@ -100,7 +100,7 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Ganti Lampiran Foto</label>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Lampiran Foto dokumen / kerusakan</label>
                 <input type="file" id="inputFoto" name="attachment_foto" accept="image/*" class="w-full text-xs sm:text-sm text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 file:cursor-pointer">
                 @if($ticket->attachment_foto)
                     <div class="flex items-center gap-2 mt-2 text-xs text-green-600 bg-green-50 p-2 rounded-lg border border-green-100">
@@ -302,10 +302,6 @@
             if (!deskripsiMasalah.value.trim()) {
                 errors.push("• Silakan isi deskripsi masalah.");
             }
-            if (!hasExistingPhoto && inputFoto.files.length === 0) {
-                errors.push("• Silakan unggah lampiran foto.");
-            }
-
             if (errors.length > 0) {
                 popupMessage.innerHTML = errors.map(err => `<div>${err}</div>`).join("");
                 popupNotification.classList.remove('hidden');
