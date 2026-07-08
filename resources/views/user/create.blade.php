@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buat Tiket Baru - Sistem Tiketing</title>
+    <title>ESDM - Sistem Tiketing - Buat Tiket Baru</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -64,9 +64,25 @@
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Sub-Kategori <span class="text-red-500">*</span></label>
-                <input type="text" id="inputSubKategori" name="sub_kategori" disabled
-                    placeholder="Silakan pilih kategori utama terlebih dahulu" 
-                    class="w-full bg-slate-100 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:bg-white transition text-sm text-slate-700 disabled:opacity-60 disabled:cursor-not-allowed">
+                <div class="relative w-full text-left" id="subDropdownWrapper">
+                    <input type="hidden" id="selectSubKategori" name="sub_kategori" value="">
+
+                    <button type="button" id="subDropdownBtn" disabled class="w-full bg-slate-100 border border-slate-200 p-3 pr-10 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-sm text-slate-400 font-medium flex justify-between items-center opacity-60 cursor-not-allowed hover:bg-slate-100/60">
+                        <span id="subDropdownLabel" class="truncate pr-2">Silakan pilih kategori utama terlebih dahulu</span>
+                        <svg id="subDropdownArrow" class="h-4 w-4 text-[#0a2540]/70 transition-transform duration-200 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <div id="subDropdownMenu" class="hidden absolute left-0 z-50 mt-1 w-full max-w-full box-border max-h-52 overflow-y-auto bg-white border border-slate-200 shadow-2xl rounded-xl p-1 space-y-0.5 text-sm text-slate-700 font-medium whitespace-normal break-words">
+                        </div>
+                </div>
+            </div>
+
+            <div id="wrapperSubKategoriManual" class="hidden transition-all duration-200">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Sebutkan Sub-Kategori Anda <span class="text-red-500">*</span></label>
+                <input type="text" id="inputSubKategoriManual" name="sub_kategori_manual" placeholder="Tulis sub-kategori secara spesifik di sini..." 
+                    class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:bg-white transition text-sm">
             </div>
 
             <div>
@@ -125,8 +141,30 @@
     </div>
 
     <script>
+        const dataSubKategori = {
+            "IT—Hardware": ["Komputer rusak", "Monitor bermasalah", "Printer mati"],
+            "IT—Software": ["Instalasi aplikasi", "Error sistem", "Akun terkunci"],
+            "IT—Jaringan": ["Internet lambat", "WiFi tidak konek", "VPN bermasalah"],
+            "Sarana - Prasarana": ["AC rusak", "Kebersihan", "Kerusakan furnitur", "Listrik"],
+            "Administrasi": ["Permintaan dokumen", "ATK", "Surat-menyurat"]
+        };
+
         const selectKategori = document.getElementById('selectKategori');
-        const inputSubKategori = document.getElementById('inputSubKategori');
+        const selectSubKategori = document.getElementById('selectSubKategori');
+        
+        const dropdownBtn = document.getElementById('dropdownBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const dropdownLabel = document.getElementById('dropdownLabel');
+        const dropdownArrow = document.getElementById('dropdownArrow');
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+        const subDropdownBtn = document.getElementById('subDropdownBtn');
+        const subDropdownMenu = document.getElementById('subDropdownMenu');
+        const subDropdownLabel = document.getElementById('subDropdownLabel');
+        const subDropdownArrow = document.getElementById('subDropdownArrow');
+
+        const wrapperSubKategoriManual = document.getElementById('wrapperSubKategoriManual');
+        const inputSubKategoriManual = document.getElementById('inputSubKategoriManual');
         const inputBMN = document.getElementById('inputBMN');
         const deskripsiMasalah = document.getElementById('deskripsiMasalah');
         const inputFoto = document.getElementById('inputFoto');
@@ -137,14 +175,12 @@
         const closePopup = document.getElementById('closePopup');
 
         document.addEventListener('DOMContentLoaded', () => {
-            const dropdownBtn = document.getElementById('dropdownBtn');
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            const dropdownLabel = document.getElementById('dropdownLabel');
-            const dropdownArrow = document.getElementById('dropdownArrow');
-            const dropdownItems = document.querySelectorAll('.dropdown-item');
-
+            
             dropdownBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                subDropdownMenu.classList.add('hidden');
+                subDropdownArrow.classList.remove('rotate-180');
+
                 const isOpen = !dropdownMenu.classList.contains('hidden');
                 if (isOpen) {
                     dropdownMenu.classList.add('hidden');
@@ -168,20 +204,86 @@
                     dropdownMenu.classList.add('hidden');
                     dropdownArrow.classList.remove('rotate-180');
 
+                    selectSubKategori.value = "";
+                    subDropdownLabel.innerText = "-- Pilih Sub-Kategori --";
+                    subDropdownLabel.classList.remove('text-slate-700');
+                    subDropdownLabel.classList.add('text-slate-400');
+                    wrapperSubKategoriManual.classList.add('hidden');
+                    inputSubKategoriManual.value = '';
+
                     if(val) {
-                        inputSubKategori.disabled = false;
-                        inputSubKategori.placeholder = "Masukan detail sub-kategori masalah di sini...";
-                        inputSubKategori.classList.remove('bg-slate-100');
-                        inputSubKategori.classList.add('bg-slate-50');
+                        subDropdownBtn.disabled = false;
+                        subDropdownBtn.classList.remove('bg-slate-100', 'opacity-60', 'cursor-not-allowed');
+                        subDropdownBtn.classList.add('bg-slate-50', 'cursor-pointer');
+                        buildSubDropdownMenu(val);
                     }
                 });
+            });
+
+            subDropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.add('hidden');
+                dropdownArrow.classList.remove('rotate-180');
+
+                if (subDropdownBtn.disabled) return;
+
+                const isOpen = !subDropdownMenu.classList.contains('hidden');
+                if (isOpen) {
+                    subDropdownMenu.classList.add('hidden');
+                    subDropdownArrow.classList.remove('rotate-180');
+                } else {
+                    subDropdownMenu.classList.remove('hidden');
+                    subDropdownArrow.classList.add('rotate-180');
+                }
             });
 
             document.addEventListener('click', () => {
                 dropdownMenu.classList.add('hidden');
                 dropdownArrow.classList.remove('rotate-180');
+                subDropdownMenu.classList.add('hidden');
+                subDropdownArrow.classList.remove('rotate-180');
             });
         });
+
+        function buildSubDropdownMenu(kategoriValue) {
+            subDropdownMenu.innerHTML = "";
+            let listItems = [];
+
+            if (dataSubKategori[kategoriValue]) {
+                listItems = [...dataSubKategori[kategoriValue]];
+            }
+            
+            listItems.push("Lainnya");
+
+            listItems.forEach(itemText => {
+                let div = document.createElement('div');
+                div.className = "sub-dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900";
+                div.setAttribute('data-value', itemText);
+                div.innerText = itemText;
+
+                div.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const val = div.getAttribute('data-value');
+                    
+                    selectSubKategori.value = val;
+                    subDropdownLabel.innerText = val;
+                    subDropdownLabel.classList.remove('text-slate-400');
+                    subDropdownLabel.classList.add('text-slate-700');
+
+                    subDropdownMenu.classList.add('hidden');
+                    subDropdownArrow.classList.remove('rotate-180');
+
+                    if (val === "Lainnya") {
+                        wrapperSubKategoriManual.classList.remove('hidden');
+                    } else {
+                        wrapperSubKategoriManual.classList.add('hidden');
+                        inputSubKategoriManual.value = '';
+                    }
+                });
+
+                subDropdownMenu.appendChild(div);
+            });
+        }
 
         closePopup.addEventListener('click', () => {
             popupNotification.classList.add('hidden');
@@ -195,8 +297,12 @@
                 errors.push("• Silakan pilih kategori utama.");
             }
 
-            if (inputSubKategori.disabled || !inputSubKategori.value.trim()) {
-                errors.push("• Silakan isi sub-kategori.");
+            if (!selectSubKategori.value) {
+                errors.push("• Silakan pilih sub-kategori.");
+            }
+
+            if (selectSubKategori.value === "Lainnya" && !inputSubKategoriManual.value.trim()) {
+                errors.push("• Silakan ketik detail sub-kategori manual Anda.");
             }
 
             if (!deskripsiMasalah.value.trim()) {
