@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESDM - Sistem Tiketing - Dashboard </title>
+    <title>ESDM - Sistem Tiketing - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </head>
@@ -18,18 +18,30 @@
                     <span class="text-[9px] sm:text-[10px] text-amber-400 uppercase font-bold tracking-widest block">Portal Pengguna</span>
                 </div>
             </div>
-            <div class="flex items-center gap-4 sm:gap-6">
-                <div class="text-right hidden sm:block">
-                    <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Pengguna</p>
-                    <p class="text-sm font-bold text-white mt-0.5">{{ session('nama_lengkap', 'Pegawai ESDM') }}</p>
+            
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="text-right hidden sm:flex items-center gap-3">
+                    <div>
+                        <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Pengguna</p>
+                        <p class="text-sm font-bold text-white mt-0.5">{{ session('nama_lengkap', 'Pegawai ESDM') }}</p>
+                    </div>
+                    <a href="#" class="bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white w-9 h-9 flex items-center justify-center rounded-xl transition text-xs" title="Edit Profil">
+                        <i class="fa-solid fa-user-gear text-sm"></i>
+                    </a>
                 </div>
-                <div class="h-6 w-px bg-slate-700 hidden sm:block"></div>
+                
+                <a href="#" class="sm:hidden bg-slate-700/40 text-amber-400 w-10 h-10 flex flex-col items-center justify-center rounded-xl border border-slate-700/60 active:scale-95 transition" title="Edit Profil">
+                    <i class="fa-solid fa-user-gear text-sm"></i>
+                    <span class="text-[8px] font-bold tracking-tight mt-0.5">Profil</span>
+                </a>
+
+                <div class="h-6 w-px bg-slate-700"></div>
                 
                 <form action="{{ route('logout') }}" method="POST" class="inline">
                     @csrf
-                    <button type="submit" class="flex items-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs font-semibold transition shadow-sm cursor-pointer">
+                    <button type="submit" class="flex items-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white px-3.5 py-2.5 sm:px-4 rounded-xl text-xs font-semibold transition shadow-sm cursor-pointer">
                         <i class="fa-solid fa-right-from-bracket"></i> 
-                        <span class="hidden xs:inline">Logout</span>
+                        <span class="hidden md:inline">Logout</span>
                     </button>
                 </form>
             </div>
@@ -100,7 +112,13 @@
                             <td class="p-4 pl-6 font-semibold text-slate-700">#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</td>
                             <td class="p-4">
                                 <p class="font-medium text-slate-800">{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}</p>
-                                <span class="text-[11px] text-slate-400 block mt-0.5">Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-x-2 text-[11px] text-slate-400 mt-0.5">
+                                    <span>Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
+                                    @if($ticket->updated_at && $ticket->updated_at->ne($ticket->created_at))
+                                        <span class="hidden sm:inline text-slate-300">|</span>
+                                        <span class="text-amber-600 font-medium"><i class="fa-solid fa-pen-to-square text-[10px]"></i> Diubah: {{ $ticket->updated_at->format('Y-m-d, H:i') }} WIB</span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="p-4">
                                 @if(strtolower($ticket->prioritas) == 'high' || strtolower($ticket->prioritas) == 'tinggi')
@@ -121,7 +139,20 @@
                                 @endif
                             </td>
                             <td class="p-4 pr-6 flex items-center justify-center gap-2">
-                                <button type="button" class="btn-detail-ticket text-slate-600 hover:text-slate-800 font-semibold text-xs px-2.5 py-1.5 bg-slate-100 rounded-lg transition cursor-pointer" data-id="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}" data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}" data-bmn="{{ $ticket->nomor_bmn ?? '-' }}" data-prioritas="{{ $ticket->prioritas }}" data-status="{{ $ticket->status }}" data-deskripsi="{{ $ticket->deskripsi_masalah }}" data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB" data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}" data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}" data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}"><i class="fa-solid fa-eye"></i> Detail</button>
+                                <button type="button" class="btn-detail-ticket text-slate-600 hover:text-slate-800 font-semibold text-xs px-2.5 py-1.5 bg-slate-100 rounded-lg transition cursor-pointer" 
+                                    data-id="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}" 
+                                    data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}" 
+                                    data-bmn="{{ $ticket->nomor_bmn ?? '-' }}" 
+                                    data-prioritas="{{ $ticket->prioritas }}" 
+                                    data-status="{{ $ticket->status }}" 
+                                    data-deskripsi="{{ $ticket->deskripsi_masalah }}" 
+                                    data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB" 
+                                    data-diubah="@if($ticket->updated_at && $ticket->updated_at->ne($ticket->created_at)) Diubah: {{ $ticket->updated_at->format('Y-m-d, H:i') }} WIB @endif"
+                                    data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}" 
+                                    data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}" 
+                                    data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}">
+                                    <i class="fa-solid fa-eye"></i> Detail
+                                </button>
                                 <a href="{{ route('user.ticket.edit', $ticket->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-xs px-2.5 py-1.5 bg-blue-50 rounded-lg transition"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
                                 <button type="button" class="btn-delete-trigger text-red-600 hover:text-red-800 font-semibold text-xs px-2.5 py-1.5 bg-red-50 rounded-lg transition cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"><i class="fa-solid fa-trash-can"></i> Hapus</button>
                             </td>
@@ -151,8 +182,15 @@
                     <div>
                         <h4 class="font-bold text-slate-800 text-sm">{{ $ticket->kategori }}</h4>
                         <p class="text-xs text-slate-600 mt-0.5">{{ $ticket->sub_kategori }}</p>
-                        <span class="text-[10px] text-slate-400 block mt-2"><i class="fa-regular fa-clock"></i> {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
-                        <span class="text-[10px] font-semibold text-slate-500 block mt-1">
+                        
+                        <div class="space-y-0.5 mt-2">
+                            <span class="text-[10px] text-slate-400 block"><i class="fa-regular fa-clock"></i> Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
+                            @if($ticket->updated_at && $ticket->updated_at->ne($ticket->created_at))
+                                <span class="text-[10px] text-amber-600 font-medium block"><i class="fa-solid fa-pen-to-square"></i> Diubah: {{ $ticket->updated_at->format('Y-m-d, H:i') }} WIB</span>
+                            @endif
+                        </div>
+
+                        <span class="text-[10px] font-semibold text-slate-500 block mt-2">
                             <i class="fa-solid fa-layer-group"></i> Prioritas: 
                             <span class="font-bold {{ (strtolower($ticket->prioritas) == 'high' || strtolower($ticket->prioritas) == 'tinggi') ? 'text-red-600' : ((strtolower($ticket->prioritas) == 'medium' || strtolower($ticket->prioritas) == 'sedang') ? 'text-amber-600' : 'text-slate-600') }}">
                                 {{ $ticket->prioritas ?? 'Low' }}
@@ -160,7 +198,18 @@
                         </span>
                     </div>
                     <div class="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-200/60">
-                        <button type="button" class="btn-detail-ticket text-center text-slate-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}" data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}" data-bmn="{{ $ticket->nomor_bmn ?? '-' }}" data-prioritas="{{ $ticket->prioritas }}" data-status="{{ $ticket->status }}" data-deskripsi="{{ $ticket->deskripsi_masalah }}" data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB" data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}" data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}" data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}">Detail</button>
+                        <button type="button" class="btn-detail-ticket text-center text-slate-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" 
+                            data-id="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}" 
+                            data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}" 
+                            data-bmn="{{ $ticket->nomor_bmn ?? '-' }}" 
+                            data-prioritas="{{ $ticket->prioritas }}" 
+                            data-status="{{ $ticket->status }}" 
+                            data-deskripsi="{{ $ticket->deskripsi_masalah }}" 
+                            data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB" 
+                            data-diubah="@if($ticket->updated_at && $ticket->updated_at->ne($ticket->created_at)) Diubah: {{ $ticket->updated_at->format('Y-m-d, H:i') }} WIB @endif"
+                            data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}" 
+                            data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}" 
+                            data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}">Detail</button>
                         <a href="{{ route('user.ticket.edit', $ticket->id) }}" class="text-center text-blue-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl">Edit</a>
                         <button type="button" class="btn-delete-trigger text-center text-red-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">Hapus</button>
                     </div>
@@ -201,7 +250,10 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tanggal Pengajuan</p>
-                        <p id="detailTanggal" class="font-medium text-slate-800 bg-slate-50 p-2.5 rounded-xl border border-slate-100">-</p>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <p id="detailTanggal" class="font-medium text-slate-800">-</p>
+                            <p id="detailDiubah" class="text-[11px] text-amber-600 font-semibold mt-0.5"></p>
+                        </div>
                     </div>
                     <div>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Penanggung Jawab (PJ)</p>
@@ -320,6 +372,7 @@
                 const deskripsi = this.getAttribute('data-deskripsi');
                 const foto = this.getAttribute('data-foto');
                 const tanggal = this.getAttribute('data-tanggal');
+                const diubah = this.getAttribute('data-diubah');
                 const pj = this.getAttribute('data-pj');
                 const selesai = this.getAttribute('data-selesai');
 
@@ -331,6 +384,15 @@
                 document.getElementById('detailTanggal').innerText = tanggal;
                 document.getElementById('detailPj').innerText = pj;
                 document.getElementById('detailSelesai').innerText = selesai;
+
+                const diubahEl = document.getElementById('detailDiubah');
+                if(diubah && diubah.trim() !== "") {
+                    diubahEl.innerText = diubah;
+                    diubahEl.style.display = 'block';
+                } else {
+                    diubahEl.innerText = '';
+                    diubahEl.style.display = 'none';
+                }
 
                 const statusEl = document.getElementById('detailStatus');
                 if (status === 'Open') {
