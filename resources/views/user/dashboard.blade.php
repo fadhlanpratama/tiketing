@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESDM - Sistem Tiketing - Dashboard   </title>
+    <title>ESDM - Sistem Tiketing - Dashboard </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </head>
@@ -83,14 +83,13 @@
                 </div>
             </div>
 
-            <!-- Tampilan 1: Desktop Mode -->
             <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 font-semibold text-xs tracking-wider border-b border-slate-100">
                             <th class="p-4 pl-6">ID TIKET</th>
                             <th class="p-4">KATEGORI PERMINTAAN</th>
-                            <th class="p-4">NOMOR BMN</th>
+                            <th class="p-4">PRIORITAS</th>
                             <th class="p-4">STATUS</th>
                             <th class="p-4 pr-6 text-center">AKSI</th>
                         </tr>
@@ -98,12 +97,20 @@
                     <tbody class="text-sm text-slate-600 divide-y divide-slate-100">
                         @forelse($tickets as $ticket)
                         <tr class="hover:bg-slate-50/50 transition">
-                            <td class="p-4 pl-6 font-semibold text-slate-700">#TX-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</td>
+                            <td class="p-4 pl-6 font-semibold text-slate-700">#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</td>
                             <td class="p-4">
                                 <p class="font-medium text-slate-800">{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}</p>
-                                <span class="text-[11px] text-slate-400 block mt-0.5">Diajukan: {{ $ticket->created_at->format('d M Y, H:i') }} WIB</span>
+                                <span class="text-[11px] text-slate-400 block mt-0.5">Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
                             </td>
-                            <td class="p-4 font-mono text-xs text-slate-500">{{ $ticket->nomor_bmn ?? '-' }}</td>
+                            <td class="p-4">
+                                @if(strtolower($ticket->prioritas) == 'high' || strtolower($ticket->prioritas) == 'tinggi')
+                                    <span class="text-red-600 font-bold bg-red-50 px-2 py-1 rounded-lg text-xs border border-red-100"><i class="fa-solid fa-triangle-exclamation mr-1"></i>{{ $ticket->prioritas }}</span>
+                                @elseif(strtolower($ticket->prioritas) == 'medium' || strtolower($ticket->prioritas) == 'sedang')
+                                    <span class="text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded-lg text-xs border border-amber-100"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $ticket->prioritas }}</span>
+                                @else
+                                    <span class="text-slate-600 font-bold bg-slate-100 px-2 py-1 rounded-lg text-xs"><i class="fa-solid fa-circle-info mr-1"></i>{{ $ticket->prioritas ?? 'Low' }}</span>
+                                @endif
+                            </td>
                             <td class="p-4">
                                 @if($ticket->status == 'Open')
                                     <span class="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Open</span>
@@ -114,9 +121,9 @@
                                 @endif
                             </td>
                             <td class="p-4 pr-6 flex items-center justify-center gap-2">
-                                <button type="button" class="btn-detail-ticket text-slate-600 hover:text-slate-800 font-semibold text-xs px-2.5 py-1.5 bg-slate-100 rounded-lg transition cursor-pointer" data-id="#TX-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}" data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}" data-bmn="{{ $ticket->nomor_bmn ?? '-' }}" data-prioritas="{{ $ticket->prioritas }}" data-status="{{ $ticket->status }}" data-deskripsi="{{ $ticket->deskripsi_masalah }}" data-tanggal="{{ $ticket->created_at->format('d F Y, H:i') }} WIB" data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}" data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('d F Y, H:i') . ' WIB' : 'Belum Selesai' }}" data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}"><i class="fa-solid fa-eye"></i> Detail</button>
+                                <button type="button" class="btn-detail-ticket text-slate-600 hover:text-slate-800 font-semibold text-xs px-2.5 py-1.5 bg-slate-100 rounded-lg transition cursor-pointer" data-id="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}" data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}" data-bmn="{{ $ticket->nomor_bmn ?? '-' }}" data-prioritas="{{ $ticket->prioritas }}" data-status="{{ $ticket->status }}" data-deskripsi="{{ $ticket->deskripsi_masalah }}" data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB" data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}" data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}" data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}"><i class="fa-solid fa-eye"></i> Detail</button>
                                 <a href="{{ route('user.ticket.edit', $ticket->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-xs px-2.5 py-1.5 bg-blue-50 rounded-lg transition"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
-                                <button type="button" class="btn-delete-trigger text-red-600 hover:text-red-800 font-semibold text-xs px-2.5 py-1.5 bg-red-50 rounded-lg transition cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TX-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"><i class="fa-solid fa-trash-can"></i> Hapus</button>
+                                <button type="button" class="btn-delete-trigger text-red-600 hover:text-red-800 font-semibold text-xs px-2.5 py-1.5 bg-red-50 rounded-lg transition cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"><i class="fa-solid fa-trash-can"></i> Hapus</button>
                             </td>
                         </tr>
                         @empty
@@ -128,12 +135,11 @@
                 </table>
             </div>
 
-            <!-- Tampilan 2: Mobile Mode -->
             <div class="md:hidden p-4 space-y-4">
                 @forelse($tickets as $ticket)
                 <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-3 relative">
                     <div class="flex justify-between items-center">
-                        <span class="font-bold text-slate-700">#TX-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</span>
+                        <span class="font-bold text-slate-700">#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</span>
                         @if($ticket->status == 'Open')
                             <span class="bg-amber-100 text-amber-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Open</span>
                         @elseif($ticket->status == 'In Progress')
@@ -145,13 +151,18 @@
                     <div>
                         <h4 class="font-bold text-slate-800 text-sm">{{ $ticket->kategori }}</h4>
                         <p class="text-xs text-slate-600 mt-0.5">{{ $ticket->sub_kategori }}</p>
-                        <span class="text-[10px] text-slate-400 block mt-2"><i class="fa-regular fa-clock"></i> {{ $ticket->created_at->format('d M Y, H:i') }} WIB</span>
-                        <span class="text-[10px] font-mono text-slate-400 block mt-0.5"><i class="fa-solid fa-barcode"></i> BMN: {{ $ticket->nomor_bmn ?? '-' }}</span>
+                        <span class="text-[10px] text-slate-400 block mt-2"><i class="fa-regular fa-clock"></i> {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
+                        <span class="text-[10px] font-semibold text-slate-500 block mt-1">
+                            <i class="fa-solid fa-layer-group"></i> Prioritas: 
+                            <span class="font-bold {{ (strtolower($ticket->prioritas) == 'high' || strtolower($ticket->prioritas) == 'tinggi') ? 'text-red-600' : ((strtolower($ticket->prioritas) == 'medium' || strtolower($ticket->prioritas) == 'sedang') ? 'text-amber-600' : 'text-slate-600') }}">
+                                {{ $ticket->prioritas ?? 'Low' }}
+                            </span>
+                        </span>
                     </div>
                     <div class="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-200/60">
-                        <button type="button" class="btn-detail-ticket text-center text-slate-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="#TX-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}" data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}" data-bmn="{{ $ticket->nomor_bmn ?? '-' }}" data-prioritas="{{ $ticket->prioritas }}" data-status="{{ $ticket->status }}" data-deskripsi="{{ $ticket->deskripsi_masalah }}" data-tanggal="{{ $ticket->created_at->format('d F Y, H:i') }} WIB" data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}" data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('d F Y, H:i') . ' WIB' : 'Belum Selesai' }}" data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}">Detail</button>
+                        <button type="button" class="btn-detail-ticket text-center text-slate-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}" data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}" data-bmn="{{ $ticket->nomor_bmn ?? '-' }}" data-prioritas="{{ $ticket->prioritas }}" data-status="{{ $ticket->status }}" data-deskripsi="{{ $ticket->deskripsi_masalah }}" data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB" data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}" data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}" data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}">Detail</button>
                         <a href="{{ route('user.ticket.edit', $ticket->id) }}" class="text-center text-blue-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl">Edit</a>
-                        <button type="button" class="btn-delete-trigger text-center text-red-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TX-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">Hapus</button>
+                        <button type="button" class="btn-delete-trigger text-center text-red-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">Hapus</button>
                     </div>
                 </div>
                 @empty
@@ -165,7 +176,6 @@
         </div>
     </main>
 
-    <!-- [MODAL 1]: Rincian Detail Tiket -->
     <div id="detailModal" class="fixed inset-0 bg-slate-900/60 items-center justify-center p-4 z-50 hidden transition-all opacity-0 duration-300">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden transform scale-95 transition-all duration-300 max-h-[90vh] flex flex-col">
             <div class="bg-[#0a2540] text-white p-5 flex justify-between items-center shrink-0">
@@ -239,7 +249,6 @@
         </div>
     </div>
 
-    <!-- [MODAL 2]: Pop-up Kustom Konfirmasi Hapus -->
     <div id="deleteModal" class="fixed inset-0 bg-slate-900/60 items-center justify-center p-4 z-50 hidden transition-all opacity-0 duration-300">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300 p-6 text-center space-y-4">
             <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-3xl mx-auto animate-bounce">
@@ -268,7 +277,7 @@
         <button type="button" onclick="closeToast()" class="text-slate-400 hover:text-white transition ml-auto cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
     </div>
     @endif
->
+
     <script>
         const toast = document.getElementById('toastSuccess');
         if (toast) {

@@ -57,7 +57,7 @@ class TicketController extends Controller
             'kategori'          => 'required|string|max:50',
             'sub_kategori'      => 'required|string|max:100',
             'deskripsi_masalah' => 'required|string|max:2000',
-            'nomor_bmn'         => 'required|string|max:30',
+            'nomor_bmn'         => 'nullable|string|max:30',
             'prioritas'         => 'required|in:Rendah,Sedang,Tinggi',
             'attachment_foto'   => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
@@ -70,6 +70,12 @@ class TicketController extends Controller
         $ticket->nomor_bmn         = strip_tags($request->nomor_bmn);
         $ticket->prioritas         = $request->prioritas;
         $ticket->status            = 'Open'; 
+
+        if ($request->filled('nomor_bmn')) {
+            $ticket->nomor_bmn = strip_tags($request->nomor_bmn);
+        } else {
+            $ticket->nomor_bmn = 'Non-BMN';
+        }
 
         if ($request->hasFile('attachment_foto')) {
             $path = $request->file('attachment_foto')->store('tickets_attachment', 'public');
@@ -136,13 +142,13 @@ class TicketController extends Controller
     {
         $userId = session('user_id');
         $ticket = Ticket::where('id', $id)->where('user_id', $userId)->firstOrFail();
-        
+
         if ($ticket->attachment_foto) {
             Storage::disk('public')->delete($ticket->attachment_foto);
         }
 
-        $ticket->delete();
+        $ticket->forceDelete(); 
 
-        return redirect()->route('user.dashboard')->with('success', 'Tiket berhasil dihapus!');
+        return redirect()->route('user.dashboard')->with('success', 'Tiket berhasil dihapus permanen!');
     }
 }
