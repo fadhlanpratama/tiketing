@@ -17,9 +17,6 @@
                 <i class="fa-solid fa-square-plus text-amber-400 text-xl"></i>
                 <h3 class="text-sm sm:text-lg font-bold tracking-tight">Formulir Pengaduan Layanan</h3>
             </div>
-            <!-- <a href="{{ route('user.dashboard') }}" class="flex items-center gap-1.5 bg-slate-800 text-slate-300 hover:bg-amber-500 hover:text-[#0a2540] px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors duration-200 border border-slate-700 shadow-sm whitespace-nowrap">
-                <i class="fa-solid fa-arrow-left"></i> Kembali
-            </a> -->
         </div>
 
         <form id="ticketForm" action="{{ route('user.ticket.store') }}" method="POST" enctype="multipart/form-data" class="p-5 sm:p-6 space-y-4" novalidate>
@@ -42,15 +39,27 @@
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Kategori Utama <span class="text-red-500">*</span></label>
-                <select id="selectKategori" name="kategori" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:bg-white transition text-sm text-slate-700 cursor-pointer">
-                    <option value="">-- Pilih Kategori Masalah --</option>
-                    <option value="IT—Hardware">IT — Hardware</option>
-                    <option value="IT—Software">IT — Software</option>
-                    <option value="IT—Jaringan">IT — Jaringan</option>
-                    <option value="Administrasi">Administrasi</option>
-                    <option value="Keamanan dan Kebersihan">Keamanan dan Kebersihan</option>
-                    <option value="Lainnya">Lainnya</option>
-                </select>
+                <div class="relative w-full text-left" id="dropdownWrapper">
+                    <input type="hidden" id="selectKategori" name="kategori" value="">
+
+                    <button type="button" id="dropdownBtn" class="w-full bg-slate-50 border border-slate-200 p-3 pr-10 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-sm text-slate-400 font-medium flex justify-between items-center cursor-pointer hover:bg-slate-100/60">
+                        <span id="dropdownLabel" class="truncate pr-2">-- Pilih Kategori Masalah --</span>
+                        <svg id="dropdownArrow" class="h-4 w-4 text-[#0a2540]/70 transition-transform duration-200 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <div id="dropdownMenu" class="hidden absolute left-0 z-50 mt-1 w-full max-w-full box-border max-h-52 overflow-y-auto bg-white border border-slate-200 shadow-2xl rounded-xl p-1 space-y-0.5 text-sm text-slate-700 font-medium whitespace-normal break-words">
+                        <div data-value="IT—Hardware" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">IT - Hardware</div>
+                        <div data-value="IT—Software" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">IT - Software</div>
+                        <div data-value="IT—Jaringan" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">IT - Jaringan</div>
+                        <div data-value="Administrasi" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Administrasi</div>
+                        <div data-value="Sarana - Prasarana" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Sarana - Prasarana</div>
+                        <div data-value="Keamanan" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Keamanan</div>
+                        <div data-value="Kebersihan" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Kebersihan</div>
+                        <div data-value="Lainnya" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Lainnya</div>
+                    </div>
+                </div>
             </div>
 
             <div>
@@ -61,8 +70,9 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nomor BMN (Barang Milik Negara) <span class="text-red-500">*</span></label>
-                <input type="text" id="inputBMN" name="nomor_bmn" placeholder="Maksimal 20 Karakter (Contoh: BMN-2026-9935-IT)" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:bg-white transition text-sm font-mono">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nomor BMN (Barang Milik Negara)</label>
+                <input type="text" id="inputBMN" name="nomor_bmn" placeholder="Format: BMN-TAHUN-NOMOR-JENIS" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:bg-white transition text-sm font-mono">
+                <p class="text-[10px] text-slate-400 mt-1">*Kosongkan jika masalah tidak berkaitan dengan aset BMN</p>
             </div>
 
             <div>
@@ -126,19 +136,51 @@
         const popupMessage = document.getElementById('popupMessage');
         const closePopup = document.getElementById('closePopup');
 
-        selectKategori.addEventListener('change', function() {
-            if(this.value) {
-                inputSubKategori.disabled = false;
-                inputSubKategori.placeholder = "Masukan detail sub-kategori masalah di sini...";
-                inputSubKategori.classList.remove('bg-slate-100');
-                inputSubKategori.classList.add('bg-slate-50');
-            } else {
-                inputSubKategori.disabled = true;
-                inputSubKategori.value = "";
-                inputSubKategori.placeholder = "Silakan pilih kategori utama terlebih dahulu";
-                inputSubKategori.classList.remove('bg-slate-50');
-                inputSubKategori.classList.add('bg-slate-100');
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropdownBtn = document.getElementById('dropdownBtn');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const dropdownLabel = document.getElementById('dropdownLabel');
+            const dropdownArrow = document.getElementById('dropdownArrow');
+            const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+            dropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = !dropdownMenu.classList.contains('hidden');
+                if (isOpen) {
+                    dropdownMenu.classList.add('hidden');
+                    dropdownArrow.classList.remove('rotate-180');
+                } else {
+                    dropdownMenu.classList.remove('hidden');
+                    dropdownArrow.classList.add('rotate-180');
+                }
+            });
+
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const val = item.getAttribute('data-value');
+                    const text = item.innerText;
+                    
+                    selectKategori.value = val;
+                    dropdownLabel.innerText = text;
+                    dropdownLabel.classList.remove('text-slate-400');
+                    dropdownLabel.classList.add('text-slate-700');
+                    
+                    dropdownMenu.classList.add('hidden');
+                    dropdownArrow.classList.remove('rotate-180');
+
+                    if(val) {
+                        inputSubKategori.disabled = false;
+                        inputSubKategori.placeholder = "Masukan detail sub-kategori masalah di sini...";
+                        inputSubKategori.classList.remove('bg-slate-100');
+                        inputSubKategori.classList.add('bg-slate-50');
+                    }
+                });
+            });
+
+            document.addEventListener('click', () => {
+                dropdownMenu.classList.add('hidden');
+                dropdownArrow.classList.remove('rotate-180');
+            });
         });
 
         closePopup.addEventListener('click', () => {
@@ -155,10 +197,6 @@
 
             if (inputSubKategori.disabled || !inputSubKategori.value.trim()) {
                 errors.push("• Silakan isi sub-kategori.");
-            }
-
-            if (!inputBMN.value.trim()) {
-                errors.push("• Silakan masukkan Nomor BMN.");
             }
 
             if (!deskripsiMasalah.value.trim()) {

@@ -14,13 +14,12 @@
 </head>
 <body class="bg-slate-100 min-h-screen flex items-center justify-center font-sans antialiased p-4">
 
-    <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl h-auto md:h-[650px] overflow-hidden flex flex-col md:block py-8 md:py-0" id="authContainer">
+    <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl h-auto md:h-[650px] overflow-hidden flex flex-col md:block py-6 md:py-0" id="authContainer">
         
         <div class="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#0a2540_1px,transparent_1px)] [background-size:16px_16px] z-0"></div>
 
-        <div class="relative md:absolute top-0 left-0 w-full md:w-1/2 h-full flex flex-col justify-center items-center px-8 md:px-12 text-center transition-custom z-20 py-6 md:py-0" id="loginFormBox">
+        <div class="relative md:absolute top-0 left-0 w-full md:w-1/2 h-full flex flex-col justify-center items-center px-6 md:px-12 text-center transition-custom z-20 py-4 md:py-0" id="loginFormBox">
             <div class="w-full max-w-sm relative z-20">
-                
                 <div class="mb-4 flex flex-col items-center justify-center gap-1">
                     <img src="{{ asset('image/esdm.png') }}" alt="Logo ESDM" class="h-14 w-auto object-contain mb-1">
                     <span class="text-xs font-bold text-slate-700 tracking-wider uppercase">Sistem Tiketing</span>
@@ -42,9 +41,8 @@
             </div>
         </div>
 
-        <div class="hidden md:absolute top-0 right-0 w-full md:w-1/2 h-full flex flex-col justify-center items-center px-8 md:px-12 text-center transition-custom z-10 py-6 md:py-0" id="registerFormBox">
-            <div class="w-full max-w-sm relative z-20">
-                
+        <div class="hidden md:absolute top-0 right-0 w-full md:w-1/2 h-full max-h-[85vh] md:max-h-none overflow-y-auto md:overflow-visible flex flex-col justify-center items-center px-6 md:px-12 text-center transition-custom z-10 py-4 md:py-0" id="registerFormBox">
+            <div class="w-full max-w-sm relative z-20 my-auto">
                 <div class="mb-2 flex flex-col items-center justify-center gap-1">
                     <img src="{{ asset('image/esdm.png') }}" alt="Logo ESDM" class="h-12 w-auto object-contain mb-1">
                     <span class="text-xs font-bold text-slate-700 tracking-wider uppercase">sistem tiketing</span>
@@ -59,7 +57,32 @@
                     <input type="text" id="nama_lengkap_register" placeholder="Nama Lengkap" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
                     <input type="email" id="email_register" placeholder="Alamat Email" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
                     <input type="tel" id="no_telp_register" placeholder="Nomor Telepon" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
-                    <input type="text" id="divisi_register" placeholder="Divisi" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                    
+                    <div class="relative w-full text-left" id="dropdownWrapper">
+                        <input type="hidden" id="divisi_register" value="">
+
+                        <button type="button" id="dropdownBtn" class="w-full bg-slate-50 border border-slate-200 p-2.5 pr-10 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-sm text-slate-400 font-medium flex justify-between items-center cursor-pointer hover:bg-slate-100/60">
+                            <span id="dropdownLabel">Pilih Divisi</span>
+                            <svg id="dropdownArrow" class="h-4 w-4 text-[#0a2540]/70 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+
+                        <div id="dropdownMenu" class="hidden absolute left-0 z-50 mt-1 w-full max-h-48 overflow-y-auto bg-white border border-slate-200 shadow-2xl rounded-xl p-1 space-y-0.5 text-sm text-slate-700 font-medium">
+                            <div data-value="IT" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">IT</div>
+                            <div data-value="Humas" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Humas</div>
+                            <div data-value="Perpustakaan" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Perpustakaan</div>
+                            <div data-value="Perencanaan" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Perencanaan</div>
+                            <div data-value="Keuangan" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Keuangan</div>
+                            <div data-value="Monitoring" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Monitoring</div>
+                            <div data-value="Kepegawaian" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Kepegawaian</div>
+                            <div data-value="Sarana Prasarana" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Sarana Prasarana</div>
+                            <div data-value="Keamanan dan Kebersihan" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900 text-xs sm:text-sm truncate">Keamanan dan Kebersihan</div>
+                            <div data-value="Pengadaan" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Pengadaan</div>
+                            <div data-value="Kearsipan" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Kearsipan</div>
+                            <div data-value="Angkutan" class="dropdown-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Angkutan</div>
+                        </div>
+                    </div>
                     
                     <input type="password" id="password_register" placeholder="Masukan Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
                     
@@ -84,9 +107,9 @@
             </div>
         </div>
 
-        <div class="relative md:absolute bottom-0 md:top-0 right-0 w-full md:w-1/2 h-auto md:h-full bg-[#ffde00] text-slate-900 transition-custom z-30 shadow-2xl overflow-hidden mt-6 md:mt-0 py-8 md:py-0 flex items-center justify-center" id="colorOverlayContainer">
+        <div class="relative md:absolute bottom-0 md:top-0 right-0 w-full md:w-1/2 h-auto md:h-full bg-[#ffde00] text-slate-900 transition-custom z-30 shadow-2xl overflow-hidden mt-4 md:mt-0 py-6 md:py-0 flex items-center justify-center" id="colorOverlayContainer">
             <div class="flex flex-col items-center justify-center px-8 text-center w-full">
-                <h2 class="text-xl md:text-3xl font-black mb-3 tracking-tight text-[#0a2540]" id="overlayTitle">Belum Punya Akun?</h2>
+                <h2 class="text-xl md:text-3xl font-black mb-2 tracking-tight text-[#0a2540]" id="overlayTitle">Belum Punya Akun?</h2>
                 <p class="text-xs md:text-sm text-slate-700 mb-4 md:mb-8 max-w-xs font-medium leading-relaxed" id="overlayDesc">Silakan daftarkan identitas Anda terlebih dahulu untuk menggunakan sistem layanan.</p>
                 <button type="button" id="btnToggleAuth" class="bg-[#0a2540] hover:bg-slate-800 text-white font-bold py-2.5 px-8 md:px-10 rounded-xl transition text-xs md:text-sm shadow-md tracking-wide">
                     Buat Akun Disini
@@ -97,6 +120,45 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropdownBtn = document.getElementById('dropdownBtn');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const dropdownLabel = document.getElementById('dropdownLabel');
+            const dropdownArrow = document.getElementById('dropdownArrow');
+            const hiddenInput = document.getElementById('divisi_register');
+            const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+            dropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = !dropdownMenu.classList.contains('hidden');
+                if (isOpen) {
+                    dropdownMenu.classList.add('hidden');
+                    dropdownArrow.classList.remove('rotate-180');
+                } else {
+                    dropdownMenu.classList.remove('hidden');
+                    dropdownArrow.classList.add('rotate-180');
+                }
+            });
+
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const val = item.getAttribute('data-value');
+                    hiddenInput.value = val;
+                    dropdownLabel.innerText = val;
+                    dropdownLabel.classList.remove('text-slate-400');
+                    dropdownLabel.classList.add('text-slate-700');
+                    
+                    dropdownMenu.classList.add('hidden');
+                    dropdownArrow.classList.remove('rotate-180');
+                });
+            });
+
+            document.addEventListener('click', () => {
+                dropdownMenu.classList.add('hidden');
+                dropdownArrow.classList.remove('rotate-180');
+            });
+        });
+
         const btnToggleAuth = document.getElementById('btnToggleAuth');
         const overlayTitle = document.getElementById('overlayTitle');
         const overlayDesc = document.getElementById('overlayDesc');
@@ -158,11 +220,7 @@
             }
         }
 
-        let passwordStatus = {
-            length: false,
-            letters: false,
-            number: false
-        };
+        let passwordStatus = { length: false, letters: false, number: false };
 
         function updateRuleUI(elementId, conditionMet) {
             const el = document.getElementById(elementId);
@@ -247,7 +305,6 @@
                 return showAlertBox('registerAlert', 'Semua data registrasi wajib diisi!', false);
             }
 
-            // Memastikan 3 kriteria terpenuhi sebelum submit
             if (!passwordStatus.length || !passwordStatus.letters || !passwordStatus.number) {
                 return showAlertBox('registerAlert', 'Password harus minimal 8 karakter serta kombinasi huruf dan angka!', false);
             }
@@ -274,7 +331,13 @@
                     
                     document.getElementById('nama_lengkap_register').value = "";
                     document.getElementById('email_register').value = "";
+                    
                     document.getElementById('divisi_register').value = "";
+                    const dropdownLabel = document.getElementById('dropdownLabel');
+                    dropdownLabel.innerText = "Pilih Divisi";
+                    dropdownLabel.classList.remove('text-slate-700');
+                    dropdownLabel.classList.add('text-slate-400');
+
                     document.getElementById('no_telp_register').value = "";
                     document.getElementById('password_register').value = "";
                     document.getElementById('password_confirmation_register').value = "";
