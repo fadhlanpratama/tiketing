@@ -96,6 +96,9 @@
                         <div id="req-number" class="flex items-center gap-1.5 transition-colors">
                             <span class="icon">❌</span> Harus Mengandung Angka (0-9)
                         </div>
+                        <div id="req-uppercase" class="flex items-center gap-1.5 transition-colors">
+                             <span class="icon">❌</span> Harus Mengandung Huruf Besar (A-Z)
+                        </div>
                     </div>
 
                     <input type="password" id="password_confirmation_register" placeholder="Konfirmasi Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
@@ -220,7 +223,7 @@
             }
         }
 
-        let passwordStatus = { length: false, letters: false, number: false };
+        let passwordStatus = { length: false, letters: false, number: false , uppercase: false };
 
         function updateRuleUI(elementId, conditionMet) {
             const el = document.getElementById(elementId);
@@ -249,12 +252,13 @@
             }
 
             passwordStatus.length = val.length >= 8;
-            passwordStatus.letters = /[a-zA-Z]/.test(val);
+            passwordStatus.letters = /[a-z]/.test(val);
             passwordStatus.number = /[0-9]/.test(val);
-
+            passwordStatus.uppercase = /[A-Z]/.test(val);
             updateRuleUI('req-length', passwordStatus.length);
             updateRuleUI('req-letters', passwordStatus.letters);
             updateRuleUI('req-number', passwordStatus.number);
+            updateRuleUI('req-uppercase', passwordStatus.uppercase);
         });
 
         // ==================== PROSES LOGIN ====================
@@ -305,14 +309,22 @@
                 return showAlertBox('registerAlert', 'Semua data registrasi wajib diisi!', false);
             }
 
-            if (!passwordStatus.length || !passwordStatus.letters || !passwordStatus.number) {
-                return showAlertBox('registerAlert', 'Password harus minimal 8 karakter serta kombinasi huruf dan angka!', false);
+            if (!passwordStatus.length || !passwordStatus.letters || !passwordStatus.number || !passwordStatus.uppercase) {
+                return showAlertBox('registerAlert', 'Password harus terdiri dari minimal 8 karakter dan mengandung huruf besar, huruf kecil, serta angka.', false);
             }
 
             if (password !== password_confirmation) {
                 return showAlertBox('registerAlert', 'Konfirmasi password tidak cocok dengan password utama!', false);
             }
 
+            if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                return showAlertBox('registerAlert', 'Email tidak valid!', false);
+            }
+
+            if(!no_telp || !/^[0-9+\-\s()]{8,20}$/.test(no_telp)) {
+                return showAlertBox('registerAlert', 'Nomor telepon tidak valid!', false);
+            }
+            
             try {
                 let response = await fetch('/register', {
                     method: 'POST',
@@ -344,7 +356,7 @@
                     
                     document.getElementById('passwordRequirements').classList.add('hidden');
                     
-                    const items = ['req-length', 'req-letters', 'req-number'];
+                    const items = ['req-length', 'req-letters', 'req-number', 'req-uppercase'];
                     items.forEach(id => updateRuleUI(id, false));
 
                     setTimeout(() => btnToggleAuth.click(), 1200);

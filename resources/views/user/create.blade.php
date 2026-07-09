@@ -112,9 +112,9 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Lampiran Foto Dokumen / Kerusakan <span class="text-red-500">*</span></label>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Lampiran Foto Dokumen / Kerusakan </label>
                 <input type="file" id="inputFoto" name="attachment_foto" accept="image/*" class="w-full text-xs sm:text-sm text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 file:cursor-pointer">
-                <p class="text-[10px] text-slate-400 mt-1">*Format gambar (.jpg, .png), maksimal file 2MB</p>
+                <p class="text-[10px] text-slate-400 mt-1">*Format gambar (.jpg, .png), maksimal file 2MB. Kosongkan jika tidak ingin mengunggah foto.</p>
             </div>
 
             <div class="flex flex-row gap-3 justify-end pt-3 border-t border-slate-100">
@@ -307,10 +307,6 @@
 
             if (!deskripsiMasalah.value.trim()) {
                 errors.push("• Silakan isi deskripsi masalah.");
-            }
-
-            if (inputFoto.files.length === 0) {
-                errors.push("• Silakan unggah lampiran foto.");
             }
 
             if (errors.length > 0) {
