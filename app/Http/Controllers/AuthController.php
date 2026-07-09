@@ -79,13 +79,53 @@ class AuthController extends Controller
 
         $user = Users::where('email', $request->Email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if ($user) {
+            $throttleKey = \Illuminate\Support\Str::lower($request->Email) . '|' . $request->ip();
+
+            // 1. Cek apakah user saat ini sedang dalam kondisi terblokir (klik ke-6++ dst)
+            if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($throttleKey, 5)) {
+                $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($throttleKey);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => "Terlalu banyak percobaan login. Silakan tunggu " . $seconds . " detik lagi."
+                ], 429);
+            }
+
+            // 2. Cek apakah password salah
+            if (!Hash::check($request->password, $user->password)) {
+                \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 60);
+
+                // FITUR UTAMA: Jika sentuhan klik ini adalah kegagalan ke-5, paksa kunci 60 detik penuh
+                if (\Illuminate\Support\Facades\RateLimiter::attempts($throttleKey) === 5) {
+                    $cacheKey = config('cache.prefix') . ':timer:' . $throttleKey;
+                    \Illuminate\Support\Facades\Cache::put($cacheKey, now()->addSeconds(60)->timestamp, 60);
+
+                    // Berikan respon 429 instan di klik ke-5 dengan waktu tepat 60 detik
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Terlalu banyak percobaan login. Silakan tunggu 60 detik lagi."
+                    ], 429);
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email atau password salah.'
+                ], 401);
+            }
+
+            // Jika password benar, bersihkan catatan kegagalan email ini
+            \Illuminate\Support\Facades\RateLimiter::clear($throttleKey);
+
+        } else {
+            // JIKA EMAIL TIDAK TERDAFTAR DI DATABASE
             return response()->json([
                 'success' => false,
                 'message' => 'Email atau password salah.'
             ], 401);
         }
 
+        // --- PROSES PEMBUATAN SESSION JIKA LOGIN SUKSES ---
         $request->session()->regenerate();
 
         $request->session()->put([
@@ -107,7 +147,6 @@ class AuthController extends Controller
             'redirect' => $redirectUrl
         ]);
     }
-
     public function logout(Request $request)
     {
         $request->session()->invalidate();

@@ -122,7 +122,7 @@
 
     </div>
 
-    <script>
+   <script>
         document.addEventListener('DOMContentLoaded', () => {
             const dropdownBtn = document.getElementById('dropdownBtn');
             const dropdownMenu = document.getElementById('dropdownMenu');
@@ -173,6 +173,7 @@
         const isMobile = () => window.innerWidth < 768;
 
         btnToggleAuth.addEventListener('click', () => {
+            btnToggleAuth.blur();
             if (!isRegisterActive) {
                 if (isMobile()) {
                     loginFormBox.classList.add('hidden');
@@ -262,6 +263,8 @@
         });
 
         // ==================== PROSES LOGIN ====================
+        let loginCountdownInterval = null; 
+
         document.getElementById('submitLoginBtn').addEventListener('click', async () => {
             const email = document.getElementById('email_login').value.trim();
             const password = document.getElementById('password_login').value;
@@ -269,6 +272,8 @@
             if (!email || !password) {
                 return showAlertBox('loginAlert', 'Email dan password wajib diisi!', false);
             }
+
+            if (loginCountdownInterval) clearInterval(loginCountdownInterval);
 
             try {
                 let response = await fetch('/login', {
@@ -289,6 +294,25 @@
                         window.location.href = result.redirect ? result.redirect : '/dashboard';
                     }, 800);
                 } else {
+                    let isRateLimited = response.status === 429 || (result.message && result.message.includes('tunggu'));
+                    if (isRateLimited) {
+                        let match = result.message.match(/\d+/);
+                        if (match) {
+                            let secondsLeft = parseInt(match[0], 10);
+                            showAlertBox('loginAlert', `Terlalu banyak percobaan login. Silakan tunggu ${secondsLeft} detik lagi.`, false);
+                            loginCountdownInterval = setInterval(() => {
+                                secondsLeft--;
+                                if (secondsLeft <= 0) {
+                                    clearInterval(loginCountdownInterval);
+                                    showAlertBox('loginAlert', 'Waktu tunggu habis. Silakan coba login kembali.', true);
+                                } else {
+                                    showAlertBox('loginAlert', `Terlalu banyak percobaan login. Silakan tunggu ${secondsLeft} detik lagi.`, false);
+                                }
+                            }, 1000);
+                        }
+                        
+                        return;
+                    }
                     throw new Error(result.message || "Email atau password salah.");
                 }
             } catch (err) {
@@ -309,20 +333,20 @@
                 return showAlertBox('registerAlert', 'Semua data registrasi wajib diisi!', false);
             }
 
-            if (!passwordStatus.length || !passwordStatus.letters || !passwordStatus.number || !passwordStatus.uppercase) {
-                return showAlertBox('registerAlert', 'Password harus terdiri dari minimal 8 karakter dan mengandung huruf besar, huruf kecil, serta angka.', false);
-            }
-
-            if (password !== password_confirmation) {
-                return showAlertBox('registerAlert', 'Konfirmasi password tidak cocok dengan password utama!', false);
-            }
-
             if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 return showAlertBox('registerAlert', 'Email tidak valid!', false);
             }
 
             if(!no_telp || !/^[0-9+\-\s()]{8,20}$/.test(no_telp)) {
                 return showAlertBox('registerAlert', 'Nomor telepon tidak valid!', false);
+            }
+
+            if (!passwordStatus.length || !passwordStatus.letters || !passwordStatus.number || !passwordStatus.uppercase) {
+                return showAlertBox('registerAlert', 'Password harus terdiri dari minimal 8 karakter dan mengandung huruf besar, huruf kecil, serta angka.', false);
+            }
+
+            if (password !== password_confirmation) {
+                return showAlertBox('registerAlert', 'Konfirmasi password tidak cocok dengan password utama!', false);
             }
             
             try {
@@ -366,6 +390,32 @@
             } catch (err) {
                 showAlertBox('registerAlert', err.message, false);
             }
+        });
+
+        const loginInputs = [document.getElementById('email_login'), document.getElementById('password_login')];
+        loginInputs.forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('submitLoginBtn').click();
+                }
+            });
+        });
+
+        const registerInputs = [
+            document.getElementById('nama_lengkap_register'),
+            document.getElementById('email_register'),
+            document.getElementById('no_telp_register'),
+            document.getElementById('password_register'),
+            document.getElementById('password_confirmation_register')
+        ];
+        registerInputs.forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('submitRegisterBtn').click();
+                }
+            });
         });
     </script>
 </body>
