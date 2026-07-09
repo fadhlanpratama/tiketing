@@ -31,7 +31,12 @@ class AuthController extends Controller
                     Password::min(8)
                         ->letters()
                         ->numbers()
-                ]
+                        ->mixedCase()
+                        ->uncompromised()
+                ],
+            ], [
+                'email.unique' => 'Email sudah terdaftar. Silakan gunakan email lain.',
+                'password.uncompromised' => 'Password yang Anda gunakan terlalu umum. Gunakan password lain yang lebih aman.',
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -61,6 +66,9 @@ class AuthController extends Controller
             $request->validate([
                 'Email'    => 'required|email:rfc,dns',
                 'password' => 'required|string'
+            ], [
+                'Email.email' => 'Format email tidak valid.',
+                'password.required' => 'Password wajib diisi.'
             ]);
         } catch (ValidationException $e) {
             return response()->json([
