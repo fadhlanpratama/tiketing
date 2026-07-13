@@ -29,7 +29,7 @@ return new class extends Migration
             // Penyelesaian & Feedback
             $table->timestamp('tanggal_selesai')->nullable()->default(null);
             $table->string('hasil_resolved_foto', 255)->nullable()->default(null)->comment('Foto bukti penyelesaian');
-            $table->enum('survei_kepuasan', ['Puas', 'Cukup', 'Tidak Puas'])->nullable()->default(null);
+            $table->enum('survei_kepuasan', ['Puas', 'Cukup', 'Tidak Puas', 'Sangat Puas','Kurang puas'])->nullable()->default(null);
             $table->timestamp('created_at')->useCurrent()->nullable();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate()->nullable();
             $table->softDeletes();

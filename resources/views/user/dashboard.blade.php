@@ -114,9 +114,9 @@
                                 <p class="font-medium text-slate-800">{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}</p>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-x-2 text-[11px] text-slate-400 mt-0.5">
                                     <span>Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
-                                    @if($ticket->updated_at && $ticket->updated_at->ne($ticket->created_at))
+                                    @if($ticket->user_edited_at)
                                         <span class="hidden sm:inline text-slate-300">|</span>
-                                        <span class="text-amber-600 font-medium"><i class="fa-solid fa-pen-to-square text-[10px]"></i> Diubah: {{ $ticket->updated_at->format('Y-m-d, H:i') }} WIB</span>
+                                        <span class="text-amber-600 font-medium"><i class="fa-solid fa-pen-to-square text-[10px]"></i> Diubah: {{ $ticket->user_edited_at->format('Y-m-d, H:i') }} WIB</span>
                                     @endif
                                 </div>
                             </td>
@@ -133,9 +133,11 @@
                                 @if($ticket->status == 'Open')
                                     <span class="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Open</span>
                                 @elseif($ticket->status == 'In Progress')
-                                    <span class="bg-blue-100 text-blue-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Diproses</span>
-                                @else
-                                    <span class="bg-green-100 text-green-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Selesai</span>
+                                    <span class="bg-blue-100 text-blue-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">In Progress</span>
+                                @elseif($ticket->status == 'Resolved')
+                                    <span class="bg-green-100 text-green-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Resolved</span>
+                                @elseif($ticket->status == 'Closed')
+                                    <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Closed</span>
                                 @endif
                             </td>
                             <td class="p-4 pr-6 flex items-center justify-center gap-2">
@@ -147,14 +149,17 @@
                                     data-status="{{ $ticket->status }}" 
                                     data-deskripsi="{{ $ticket->deskripsi_masalah }}" 
                                     data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB" 
-                                    data-diubah="@if($ticket->updated_at && $ticket->updated_at->ne($ticket->created_at)) Diubah: {{ $ticket->updated_at->format('Y-m-d, H:i') }} WIB @endif"
+                                    data-diubah="@if($ticket->user_edited_at) Diubah: {{ $ticket->user_edited_at->format('Y-m-d, H:i') }} WIB @endif"
                                     data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}" 
                                     data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}" 
-                                    data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}">
+                                    data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}"
+                                    data-hasil="{{ $ticket->hasil_resolved_foto ? asset('storage/' . $ticket->hasil_resolved_foto) : '' }}">
                                     <i class="fa-solid fa-eye"></i> Detail
                                 </button>
+                                @if($ticket->status == 'Open')
                                 <a href="{{ route('user.ticket.edit', $ticket->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-xs px-2.5 py-1.5 bg-blue-50 rounded-lg transition"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
                                 <button type="button" class="btn-delete-trigger text-red-600 hover:text-red-800 font-semibold text-xs px-2.5 py-1.5 bg-red-50 rounded-lg transition cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"><i class="fa-solid fa-trash-can"></i> Hapus</button>
+                                @endif
                             </td>
                         </tr>
                         @empty
@@ -174,9 +179,11 @@
                         @if($ticket->status == 'Open')
                             <span class="bg-amber-100 text-amber-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Open</span>
                         @elseif($ticket->status == 'In Progress')
-                            <span class="bg-blue-100 text-blue-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Diproses</span>
-                        @else
-                            <span class="bg-green-100 text-green-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Selesai</span>
+                            <span class="bg-blue-100 text-blue-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">In Progress</span>
+                        @elseif ($ticket->status == 'Resolved')
+                            <span class="bg-green-100 text-green-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Resolved</span>
+                        @elseif ($ticket->status == 'Closed')
+                            <span class="bg-slate-100 text-slate-600 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Closed</span>
                         @endif
                     </div>
                     <div>
@@ -185,8 +192,8 @@
                         
                         <div class="space-y-0.5 mt-2">
                             <span class="text-[10px] text-slate-400 block"><i class="fa-regular fa-clock"></i> Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
-                            @if($ticket->updated_at && $ticket->updated_at->ne($ticket->created_at))
-                                <span class="text-[10px] text-amber-600 font-medium block"><i class="fa-solid fa-pen-to-square"></i> Diubah: {{ $ticket->updated_at->format('Y-m-d, H:i') }} WIB</span>
+                            @if($ticket->user_edited_at)
+                                <span class="text-[10px] text-amber-600 font-medium block"><i class="fa-solid fa-pen-to-square"></i> Diubah: {{ $ticket->user_edited_at->format('Y-m-d, H:i') }} WIB</span>
                             @endif
                         </div>
 
@@ -203,14 +210,19 @@
                             data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}" 
                             data-bmn="{{ $ticket->nomor_bmn ?? '-' }}" 
                             data-prioritas="{{ $ticket->prioritas }}" 
-                            data-status="{{ $ticket->status }}" 
+                            data-status="{{ $ticket->status }}" f
                             data-deskripsi="{{ $ticket->deskripsi_masalah }}" 
                             data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB" 
-                            data-diubah="@if($ticket->updated_at && $ticket->updated_at->ne($ticket->created_at)) Diubah: {{ $ticket->updated_at->format('Y-m-d, H:i') }} WIB @endif"
+                            data-diubah="@if($ticket->user_edited_at) Diubah: {{ $ticket->user_edited_at->format('Y-m-d, H:i') }} WIB @endif"
                             data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}" 
                             data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}" 
                             data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}">Detail</button>
-                        <a href="{{ route('user.ticket.edit', $ticket->id) }}" class="text-center text-blue-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl">Edit</a>
+                        
+                            @if($ticket->status == 'Open')
+                                <a href="{{ route('user.ticket.edit', $ticket->id) }}" class="text-center text-blue-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl">Edit</a>
+                            @else
+                                <span class="text-slate-300 text-xs italic">Tidak bisa diubah</span>
+                            @endif
                         <button type="button" class="btn-delete-trigger text-center text-red-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">Hapus</button>
                     </div>
                 </div>
@@ -291,6 +303,13 @@
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Lampiran Foto Kerusakan</p>
                     <div class="border border-slate-100 rounded-xl overflow-hidden bg-slate-50 p-1.5">
                         <img id="detailFoto" src="" alt="Lampiran" class="w-full max-h-52 object-contain rounded-lg">
+                    </div>
+                </div>
+
+                <div id="detailHasilContainer" class="hidden">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Lampiran Foto Hasil</p>
+                    <div class="border border-slate-100 rounded-xl overflow-hidden bg-slate-50 p-1.5">
+                        <img id="detailHasil" src="" alt="Lampiran" class="w-full max-h-52 object-contain rounded-lg">
                     </div>
                 </div>
             </div>
@@ -375,6 +394,7 @@
                 const diubah = this.getAttribute('data-diubah');
                 const pj = this.getAttribute('data-pj');
                 const selesai = this.getAttribute('data-selesai');
+                const hasil = this.getAttribute('data-hasil');
 
                 document.getElementById('detailId').innerText = id;
                 document.getElementById('detailKategori').innerText = kategori;
@@ -398,9 +418,13 @@
                 if (status === 'Open') {
                     statusEl.innerHTML = `<span class="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Open</span>`;
                 } else if (status === 'In Progress') {
-                    statusEl.innerHTML = `<span class="bg-blue-100 text-blue-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Diproses</span>`;
+                    statusEl.innerHTML = `<span class="bg-blue-100 text-blue-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">In Progress</span>`;
+                } else if (status === 'Resolved') {
+                    statusEl.innerHTML = `<span class="bg-green-100 text-green-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Resolved</span>`;
+                }else if (status === 'Closed') {
+                    statusEl.innerHTML = `<span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Closed</span>`;
                 } else {
-                    statusEl.innerHTML = `<span class="bg-green-100 text-green-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Selesai</span>`;
+                    statusEl.innerHTML = `<span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">${status}</span>`;
                 }
 
                 const fotoContainer = document.getElementById('detailFotoContainer');
@@ -419,6 +443,16 @@
                     detailModal.classList.remove('opacity-0');
                     detailModal.querySelector('.max-w-xl').classList.remove('scale-95');
                 }, 50);
+                
+                const hasilContainer = document.getElementById('detailHasilContainer');
+                const hasilImg = document.getElementById('detailHasil');
+                if (hasil) {
+                    hasilImg.src = hasil;
+                    hasilContainer.classList.remove('hidden');
+                } else {
+                    hasilImg.src = '';
+                    hasilContainer.classList.add('hidden');
+                }
             });
         });
 
