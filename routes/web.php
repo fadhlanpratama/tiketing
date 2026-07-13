@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\PjController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -10,12 +12,12 @@ use App\Http\Controllers\TicketController;
 |--------------------------------------------------------------------------
 */
 
+
 // ================= AUTENTIKASI UTAMA =================
 Route::get('/', [AuthController::class, 'showAuthForm'])->name('home');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
-Route::post('/register', [AuthController::class, 'register'])->name('register');
-
-
+Route::post('/register', [AuthController::class, 'register'])
+       ->middleware('throttle:5,1')->name('register');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
@@ -25,10 +27,21 @@ Route::prefix('user')->name('user.')->middleware('cek.login')->group(function ()
 
     //tiket
     Route::get('/ticket/create', [TicketController::class, 'create'])->name('ticket.create'); 
-    Route::post('/ticket/store', [TicketController::class, 'store'])->name('ticket.store'); 
+    Route::post('/ticket/store', [TicketController::class, 'store'])->middleware('throttle:10,1')->name('ticket.store'); 
     Route::get('/ticket/{id}/edit', [TicketController::class, 'edit'])->name('ticket.edit'); 
     Route::put('/ticket/{id}/update', [TicketController::class, 'update'])->name('ticket.update'); 
     Route::delete('/ticket/{id}', [TicketController::class, 'destroy'])->name('ticket.destroy'); 
+});
+
+
+// ================= AREA: PENANGGUNG JAWAB =================
+Route::prefix('pj')->name('pj.')->middleware('cek.login:pj')->group(function () {
+    Route::get('/dashboard', [PjController::class, 'index'])->name('dashboard');
+
+    // Aksi PJ terhadap tiket yang ditugaskan
+    Route::post('/ticket/{id}/terima', [PjController::class, 'terima'])->name('ticket.terima');
+    Route::post('/ticket/{id}/selesaikan', [PjController::class, 'selesaikan'])->name('ticket.selesaikan');
+    Route::get('/ticket/{id}', [PjController::class, 'show'])->name('ticket.show');
 });
 
 
@@ -38,11 +51,3 @@ Route::prefix('admin')->name('admin.')->middleware('cek.login:admin')->group(fun
         return view('admin.dashboard');
     })->name('dashboard');
 });
-
-
-// ================= UTILITAS / DEBUGGING =================
-if (config('app.env') === 'local') {
-    Route::get('/cek-session', function () {
-        return session()->all();
-    });
-}

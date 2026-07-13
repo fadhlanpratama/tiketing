@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('email', 254)->unique()->nullable();
             $table->string('no_telp', 20)->nullable()->default(null);
             $table->string('password', 255);
-            $table->enum('role', ['user', 'admin'])->default('user');
+            $table->enum('role', ['user', 'admin','pj']);
             $table->timestamp('created_at')->useCurrent()->nullable();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate()->nullable();
             $table->softDeletes();

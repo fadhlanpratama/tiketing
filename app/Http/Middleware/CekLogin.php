@@ -24,6 +24,10 @@ class CekLogin
                 return redirect()->route('admin.dashboard')->with('error', 'Admin tidak diizinkan mengakses halaman ini.');
             }
 
+            if (session('user_role') === 'pj') {
+                return redirect()->route('pj.dashboard')->with('error', 'Penanggung Jawab tidak diizinkan mengakses halaman ini.');
+            }
+
             return redirect()->route('home');
         }
 

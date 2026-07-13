@@ -54,7 +54,7 @@
                         <div data-value="IT—Software" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">IT - Software</div>
                         <div data-value="IT—Jaringan" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">IT - Jaringan</div>
                         <div data-value="Administrasi" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Administrasi</div>
-                        <div data-value="Sarana - Prasarana" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Sarana - Prasarana</div>
+                        <div data-value="Sarana—Prasarana" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Sarana - Prasarana</div>
                         <div data-value="Keamanan" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Keamanan</div>
                         <div data-value="Kebersihan" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Kebersihan</div>
                         <div data-value="Lainnya" class="dropdown-item px-3 py-2.5 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Lainnya</div>
