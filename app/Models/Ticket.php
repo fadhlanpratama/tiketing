@@ -37,6 +37,7 @@ class Ticket extends Model
 
     protected $casts = [
         'tanggal_selesai' => 'datetime',
+        'user_edited_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

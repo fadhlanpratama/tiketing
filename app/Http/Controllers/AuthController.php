@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Users; 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -20,10 +21,17 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'nama_lengkap' => 'required|string|min:3|max:150',
+                'nama_lengkap' => [
+                    'required', 'string', 'min:3', 'max:150',
+                    Rule::when($request->input('role') === 'pj', [
+                        Rule::unique('users', 'nama_lengkap')
+                            ->where(fn ($query) => $query->where('role', 'pj')),
+                    ]),
+                ],
                 'email'        => 'required|email:rfc,dns|max:254|unique:users,email',
-                'divisi'       => 'required|string|max:150',
+                'divisi'       => 'required|string|in:IT,Humas,Perpustakaan,Perencanaan,Keuangan,Monitoring,Kepegawaian,Sarana Prasarana,Keamanan dan Kebersihan,Pengadaan,Kearsipan,Angkutan',
                 'no_telp'      => ['required', 'regex:/^[0-9+\-\s()]{8,20}$/'],
+                'role'         => 'required|in:user,pj',
                 'password'     => [
                     'required', 
                     'string', 
@@ -32,11 +40,9 @@ class AuthController extends Controller
                         ->letters()
                         ->numbers()
                         ->mixedCase()
-                        ->uncompromised()
                 ],
             ], [
                 'email.unique' => 'Email sudah terdaftar. Silakan gunakan email lain.',
-                'password.uncompromised' => 'Password yang Anda gunakan terlalu umum. Gunakan password lain yang lebih aman.',
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -48,10 +54,10 @@ class AuthController extends Controller
         Users::create([
             'nama_lengkap' => $request->nama_lengkap,
             'email'        => $request->email,
-            'divisi'       => $request->divisi,
+            'divisi'       => $request->divisi, 
             'no_telp'      => $request->no_telp,
             'password'     => Hash::make($request->password),
-            'role'         => 'user'          
+            'role'         => $request->role,         
         ]);
 
         return response()->json([
@@ -137,9 +143,13 @@ class AuthController extends Controller
         
         $request->session()->save();
 
-        $redirectUrl = ($user->role === 'admin') 
-            ? route('admin.dashboard') 
-            : route('user.dashboard');
+        if ($user->role === 'admin') {
+            $redirectUrl = route('admin.dashboard');
+        } elseif ($user->role === 'pj') {
+            $redirectUrl = route('pj.dashboard');
+        } else {
+            $redirectUrl = route('user.dashboard');
+        }
 
         return response()->json([
             'success'  => true,
