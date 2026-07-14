@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESDM - Tiketing - Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         .transition-custom {
@@ -19,6 +20,10 @@
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 10px;
+        }
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none !important;
         }
     </style>
 </head>
@@ -42,7 +47,12 @@
 
                 <div class="space-y-3 mb-1">
                     <input type="email" id="email_login" placeholder="Masukkan Alamat Email" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
-                    <input type="password" id="password_login" placeholder="Masukkan Password" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                    <div class="relative">
+                        <input type="password" id="password_login" placeholder="Masukkan Password" class="w-full bg-slate-50 border border-slate-200 p-3 pr-11 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                        <button type="button" class="toggle-password-btn absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition" data-target="password_login">
+                            <i class="fa-solid fa-eye text-sm"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="text-right mb-4">
@@ -99,7 +109,12 @@
                         <div id="dropdownMenu" class="hidden absolute left-0 z-50 mt-1 w-full max-h-48 overflow-y-auto bg-white border border-slate-200 shadow-2xl rounded-xl p-1 space-y-0.5 text-sm text-slate-700 font-medium"></div>
                     </div>
                     
-                    <input type="password" id="password_register" placeholder="Masukan Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                    <div class="relative">
+                        <input type="password" id="password_register" placeholder="Masukan Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 pr-11 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                        <button type="button" class="toggle-password-btn absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition" data-target="password_register">
+                            <i class="fa-solid fa-eye text-sm"></i>
+                        </button>
+                    </div>
                     
                     <div id="passwordRequirements" class="hidden bg-slate-50 border border-slate-100 rounded-xl p-2.5 space-y-1 text-[11px] font-medium text-slate-500">
                         <div id="req-length" class="flex items-center gap-1.5 transition-colors">
@@ -116,7 +131,12 @@
                         </div>
                     </div>
 
-                    <input type="password" id="password_confirmation_register" placeholder="Konfirmasi Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                    <div class="relative">
+                        <input type="password" id="password_confirmation_register" placeholder="Konfirmasi Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 pr-11 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                        <button type="button" class="toggle-password-btn absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition" data-target="password_confirmation_register">
+                            <i class="fa-solid fa-eye text-sm"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <button type="button" id="submitRegisterBtn" class="w-full bg-[#0a2540] hover:bg-[#113357] text-white font-semibold py-3 rounded-xl shadow-lg transition transform active:scale-95 text-sm uppercase tracking-wider mb-2">
@@ -495,12 +515,34 @@
             document.getElementById('no_telp_register'), document.getElementById('password_register'),
             document.getElementById('password_confirmation_register')
         ];
+        
         registerInputs.forEach(input => {
             input.addEventListener('keydown', (e) => { 
                 if (e.key === 'Enter') { 
                     e.preventDefault(); 
                     document.getElementById('submitRegisterBtn').click(); 
                 } 
+            });
+        });
+
+        document.querySelectorAll('.toggle-password-btn').forEach(btn => {
+            btn.setAttribute('type', 'button');
+            
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const targetId = btn.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const icon = btn.querySelector('i');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.className = 'fa-solid fa-eye-slash text-sm text-slate-600 transition-colors'; 
+                } else {
+                    input.type = 'password';
+                    icon.className = 'fa-solid fa-eye text-sm text-slate-400 transition-colors';
+                }
             });
         });
     </script>

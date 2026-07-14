@@ -67,7 +67,7 @@
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
                 <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-folder-open"></i></div>
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tiket Aktif</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tiket Dalam Antrian</p>
                     <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ $TiketAktif }} Tiket</h3>
                 </div>
             </div>
@@ -88,10 +88,27 @@
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+           <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                     <h3 class="text-lg font-bold text-slate-800">Riwayat Pengajuan Tiket</h3>
                     <p class="text-xs text-slate-400">Status pelacakan real-time untuk permohonan layanan internal Anda</p>
+                </div>
+
+                <div class="relative w-full sm:w-52" id="statusFilterWrapper">
+                    <button type="button" id="statusFilterBtn"
+                        class="w-full bg-slate-50 border border-slate-200 p-2.5 pr-10 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-xs font-semibold text-slate-600 flex justify-between items-center cursor-pointer hover:bg-slate-100/60">
+                        <span id="statusFilterLabel"><i class="fa-solid fa-filter mr-1.5 text-slate-400"></i>{{ $statusFilter === 'semua' ? 'Semua Status' : $statusFilter }}</span>
+                        <svg id="statusFilterArrow" class="h-4 w-4 text-slate-400 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div id="statusFilterMenu" class="hidden absolute right-0 sm:left-0 z-50 mt-1 w-full bg-white border border-slate-200 shadow-2xl rounded-xl p-1 space-y-0.5 text-xs text-slate-700 font-medium">
+                        <div data-value="semua" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Semua Status</div>
+                        <div data-value="Open" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Open</div>
+                        <div data-value="In Progress" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">In Progress</div>
+                        <div data-value="Resolved" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Resolved</div>
+                        <div data-value="Closed" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Closed</div>
+                    </div>
                 </div>
             </div>
 
@@ -204,26 +221,24 @@
                             </span>
                         </span>
                     </div>
-                    <div class="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-200/60">
-                        <button type="button" class="btn-detail-ticket text-center text-slate-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" 
-                            data-id="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}" 
-                            data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}" 
-                            data-bmn="{{ $ticket->nomor_bmn ?? '-' }}" 
-                            data-prioritas="{{ $ticket->prioritas }}" 
-                            data-status="{{ $ticket->status }}" f
-                            data-deskripsi="{{ $ticket->deskripsi_masalah }}" 
-                            data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB" 
+                   <div class="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-200/60">
+                        <button type="button" class="btn-detail-ticket text-center text-slate-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer {{ $ticket->status == 'Open' ? '' : 'col-span-3' }}"
+                            data-id="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"
+                            data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}"
+                            data-bmn="{{ $ticket->nomor_bmn ?? '-' }}"
+                            data-prioritas="{{ $ticket->prioritas }}"
+                            data-status="{{ $ticket->status }}"
+                            data-deskripsi="{{ $ticket->deskripsi_masalah }}"
+                            data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB"
                             data-diubah="@if($ticket->user_edited_at) Diubah: {{ $ticket->user_edited_at->format('Y-m-d, H:i') }} WIB @endif"
-                            data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}" 
-                            data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}" 
+                            data-pj="{{ $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}"
+                            data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}"
                             data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}">Detail</button>
-                        
-                            @if($ticket->status == 'Open')
-                                <a href="{{ route('user.ticket.edit', $ticket->id) }}" class="text-center text-blue-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl">Edit</a>
-                            @else
-                                <span class="text-slate-300 text-xs italic">Tidak bisa diubah</span>
-                            @endif
-                        <button type="button" class="btn-delete-trigger text-center text-red-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">Hapus</button>
+
+                        @if($ticket->status == 'Open')
+                            <a href="{{ route('user.ticket.edit', $ticket->id) }}" class="text-center text-blue-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl">Edit</a>
+                            <button type="button" class="btn-delete-trigger text-center text-red-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">Hapus</button>
+                        @endif
                     </div>
                 </div>
                 @empty
@@ -231,9 +246,47 @@
                 @endforelse
             </div>
 
-            <div class="p-4 border-t border-slate-100">
-                {{ $tickets->links() }}
-            </div>
+           <div class="p-4 border-t border-slate-100">
+    @if($tickets->hasPages())
+    <nav class="flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-xs text-slate-400">
+            Menampilkan <span class="font-semibold text-slate-600">{{ $tickets->firstItem() }}</span>
+            &ndash; <span class="font-semibold text-slate-600">{{ $tickets->lastItem() }}</span>
+            dari <span class="font-semibold text-slate-600">{{ $tickets->total() }}</span> tiket
+        </p>
+
+        <div class="flex items-center gap-1.5">
+                    @if ($tickets->onFirstPage())
+                        <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-300 cursor-not-allowed">
+                            <i class="fa-solid fa-chevron-left text-xs"></i>
+                        </span>
+                    @else
+                        <a href="{{ $tickets->previousPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition">
+                            <i class="fa-solid fa-chevron-left text-xs"></i>
+                        </a>
+                    @endif
+
+                    @for ($i = 1; $i <= $tickets->lastPage(); $i++)
+                        @if ($i == $tickets->currentPage())
+                            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-400 text-[#0a2540] text-xs font-bold shadow-sm">{{ $i }}</span>
+                        @else
+                            <a href="{{ $tickets->url($i) }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 text-xs font-semibold hover:bg-slate-50 hover:border-slate-300 transition">{{ $i }}</a>
+                        @endif
+                    @endfor
+
+                    @if ($tickets->hasMorePages())
+                        <a href="{{ $tickets->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </a>
+                    @else
+                        <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-300 cursor-not-allowed">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </span>
+                    @endif
+                </div>
+            </nav>
+            @endif
+        </div>
         </div>
     </main>
 
@@ -483,6 +536,28 @@
                 deleteModal.classList.remove('flex');
             }, 300);
         }
+
+        const statusFilterBtn = document.getElementById('statusFilterBtn');
+        const statusFilterMenu = document.getElementById('statusFilterMenu');
+        const statusFilterArrow = document.getElementById('statusFilterArrow');
+
+        statusFilterBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            statusFilterMenu.classList.toggle('hidden');
+            statusFilterArrow.classList.toggle('rotate-180');
+        });
+
+        document.querySelectorAll('.status-filter-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const value = item.getAttribute('data-value');
+                window.location.href = `{{ route('user.dashboard') }}?status=${encodeURIComponent(value)}`;
+            });
+        });
+
+        document.addEventListener('click', () => {
+            statusFilterMenu.classList.add('hidden');
+            statusFilterArrow.classList.remove('rotate-180');
+        });
     </script>
 </body>
 </html>
