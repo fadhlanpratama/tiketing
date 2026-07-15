@@ -20,11 +20,12 @@ class PjController extends Controller
         $query = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
             ->with('pelapor');
 
-        if ($request->filled('status') && $request->status !== 'semua') {
-            $query->where('status', $request->status);
+         if ($request->filled('status') && $request->status !== 'semua') {
+            $statusList = explode(',', $request->status);
+            $query->whereIn('status', $statusList);
         }
 
-        $tickets = $query->latest()->paginate(5)->withQueryString();
+        $tickets = $query->orderBy('created_at', 'asc')->paginate(10)->withQueryString();
 
         $counts = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
             ->selectRaw("
