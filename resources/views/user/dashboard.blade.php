@@ -401,20 +401,33 @@
         <button type="button" onclick="closeToast()" class="text-slate-400 hover:text-white transition ml-auto cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
     </div>
     @endif
+    @if(session('error'))
+    <div id="toastError" class="fixed bottom-5 right-5 z-50 flex items-center gap-3 bg-red-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0 max-w-sm">
+        <div class="w-7 h-7 bg-white/20 text-white rounded-full flex items-center justify-center text-sm shrink-0"><i class="fa-solid fa-xmark"></i></div>
+        <p class="text-xs font-semibold tracking-wide pr-2">{{ session('error') }}</p>
+    </div>
+    @endif
 
     <script>
-        const toast = document.getElementById('toastSuccess');
-        if (toast) {
-            setTimeout(() => {
-                toast.classList.remove('translate-y-10', 'opacity-0');
-                toast.classList.add('translate-y-0', 'opacity-100');
-            }, 100);
-            setTimeout(() => { closeToast(); }, 5000);
-        }
+        ['toastSuccess', 'toastError'].forEach(id => {
+            const toast = document.getElementById(id);
+            if (toast) {
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-10', 'opacity-0');
+                    toast.classList.add('translate-y-0', 'opacity-100');
+                }, 100);
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-10');
+                    setTimeout(() => toast.remove(), 500);
+                }, 5000);
+            }
+        });
+
         function closeToast() {
+            const toast = document.getElementById('toastSuccess');
             if (toast) {
                 toast.classList.add('opacity-0', 'translate-y-10');
-                setTimeout(() => { toast.remove(); }, 500);
+                setTimeout(() => toast.remove(), 500);
             }
         }
 
