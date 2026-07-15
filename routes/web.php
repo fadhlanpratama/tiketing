@@ -26,7 +26,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 // ================= AREA: USER =================
-Route::prefix('user')->name('user.')->middleware(['cek.login', 'no.cache'])->group(function () {
+Route::prefix('user')->name('user.')->middleware(['cek.login:user', 'no.cache'])->group(function () {
     Route::get('/dashboard', [TicketController::class, 'index'])->name('dashboard');
 
     //tiket

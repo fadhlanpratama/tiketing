@@ -17,7 +17,7 @@ class CekLogin
         if ($role && session('user_role') !== $role) {
 
             if (session('user_role') === 'user') {
-                return redirect()->route('user.dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman Admin.');
+                return redirect()->route('user.dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman ini.');
             }
 
             if (session('user_role') === 'admin') {
@@ -25,7 +25,7 @@ class CekLogin
             }
 
             if (session('user_role') === 'pj') {
-                return redirect()->route('pj.dashboard')->with('error', 'Penanggung Jawab tidak diizinkan mengakses halaman ini.');
+                return redirect()->route('pj.dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman ini.');
             }
 
             return redirect()->route('home');
