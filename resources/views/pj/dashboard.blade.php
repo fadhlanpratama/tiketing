@@ -51,27 +51,30 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-hourglass-half"></i></div>
+            <a href="{{ route('pj.dashboard', ['status' => $statusFilter === 'Open' ? 'semua' : 'Open']) }}"
+                class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'Open' ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-100' }}">
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-folder-open"></i></div>
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Menunggu Diterima</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tiket Dalam Antrian</p>
                     <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ $menunggu }} Tiket</h3>
                 </div>
-            </div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+            </a>
+            <a href="{{ route('pj.dashboard', ['status' => $statusFilter === 'In Progress' ? 'semua' : 'In Progress']) }}"
+                class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'In Progress' ? 'border-amber-400 ring-2 ring-amber-100' : 'border-slate-100' }}">
+                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-spinner"></i></div>
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sedang Dikerjakan</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Dalam Proses</p>
                     <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ $diproses }} Tiket</h3>
                 </div>
-            </div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+            </a>
+            <a href="{{ route('pj.dashboard', ['status' => $statusFilter === 'Resolved,Closed' ? 'semua' : 'Resolved,Closed']) }}"
+                class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'Resolved,Closed' ? 'border-green-400 ring-2 ring-green-100' : 'border-slate-100' }}">
                 <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-circle-check"></i></div>
                 <div>
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Selesai</p>
                     <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ $selesai }} Tiket</h3>
                 </div>
-            </div>
+            </a>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -84,7 +87,12 @@
                 <div class="relative w-full sm:w-52" id="statusFilterWrapper">
                     <button type="button" id="statusFilterBtn"
                         class="w-full bg-slate-50 border border-slate-200 p-2.5 pr-10 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-xs font-semibold text-slate-600 flex justify-between items-center cursor-pointer hover:bg-slate-100/60">
-                        <span id="statusFilterLabel"><i class="fa-solid fa-filter mr-1.5 text-slate-400"></i>{{ $statusFilter === 'semua' ? 'Semua Status' : $statusFilter }}</span>
+                        <span id="statusFilterLabel"><i class="fa-solid fa-filter mr-1.5 text-slate-400"></i>
+                            @if($statusFilter === 'semua') Semua Status
+                            @elseif($statusFilter === 'Resolved,Closed') Resolved dan Closed
+                            @else {{ $statusFilter }}
+                            @endif
+                        </span>
                         <svg id="statusFilterArrow" class="h-4 w-4 text-slate-400 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                         </svg>
