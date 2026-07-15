@@ -142,11 +142,61 @@
 
     <script>
         const dataSubKategori = {
-            "IT—Hardware": ["Komputer rusak", "Monitor bermasalah", "Printer mati"],
-            "IT—Software": ["Instalasi aplikasi", "Error sistem", "Akun terkunci"],
-            "IT—Jaringan": ["Internet lambat", "WiFi tidak konek", "VPN bermasalah"],
-            "Sarana - Prasarana": ["AC rusak", "Kebersihan", "Kerusakan furnitur", "Listrik"],
-            "Administrasi": ["Permintaan dokumen", "ATK", "Surat-menyurat"]
+            "IT—Hardware": [
+                "Masalah Hard Disk & Penyimpanan",
+                "Masalah Scanner & Printer",
+                "Kerusakan Keyboard",
+                "Kerusakan Mouse",
+                "Kerusakan Printer Thermal / Kasir"
+            ],
+            "IT—Software": [
+                "Sinkronisasi Data Sistem",
+                "Gagal Upload Dokumen Digital",
+                "Error Sistem LPSE / Tender",
+                "Aplikasi E-Planning Tidak Diakses",
+                "Error OMSPAN / Anggaran",
+                "Gagal Upload Perencanaan Online",
+                "Masalah Pencarian Arsip Sistem"
+            ],
+            "IT—Jaringan": [
+                "Konflik IP Address",
+                "Kerusakan Switch Jaringan",
+                "Internet Lambat & Putus-Putus",
+                "Kerusakan Kabel LAN / Fisik",
+                "Terputus dari Server Lokal (LAN)"
+            ],
+            "Sarana—Prasarana": [
+                "Kerusakan Kursi Kantor",
+                "Perawatan & Cuci Kendaraan Dinas",
+                "Kerusakan Lemari Arsip / Furnitur",
+                "Wastafel & Saluran Air Tersumbat",
+                "Gangguan Genset & Kelistrikan",
+                "Kerusakan / Mogok Kendaraan Dinas",
+                "Administrasi STNK Kendaraan Dinas"
+            ],
+            "Administrasi": [
+                "Permintaan Pengadaan ATK",
+                "Pemesanan Kendaraan Dinas Luar Kota",
+                "Permintaan Pengemudi / Driver",
+                "Permintaan Rekap Operasional Bulanan",
+                "Alih Media Dokumen Fisik ke Digital",
+                "Permintaan Pembelian Tinta Printer",
+                "Permintaan Dokumentasi & Foto Acara"
+            ],
+            "Keamanan": [
+                "Penambahan Petugas Keamanan Malam",
+                "Kerusakan Palang Parkir Otomatis",
+                "Kunci Cadangan Ruangan Hilang",
+                "Gangguan CCTV Area Parkir",
+                "Kartu Akses Gedung Hilang"
+            ],
+            "Kebersihan": [
+                "Kebersihan Toilet",
+                "Pengosongan Tempat Sampah",
+                "Kebersihan Ruang Pantry",
+                "Penanganan Serangga / Hama Ruang Arsip",
+                "Pembersihan Kaca Jendela Luar Gedung"
+            ]
         };
 
         const selectKategori = document.getElementById('selectKategori');
