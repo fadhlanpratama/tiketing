@@ -13,28 +13,33 @@ class PjController extends Controller
         $this->middleware('cek.login:pj');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $namaPj = session('nama_lengkap');
 
-        $tickets = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
-            ->with('pelapor')
-            ->latest()
-            ->paginate(5);
+        $query = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
+            ->with('pelapor');
+
+        if ($request->filled('status') && $request->status !== 'semua') {
+            $query->where('status', $request->status);
+        }
+
+        $tickets = $query->latest()->paginate(5)->withQueryString();
 
         $counts = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
             ->selectRaw("
                 COUNT(CASE WHEN status = 'Open' THEN 1 END) as menunggu,
                 COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as diproses,
-                COUNT(CASE WHEN status = 'Resolved' THEN 1 END) as selesai
+                COUNT(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 END) as selesai
             ")
             ->first();
 
         return view('pj.dashboard', [
-            'tickets'  => $tickets,
-            'menunggu' => $counts->menunggu ?? 0,
-            'diproses' => $counts->diproses ?? 0,
-            'selesai'  => $counts->selesai ?? 0,
+            'tickets'      => $tickets,
+            'menunggu'     => $counts->menunggu ?? 0,
+            'diproses'     => $counts->diproses ?? 0,
+            'selesai'      => $counts->selesai ?? 0,
+            'statusFilter' => $request->input('status', 'semua'),
         ]);
     }
 

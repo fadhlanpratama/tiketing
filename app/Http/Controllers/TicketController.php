@@ -15,21 +15,30 @@ class TicketController extends Controller
         $this->middleware('cek.login');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $userId = session('user_id');
-        $tickets = Ticket::where('user_id', $userId)->with('pelapor')->latest()->paginate(5);
+
+        $query = Ticket::where('user_id', $userId)->with('pelapor');
+
+        if ($request->filled('status') && $request->status !== 'semua') {
+            $query->where('status', $request->status);
+        }
+
+        $tickets = $query->latest()->paginate(5)->withQueryString();
+
         $counts = Ticket::where('user_id', $userId)->selectRaw("
-            COUNT(CASE WHEN status IN ('Open', 'In Progress') THEN 1 END) as aktif,
+            COUNT(CASE WHEN status = 'Open' THEN 1 END) as aktif,
             COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as proses,
-            COUNT(CASE WHEN status = 'Resolved' THEN 1 END) as selesai
+            COUNT(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 END) as selesai
         ")->first();
 
         return view('user.dashboard', [
-            'tickets'     => $tickets,
-            'TiketAktif'  => $counts->aktif ?? 0,
-            'dalamProses' => $counts->proses ?? 0,
-            'selesai'     => $counts->selesai ?? 0
+            'tickets'      => $tickets,
+            'TiketAktif'   => $counts->aktif ?? 0,
+            'dalamProses'  => $counts->proses ?? 0,
+            'selesai'      => $counts->selesai ?? 0,
+            'statusFilter' => $request->input('status', 'semua'),
         ]);
     }
 
@@ -38,9 +47,9 @@ class TicketController extends Controller
         $userId = session('user_id');
         $user = Users::find($userId);
         $counts = Ticket::where('user_id', $userId)->selectRaw("
-            COUNT(CASE WHEN status IN ('Open', 'In Progress') THEN 1 END) as aktif,
+            COUNT(CASE WHEN status = 'Open' THEN 1 END) as aktif,
             COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as proses,
-            COUNT(CASE WHEN status = 'Resolved' THEN 1 END) as selesai
+            COUNT(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 END) as selesai
         ")->first();
 
         return view('user.create', [
@@ -92,9 +101,9 @@ class TicketController extends Controller
         $userId = session('user_id');
         $ticket = Ticket::where('id', $id)->where('user_id', $userId)->where('status', 'Open')->firstOrFail();
         $counts = Ticket::where('user_id', $userId)->selectRaw("
-            COUNT(CASE WHEN status IN ('Open', 'In Progress') THEN 1 END) as aktif,
+            COUNT(CASE WHEN status = 'Open' THEN 1 END) as aktif,
             COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as proses,
-            COUNT(CASE WHEN status = 'Resolved' THEN 1 END) as selesai
+            COUNT(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 END) as selesai
         ")->first();
 
         return view('user.edit', [
