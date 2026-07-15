@@ -14,15 +14,19 @@ use App\Http\Controllers\PjController;
 
 
 // ================= AUTENTIKASI UTAMA =================
-Route::get('/', [AuthController::class, 'showAuthForm'])->name('home');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
-Route::post('/register', [AuthController::class, 'register'])
-       ->middleware('throttle:5,1')->name('register');
+Route::middleware(['guest.redirect', 'no.cache'])->group(function () {
+    Route::get('/', [AuthController::class, 'showAuthForm'])->name('home');
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/register', [AuthController::class, 'register'])
+        ->middleware('throttle:5,1')->name('register');
+});
+
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 // ================= AREA: USER =================
-Route::prefix('user')->name('user.')->middleware('cek.login')->group(function () { 
+Route::prefix('user')->name('user.')->middleware(['cek.login', 'no.cache'])->group(function () {
     Route::get('/dashboard', [TicketController::class, 'index'])->name('dashboard');
 
     //tiket
@@ -35,7 +39,7 @@ Route::prefix('user')->name('user.')->middleware('cek.login')->group(function ()
 
 
 // ================= AREA: PENANGGUNG JAWAB =================
-Route::prefix('pj')->name('pj.')->middleware('cek.login:pj')->group(function () {
+Route::prefix('pj')->name('pj.')->middleware(['cek.login:pj', 'no.cache'])->group(function () {
     Route::get('/dashboard', [PjController::class, 'index'])->name('dashboard');
 
     // Aksi PJ terhadap tiket yang ditugaskan
@@ -46,7 +50,7 @@ Route::prefix('pj')->name('pj.')->middleware('cek.login:pj')->group(function () 
 
 
 // ================= AREA: ADMIN =================
-Route::prefix('admin')->name('admin.')->middleware('cek.login:admin')->group(function () {   
+Route::prefix('admin')->name('admin.')->middleware(['cek.login:admin', 'no.cache'])->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
