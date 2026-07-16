@@ -158,6 +158,14 @@ class TicketController extends Controller
         return redirect()->route('user.dashboard')->with('success', 'Tiket berhasil diperbarui!');
     }
 
+    public function show(string $id)
+    {
+        $userId = session('user_id');
+        $ticket = Ticket::where('id', $id)->where('user_id', $userId)->firstOrFail();
+
+        return view('user.detail', compact('ticket'));
+    }
+
     public function destroy(string $id)
     {
         $userId = session('user_id');

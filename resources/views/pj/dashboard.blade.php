@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESDM - Sistem Tiketing - Dashboard PJ</title>
+    <title>ESDM - Sistem Tiketing - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -122,7 +122,7 @@
                     </thead>
                     <tbody class="text-sm text-slate-600 divide-y divide-slate-100">
                         @forelse($tickets as $ticket)
-                        <tr class="hover:bg-slate-50/50 transition">
+                       <tr class="hover:bg-slate-50/50 transition cursor-pointer clickable-row" data-url="{{ route('pj.ticket.show', $ticket->id) }}">
                             <td class="p-4 pl-6 font-semibold text-slate-700">#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</td>
                             <td class="p-4">
                                 <p class="font-medium text-slate-800">{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}</p>
@@ -155,26 +155,9 @@
                                     <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Closed</span>
                                 @endif
                             </td>
-                            <td class="p-4 pr-6">
-                                <div class="flex items-center justify-center gap-2">
-                                    {{-- Tombol Detail --}}
-                                    <button type="button" class="btn-detail-ticket text-slate-600 hover:text-slate-800 font-semibold text-xs px-2.5 py-1.5 bg-slate-100 rounded-lg transition cursor-pointer"
-                                        data-id="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"
-                                        data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}"
-                                        data-bmn="{{ $ticket->nomor_bmn ?? '-' }}"
-                                        data-prioritas="{{ $ticket->prioritas }}"
-                                        data-status="{{ $ticket->status }}"
-                                        data-deskripsi="{{ $ticket->deskripsi_masalah }}"
-                                        data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB"
-                                        data-pelapor="{{ $ticket->pelapor->nama_lengkap ?? '-' }}"
-                                        data-divisi="{{ $ticket->pelapor->divisi ?? '-' }}"
-                                        data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}"
-                                        data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}"
-                                        data-hasil="{{ $ticket->hasil_resolved_foto ? asset('storage/' . $ticket->hasil_resolved_foto) : '' }}">
-                                        <i class="fa-solid fa-eye"></i> Detail
-                                    </button>
-
-                                    {{-- Tombol Aksi --}}
+                            <td class="p-4 pr-6" onclick="event.stopPropagation()">
+                                {{-- Tombol Aksi --}}
+                                <div class="flex items-center justify-center gap-2 action-buttons">
                                     @if($ticket->status == 'Open')
                                         <form action="{{ route('pj.ticket.terima', $ticket->id) }}" method="POST" class="inline">
                                             @csrf
@@ -203,7 +186,7 @@
             {{-- ===== VERSI MOBILE ===== --}}
             <div class="md:hidden p-4 space-y-4">
                 @forelse($tickets as $ticket)
-                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-3">
+                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-3 cursor-pointer clickable-row" data-url="{{ route('pj.ticket.show', $ticket->id) }}">
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-slate-700">#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</span>
                         @if($ticket->status == 'Open')
@@ -222,25 +205,8 @@
                         <p class="text-[11px] text-slate-400 mt-2"><i class="fa-solid fa-user"></i> Pelapor: {{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
                         <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock"></i> Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-1.5 pt-2 border-t border-slate-200/60">
-                        {{-- Tombol Detail --}}
-                        <button type="button" class="btn-detail-ticket text-center text-slate-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer"
-                            data-id="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"
-                            data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}"
-                            data-bmn="{{ $ticket->nomor_bmn ?? '-' }}"
-                            data-prioritas="{{ $ticket->prioritas }}"
-                            data-status="{{ $ticket->status }}"
-                            data-deskripsi="{{ $ticket->deskripsi_masalah }}"
-                            data-tanggal="{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB"
-                            data-pelapor="{{ $ticket->pelapor->nama_lengkap ?? '-' }}"
-                            data-divisi="{{ $ticket->pelapor->divisi ?? '-' }}"
-                            data-selesai="{{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('Y-m-d, H:i') . ' WIB' : 'Belum Selesai' }}"
-                            data-foto="{{ $ticket->attachment_foto ? asset('storage/' . $ticket->attachment_foto) : '' }}"
-                            data-hasil="{{ $ticket->hasil_resolved_foto ? asset('storage/' . $ticket->hasil_resolved_foto) : '' }}">
-                            Detail
-                        </button>
-
-                        {{-- Tombol Aksi --}}
+                    {{-- Tombol Aksi --}}
+                    <div class="grid grid-cols-1 gap-1.5 pt-2 border-t border-slate-200/60 action-buttons">
                         @if($ticket->status == 'Open')
                             <form action="{{ route('pj.ticket.terima', $ticket->id) }}" method="POST">
                                 @csrf
@@ -249,12 +215,12 @@
                                 </button>
                             </form>
                         @elseif($ticket->status == 'In Progress')
-                            <button type="button" class="btn-selesaikan bg-green-500 hover:bg-green-600 text-white font-bold text-xs py-2 rounded-xl transition"
+                            <button type="button" class="btn-selesaikan w-full bg-green-500 hover:bg-green-600 text-white font-bold text-xs py-2 rounded-xl transition"
                                 data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">
                                 Selesaikan
                             </button>
                         @else
-                            <span class="text-slate-300 text-xs italic text-center py-2">Selesai</span>
+                            <span class="text-slate-300 text-xs italic text-center py-2 block">Selesai</span>
                         @endif
                     </div>
                 </div>
@@ -306,82 +272,6 @@
             </div>
         </div>
     </main>
-
-    {{-- ==================== MODAL DETAIL TIKET ==================== --}}
-    <div id="detailModal" class="fixed inset-0 bg-slate-900/60 items-center justify-center p-4 z-50 hidden transition-all opacity-0 duration-300">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden transform scale-95 transition-all duration-300 max-h-[90vh] flex flex-col">
-            <div class="bg-[#0a2540] text-white p-5 flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2.5">
-                    <i class="fa-solid fa-circle-info text-amber-400 text-xl"></i>
-                    <h3 class="text-base sm:text-lg font-bold tracking-tight">Rincian Laporan Tiket</h3>
-                </div>
-            </div>
-
-            <div class="p-6 space-y-4 text-sm text-slate-700 overflow-y-auto flex-1">
-                <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <div>
-                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">ID Tiket</p>
-                        <p id="detailId" class="font-bold text-slate-800 mt-0.5">-</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Status Progres</p>
-                        <p id="detailStatus" class="mt-0.5">-</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pelapor</p>
-                        <p id="detailPelapor" class="font-semibold text-slate-800 bg-slate-50 p-2.5 rounded-xl border border-slate-100">-</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Divisi Pelapor</p>
-                        <p id="detailDivisi" class="font-semibold text-slate-800 bg-slate-50 p-2.5 rounded-xl border border-slate-100">-</p>
-                    </div>
-                </div>
-
-                <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Kategori / Sub-Kategori</p>
-                    <p id="detailKategori" class="font-semibold text-slate-800 bg-slate-50 p-2.5 rounded-xl border border-slate-100">-</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nomor BMN</p>
-                        <p id="detailBmn" class="font-mono text-slate-800 bg-slate-50 p-2.5 rounded-xl border border-slate-100">-</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Prioritas</p>
-                        <p id="detailPrioritas" class="font-semibold text-slate-800 bg-slate-50 p-2.5 rounded-xl border border-slate-100">-</p>
-                    </div>
-                </div>
-
-                <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Deskripsi Masalah</p>
-                    <div id="detailDeskripsi" class="bg-slate-50 p-3 rounded-xl border border-slate-100 whitespace-pre-line text-slate-600 min-h-[60px] text-xs sm:text-sm"></div>
-                </div>
-
-                <div id="detailFotoContainer" class="hidden">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Foto Kerusakan (dari Pelapor)</p>
-                    <div class="border border-slate-100 rounded-xl overflow-hidden bg-slate-50 p-1.5">
-                        <img id="detailFoto" src="" alt="Foto Kerusakan" class="w-full max-h-52 object-contain rounded-lg">
-                    </div>
-                </div>
-
-                <div id="detailHasilContainer" class="hidden">
-                    <p class="text-[10px] font-bold text-green-600 uppercase tracking-wider mb-1">Foto Bukti Penyelesaian (Anda)</p>
-                    <div class="border border-green-100 rounded-xl overflow-hidden bg-green-50/30 p-1.5">
-                        <img id="detailHasil" src="" alt="Bukti Penyelesaian" class="w-full max-h-52 object-contain rounded-lg">
-                    </div>
-                    <p id="detailSelesai" class="text-[11px] text-slate-400 mt-1">-</p>
-                </div>
-            </div>
-
-            <div class="p-4 border-t border-slate-100 flex justify-end bg-slate-50 shrink-0">
-                <button type="button" id="btnCloseDetailContainer" class="bg-[#0a2540] hover:bg-slate-800 text-white font-semibold text-xs sm:text-sm px-5 py-2 rounded-xl transition shadow-sm cursor-pointer">Tutup Rincian</button>
-            </div>
-        </div>
-    </div>
 
     {{-- ==================== MODAL PENYELESAIAN TIKET ==================== --}}
     <div id="selesaikanModal" class="fixed inset-0 bg-slate-900/60 items-center justify-center p-4 z-50 hidden transition-all opacity-0 duration-300">
@@ -457,58 +347,6 @@
             }
         }
 
-        const detailModal = document.getElementById('detailModal');
-        document.getElementById('btnCloseDetailContainer').addEventListener('click', () => {
-            detailModal.classList.add('opacity-0');
-            detailModal.querySelector('.max-w-xl').classList.add('scale-95');
-            setTimeout(() => {
-                detailModal.classList.add('hidden');
-                detailModal.classList.remove('flex');
-            }, 300);
-        });
-
-        document.querySelectorAll('.btn-detail-ticket').forEach(button => {
-            button.addEventListener('click', function() {
-                document.getElementById('detailId').innerText = this.getAttribute('data-id');
-                document.getElementById('detailKategori').innerText = this.getAttribute('data-kategori');
-                document.getElementById('detailBmn').innerText = this.getAttribute('data-bmn');
-                document.getElementById('detailPrioritas').innerText = this.getAttribute('data-prioritas');
-                document.getElementById('detailDeskripsi').innerText = this.getAttribute('data-deskripsi');
-                document.getElementById('detailPelapor').innerText = this.getAttribute('data-pelapor');
-                document.getElementById('detailDivisi').innerText = this.getAttribute('data-divisi');
-                document.getElementById('detailSelesai').innerText = this.getAttribute('data-selesai');
-
-                const status = this.getAttribute('data-status');
-                const statusEl = document.getElementById('detailStatus');
-                if (status === 'Open') {
-                    statusEl.innerHTML = `<span class="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase">Open</span>`;
-                } else if (status === 'In Progress') {
-                    statusEl.innerHTML = `<span class="bg-blue-100 text-blue-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase">Diproses</span>`;
-                } else {
-                    statusEl.innerHTML = `<span class="bg-green-100 text-green-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase">Selesai</span>`;
-                }
-
-                const foto = this.getAttribute('data-foto');
-                const fotoContainer = document.getElementById('detailFotoContainer');
-                const fotoImg = document.getElementById('detailFoto');
-                if (foto) { fotoImg.src = foto; fotoContainer.classList.remove('hidden'); }
-                else { fotoImg.src = ''; fotoContainer.classList.add('hidden'); }
-
-                const hasil = this.getAttribute('data-hasil');
-                const hasilContainer = document.getElementById('detailHasilContainer');
-                const hasilImg = document.getElementById('detailHasil');
-                if (hasil) { hasilImg.src = hasil; hasilContainer.classList.remove('hidden'); }
-                else { hasilImg.src = ''; hasilContainer.classList.add('hidden'); }
-
-                detailModal.classList.remove('hidden');
-                detailModal.classList.add('flex');
-                setTimeout(() => {
-                    detailModal.classList.remove('opacity-0');
-                    detailModal.querySelector('.max-w-xl').classList.remove('scale-95');
-                }, 50);
-            });
-        });
-
         const selesaikanModal = document.getElementById('selesaikanModal');
         const formSelesaikan = document.getElementById('formSelesaikan');
         const buktiFotoInput = document.getElementById('bukti_foto_input');
@@ -579,6 +417,18 @@
         document.addEventListener('click', () => {
             statusFilterMenu.classList.add('hidden');
             statusFilterArrow.classList.remove('rotate-180');
+        });
+
+        document.querySelectorAll('.clickable-row').forEach(row => {
+            row.addEventListener('click', function() {
+                window.location.href = this.getAttribute('data-url');
+            });
+        });
+
+        document.querySelectorAll('.action-buttons').forEach(container => {
+            container.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
         });
     </script>
 </body>
