@@ -127,9 +127,6 @@
                             <td class="p-4">
                                 <p class="font-medium text-slate-800">{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}</p>
                                 <span class="text-[11px] text-slate-400">Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
-                                @if($ticket->user_edited_at)
-                                    <span class="text-[11px] text-amber-600 font-medium block"><i class="fa-solid fa-pen-to-square text-[10px]"></i> Diubah pelapor: {{ $ticket->user_edited_at->format('Y-m-d, H:i') }} WIB</span>
-                                @endif
                             </td>
                             <td class="p-4">
                                 <p class="font-medium text-slate-800">{{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
@@ -153,6 +150,9 @@
                                     <span class="bg-green-100 text-green-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Resolved</span>
                                 @elseif($ticket->status == 'Closed')
                                     <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Closed</span>
+                                    @if($ticket->closed_by === 'user')
+                                        <span class="text-[10px] text-slate-600 italic block mt-1"><i class="fa-solid fa-user-slash"></i> Dibatalkan oleh Pelapor</span>
+                                    @endif
                                 @endif
                             </td>
                             <td class="p-4 pr-6" onclick="event.stopPropagation()">
@@ -196,9 +196,12 @@
                         @elseif($ticket->status == 'Resolved')
                             <span class="bg-green-100 text-green-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Resolved</span>
                        @elseif($ticket->status == 'Closed')
-                            <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Closed</span>
+                             <span class="bg-slate-100 text-slate-600 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Closed</span>
                         @endif
                     </div>
+                    @if($ticket->status == 'Closed' && $ticket->closed_by === 'user')
+                        <p class="text-[10px] text-slate-600 italic mt-1"><i class="fa-solid fa-user-slash"></i> Dibatalkan oleh Pelapor</p>
+                    @endif
                     <div>
                         <h4 class="font-bold text-slate-800 text-sm">{{ $ticket->kategori }}</h4>
                         <p class="text-xs text-slate-600 mt-0.5">{{ $ticket->sub_kategori }}</p>

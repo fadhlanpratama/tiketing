@@ -32,8 +32,6 @@ Route::prefix('user')->name('user.')->middleware(['cek.login:user', 'no.cache'])
     //tiket
     Route::get('/ticket/create', [TicketController::class, 'create'])->name('ticket.create'); 
     Route::post('/ticket/store', [TicketController::class, 'store'])->middleware('throttle:10,1')->name('ticket.store'); 
-    Route::get('/ticket/{id}/edit', [TicketController::class, 'edit'])->name('ticket.edit'); 
-    Route::put('/ticket/{id}/update', [TicketController::class, 'update'])->name('ticket.update'); 
     Route::get('/ticket/{id}', [TicketController::class, 'show'])->name('ticket.show');
     Route::delete('/ticket/{id}', [TicketController::class, 'destroy'])->name('ticket.destroy'); 
 });

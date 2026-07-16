@@ -33,6 +33,9 @@
                             <span class="bg-green-100 text-green-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase">Resolved</span>
                         @elseif($ticket->status == 'Closed')
                             <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase">Closed</span>
+                             @if($ticket->closed_by === 'user')
+                                <span class="text-[10px] text-slate-600 italic block mt-1"><i class="fa-solid fa-user-slash"></i>  Ditutup Oleh Anda</span>
+                            @endif
                         @endif
                     </p>
                 </div>
@@ -43,9 +46,6 @@
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tanggal Pengajuan</p>
                     <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                         <p class="font-medium text-slate-800">{{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</p>
-                        @if($ticket->user_edited_at)
-                            <p class="text-[11px] text-amber-600 font-semibold mt-0.5">Diubah: {{ $ticket->user_edited_at->format('Y-m-d, H:i') }} WIB</p>
-                        @endif
                     </div>
                 </div>
                 <div>

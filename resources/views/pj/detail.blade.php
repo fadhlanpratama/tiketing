@@ -24,7 +24,7 @@
                 </div>
                 <div>
                     <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Status Progres</p>
-                    <p class="mt-0.5">
+                   <p class="mt-0.5">
                         @if($ticket->status == 'Open')
                             <span class="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase">Open</span>
                         @elseif($ticket->status == 'In Progress')
@@ -33,6 +33,9 @@
                             <span class="bg-green-100 text-green-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase">Resolved</span>
                         @elseif($ticket->status == 'Closed')
                             <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase">Closed</span>
+                            @if($ticket->closed_by === 'user')
+                                <span class="text-[11px] text-slate-600 italic block mt-1"><i class="fa-solid fa-user-slash"></i> Dibatalkan oleh Pelapor</span>
+                            @endif
                         @endif
                     </p>
                 </div>
