@@ -99,8 +99,9 @@ class PjController extends Controller
 
         $ticket = Ticket::where('id', $id)
             ->whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
+            ->with('pelapor')
             ->firstOrFail();
 
-        return response()->json($ticket);
+        return view('pj.detail', compact('ticket'));
     }
 }
