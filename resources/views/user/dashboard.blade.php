@@ -139,10 +139,6 @@
                                 <p class="font-medium text-slate-800">{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}</p>
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-x-2 text-[11px] text-slate-400 mt-0.5">
                                     <span>Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
-                                    @if($ticket->user_edited_at)
-                                        <span class="hidden sm:inline text-slate-300">|</span>
-                                        <span class="text-amber-600 font-medium"><i class="fa-solid fa-pen-to-square text-[10px]"></i> Diubah: {{ $ticket->user_edited_at->format('Y-m-d, H:i') }} WIB</span>
-                                    @endif
                                 </div>
                             </td>
                             <td class="p-4">
@@ -163,12 +159,14 @@
                                     <span class="bg-green-100 text-green-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Resolved</span>
                                 @elseif($ticket->status == 'Closed')
                                     <span class="bg-slate-100 text-slate-600 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Closed</span>
+                                     @if($ticket->closed_by === 'user')
+                                        <span class="text-[10px] text-slate-600 italic block mt-1"><i class="fa-solid fa-user-slash"></i>  Ditutup Oleh Anda</span>
+                                    @endif
                                 @endif
                             </td>
                             <td class="p-4 pr-6 flex items-center justify-center gap-2 action-buttons">
                                 @if($ticket->status == 'Open')
-                                    <a href="{{ route('user.ticket.edit', $ticket->id) }}" class="text-blue-600 hover:text-blue-800 font-semibold text-xs px-2.5 py-1.5 bg-blue-50 rounded-lg transition"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
-                                    <button type="button" class="btn-delete-trigger text-red-600 hover:text-red-800 font-semibold text-xs px-2.5 py-1.5 bg-red-50 rounded-lg transition cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"><i class="fa-solid fa-trash-can"></i> Hapus</button>
+                                <button type="button" class="btn-delete-trigger text-red-600 hover:text-red-800 font-semibold text-xs px-2.5 py-1.5 bg-red-50 rounded-lg transition cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"><i class="fa-solid fa-ban"></i>  Tutup tiket</button>
                                 @endif
                             </td>
                         </tr>
@@ -196,15 +194,15 @@
                             <span class="bg-slate-100 text-slate-600 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Closed</span>
                         @endif
                     </div>
+                        @if($ticket->closed_by === 'user')
+                            <span class="text-[10px] text-slate-600 italic block mt-1"><i class="fa-solid fa-user-slash"></i>  Ditutup Oleh Anda</span>
+                         @endif
                     <div>
                         <h4 class="font-bold text-slate-800 text-sm">{{ $ticket->kategori }}</h4>
                         <p class="text-xs text-slate-600 mt-0.5">{{ $ticket->sub_kategori }}</p>
                         
                         <div class="space-y-0.5 mt-2">
                             <span class="text-[10px] text-slate-400 block"><i class="fa-regular fa-clock"></i> Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
-                            @if($ticket->user_edited_at)
-                                <span class="text-[10px] text-amber-600 font-medium block"><i class="fa-solid fa-pen-to-square"></i> Diubah: {{ $ticket->user_edited_at->format('Y-m-d, H:i') }} WIB</span>
-                            @endif
                         </div>
 
                         <span class="text-[10px] font-semibold text-slate-500 block mt-2">
@@ -216,8 +214,7 @@
                     </div>
                     <div class="grid {{ $ticket->status == 'Open' ? 'grid-cols-2' : 'grid-cols-1' }} gap-1.5 pt-2 border-t border-slate-200/60 action-buttons">
                         @if($ticket->status == 'Open')
-                            <a href="{{ route('user.ticket.edit', $ticket->id) }}" class="text-center text-blue-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl">Edit</a>
-                            <button type="button" class="btn-delete-trigger text-center text-red-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">Hapus</button>
+                          <button type="button" class="btn-delete-trigger col-span-2 text-center text-red-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">Tutup Tiket</button>
                         @endif
                     </div>
                 </div>
@@ -275,8 +272,8 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div>
-                <h3 class="text-lg font-bold text-slate-800">Hapus Laporan Tiket?</h3>
-                <p class="text-xs text-slate-400 mt-1">Apakah Anda benar-benar yakin ingin menghapus tiket <span id="deleteTicketCode" class="font-bold text-slate-700"></span>? Tindakan ini tidak dapat dikembalikan.</p>
+               <h3 class="text-lg font-bold text-slate-800">Tutup Tiket?</h3>
+                <p class="text-xs text-slate-400 mt-1"><span id="deleteTicketCode" class="font-bold text-slate-700"></span> akan ditutup dan tidak akan di proses. apakah anda yakin ?</p>
             </div>
             
             <form id="deleteTicketForm" action="" method="POST">
@@ -284,7 +281,7 @@
                 @method('DELETE')
                 <div class="grid grid-cols-2 gap-3 pt-2">
                     <button type="button" onclick="closeDeleteModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm py-2.5 rounded-xl transition cursor-pointer">Batal</button>
-                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-semibold text-sm py-2.5 rounded-xl transition shadow-md cursor-pointer">Hapus</button>
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-semibold text-sm py-2.5 rounded-xl transition shadow-md cursor-pointer">Tutup Tiket</button>
                 </div>
             </form>
         </div>
