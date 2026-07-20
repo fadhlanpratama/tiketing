@@ -3,196 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - TIXPass ESDM</title>
+    <title>ESDM - Sistem Tiketing - Dashboard Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 min-h-screen font-sans antialiased flex">
+<body class="bg-slate-100 font-sans antialiased min-h-screen flex">
 
-    <aside class="fixed inset-y-0 left-0 bg-[#0a2540] text-slate-300 w-64 hidden md:flex flex-col z-30 transition-all duration-300">
-        <div class="h-20 flex items-center px-6 border-b border-slate-700/50 gap-3">
-            <div class="bg-amber-400 p-2 rounded-xl text-[#0a2540]">
-                <i class="fa-solid fa-ticket text-lg"></i>
-            </div>
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="w-64 bg-[#0a2540] text-white flex flex-col shrink-0 min-h-screen shadow-xl sticky top-0 h-screen">
+        <div class="h-20 flex items-center gap-3 px-6 border-b border-slate-700/60 shrink-0">
+            <img src="{{ asset('image/esdm.png') }}" alt="Logo" class="w-9 h-9 object-contain">
             <div>
-                <h1 class="text-white font-black tracking-wider text-lg">TIXPass</h1>
-                <span class="text-[10px] text-amber-400 uppercase font-bold tracking-widest">Internal ESDM</span>
+                <h1 class="font-black text-sm tracking-wider">ADMIN PANEL</h1>
+                <span class="text-[9px] text-amber-400 uppercase font-bold tracking-widest block">Sistem Tiketing</span>
             </div>
         </div>
 
-        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-            <a href="#" class="flex items-center gap-3 bg-slate-800 text-white px-4 py-3 rounded-xl transition text-sm font-medium">
-                <i class="fa-solid fa-chart-pie text-amber-400 w-5"></i> Dashboard Overview
-            </a>
-            <a href="#" class="flex items-center gap-3 hover:bg-slate-800 hover:text-white px-4 py-3 rounded-xl transition text-sm font-medium text-slate-400">
-                <i class="fa-solid fa-clipboard-list w-5"></i> Kelola Tiket
-            </a>
-            <a href="#" class="flex items-center gap-3 hover:bg-slate-800 hover:text-white px-4 py-3 rounded-xl transition text-sm font-medium text-slate-400">
-                <i class="fa-solid fa-users w-5"></i> Data Pengguna
-            </a>
-            <a href="#" class="flex items-center gap-3 hover:bg-slate-800 hover:text-white px-4 py-3 rounded-xl transition text-sm font-medium text-slate-400">
-                <i class="fa-solid fa-gears w-5"></i> Pengaturan Sistem
-            </a>
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <!-- NAV 1: Persetujuan Akun -->
+            <button onclick="switchTab('approvalTab')" id="btnApprovalTab" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-400 text-[#0a2540]">
+                <i class="fa-solid fa-user-check text-sm"></i>
+                <span>Persetujuan Akun</span>
+                @if($pendingUsers->count() > 0)
+                    <span class="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">{{ $pendingUsers->count() }}</span>
+                @endif
+            </button>
+
+            <!-- NAV 2: Manajemen Tiket (PJ & Closed) -->
+            <button onclick="switchTab('ticketTab')" id="btnTicketTab" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white">
+                <i class="fa-solid fa-ticket text-sm"></i>
+                <span>Manajemen Tiket</span>
+                @php $totalTiketNotif = $unassignedTickets->count() + $resolvedTickets->count(); @endphp
+                @if($totalTiketNotif > 0)
+                    <span class="ml-auto bg-amber-500 text-[#0a2540] text-[10px] px-2 py-0.5 rounded-full font-bold">{{ $totalTiketNotif }}</span>
+                @endif
+            </button>
         </nav>
 
-        <div class="p-4 border-t border-slate-700/50 bg-[#071d33]">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center text-[#0a2540] font-bold uppercase">
-                    {{ substr(session('user_logged'), 0, 2) }}
-                </div>
-                <div class="overflow-hidden">
-                    <p class="text-sm font-semibold text-white truncate">{{ session('user_logged') }}</p>
-                    <span class="text-[11px] bg-amber-400/20 text-amber-400 px-2 py-0.5 rounded-md uppercase font-bold">{{ session('user_role') }}</span>
-                </div>
-            </div>
+        <div class="p-4 border-t border-slate-700/60 shrink-0">
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit"
-                    class="flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white w-full py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer">
+                <button type="submit" class="w-full flex items-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition cursor-pointer">
                     <i class="fa-solid fa-right-from-bracket"></i>
-                    Keluar Aplikasi
+                    <span>Keluar Admin</span>
                 </button>
             </form>
         </div>
     </aside>
 
-    <div class="flex-1 md:pl-64 flex flex-col min-h-screen">
-        
-        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-20">
-            <div class="flex items-center gap-4">
-                <button class="md:hidden text-slate-600 focus:outline-none">
-                    <i class="fa-solid fa-bars text-xl"></i>
-                </button>
-                <div>
-                    <h2 class="text-xl font-bold text-slate-800">Dashboard Overview</h2>
-                    <p class="text-xs text-slate-400 hidden sm:block">Sistem Informasi Manajemen Tiket Layanan Internal</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="text-right hidden sm:block">
-                    <p class="text-xs text-slate-400 font-medium">Hari ini</p>
-                    <p class="text-sm font-semibold text-slate-700">{{ date('d M Y') }}</p>
-                </div>
-                <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
-                        <i class="fa-regular fa-bell"></i>
-                    </div>
-                </div>
-            </div>
-        </header>
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="flex-1 p-6 lg:p-8 space-y-6 overflow-y-auto">
 
-        <main class="flex-1 p-6 space-y-6">
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Tiket</p>
-                        <h3 class="text-2xl font-bold text-slate-800 mt-1">1,248</h3>
-                        <span class="text-xs text-green-500 font-medium"><i class="fa-solid fa-arrow-trend-up"></i> +12% minggu ini</span>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 text-xl">
-                        <i class="fa-solid fa-ticket"></i>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tiket Pending</p>
-                        <h3 class="text-2xl font-bold text-slate-800 mt-1">42</h3>
-                        <span class="text-xs text-amber-500 font-medium"><i class="fa-regular fa-clock"></i> Butuh respon</span>
-                    </div>
-                    <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 text-xl">
-                        <i class="fa-solid fa-hourglass-half"></i>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tiket Selesai</p>
-                        <h3 class="text-2xl font-bold text-slate-800 mt-1">1,186</h3>
-                        <span class="text-xs text-green-500 font-medium"><i class="fa-regular fa-circle-check"></i> Rasio 95%</span>
-                    </div>
-                    <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-500 text-xl">
-                        <i class="fa-solid fa-check-double"></i>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total User</p>
-                        <h3 class="text-2xl font-bold text-slate-800 mt-1">312</h3>
-                        <span class="text-xs text-slate-400 font-medium">Pegawai Terdaftar</span>
-                    </div>
-                    <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-500 text-xl">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                </div>
+        <!-- Header Utama -->
+        <div class="flex justify-between items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
+            <div>
+                <h2 class="text-xl font-bold text-slate-800" id="pageTitle">Persetujuan Akun Pengguna</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Kelola verifikasi pendaftaran akun dan alur penanganan tiket helpdesk</p>
+            </div>
+            <span class="bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200">
+                <i class="fa-solid fa-user-shield text-amber-500 me-1"></i> Mode Admin
+            </span>
+        </div>
+
+        <!-- Notifikasi Session -->
+        @if(session('success'))
+            <div class="bg-green-100 border border-green-200 text-green-800 p-4 rounded-xl text-xs font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-green-600 text-sm"></i>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="bg-red-100 border border-red-200 text-red-800 p-4 rounded-xl text-xs font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation text-red-600 text-sm"></i>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
+
+        <!-- ================= TAB 1: PERSETUJUAN AKUN ================= -->
+        <div id="approvalTab" class="tab-content bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-4">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <h3 class="font-bold text-slate-800 text-base">Permohonan Registrasi Akun</h3>
+                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">
+                    {{ $pendingUsers->count() }} Permohonan
+                </span>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800">Tiket Masuk Terbaru</h3>
-                        <p class="text-xs text-slate-400">Daftar permohonan tiket internal esdm yang perlu ditinjau</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-400 text-xs font-semibold border-b border-slate-100">
+                            <th class="p-3.5">NAMA LENGKAP</th>
+                            <th class="p-3.5">EMAIL</th>
+                            <th class="p-3.5">NO TELP</th>
+                            <th class="p-3.5">PILIH DIVISI</th>
+                            <th class="p-3.5">PILIH ROLE</th>
+                            <th class="p-3.5 text-center">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-xs text-slate-600 divide-y divide-slate-100">
+                        @forelse($pendingUsers as $user)
+                        <tr>
+                            <td class="p-3.5 font-bold text-slate-800">{{ $user->nama_lengkap }}</td>
+                            <td class="p-3.5">{{ $user->email }}</td>
+                            <td class="p-3.5">{{ $user->no_telp }}</td>
+                            <form action="{{ route('admin.user.approve', $user->id) }}" method="POST">
+                                @csrf
+                                <td class="p-3.5">
+                                    <select name="divisi" required class="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs focus:outline-none focus:border-amber-500">
+                                        <option value="" disabled selected>-- Pilih Divisi --</option>
+                                        @foreach($daftarDivisi as $div)
+                                            <option value="{{ $div }}">{{ $div }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                <td class="p-3.5">
+                                    <select name="role" required class="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs focus:outline-none focus:border-amber-500">
+                                        <option value="user" selected>User (Pegawai)</option>
+                                        <option value="pj">PJ (Teknisi)</option>
+                                    </select>
+                                </td>
+                                <td class="p-3.5 text-center space-x-1">
+                                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold px-3 py-1.5 rounded-lg transition">
+                                        Setujui
+                                    </button>
+                            </form>
+                            <form action="{{ route('admin.user.reject', $user->id) }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" onclick="return confirm('Tolak pendaftaran ini?')" class="bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded-lg transition">
+                                    Tolak
+                                </button>
+                            </form>
+                                </td>
+                        </tr>
+                        @empty
+                        <tr><td colspan="6" class="p-8 text-center text-slate-400">Tidak ada permohonan pendaftaran akun.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: MANAJEMEN TIKET (PJ & CLOSED DILUAT DALAM 1 TAMPILAN) ================= -->
+        <div id="ticketTab" class="tab-content hidden space-y-8">
+
+            <!-- BAGIAN A: PENUGASAN PJ (TIKET STATUS OPEN) -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-4">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-user-gear text-[#0a2540]"></i>
+                        <h3 class="font-bold text-slate-800 text-base">Penugasan PJ (Tiket Open)</h3>
                     </div>
-                    <button class="bg-[#0a2540] hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition self-start sm:self-center shadow-md">
-                        Lihat Semua Tiket
-                    </button>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded-full">
+                        {{ $unassignedTickets->count() }} Belum Ditunjuk PJ
+                    </span>
                 </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-400 font-semibold text-xs tracking-wider border-b border-slate-100">
-                                <th class="p-4 pl-6">ID TIKET</th>
-                                <th class="p-4">PEMOHON</th>
-                                <th class="p-4">KATEGORI LAYANAN</th>
-                                <th class="p-4">TANGGAL MASUK</th>
-                                <th class="p-4">STATUS</th>
-                                <th class="p-4 pr-6 text-center">AKSI</th>
+                            <tr class="bg-slate-50 text-slate-400 text-xs font-semibold border-b border-slate-100">
+                                <th class="p-3.5">ID TIKET</th>
+                                <th class="p-3.5">PELAPOR</th>
+                                <th class="p-3.5">KATEGORI</th>
+                                <th class="p-3.5">PRIORITAS</th>
+                                <th class="p-3.5">PILIH PJ / TEKNISI</th>
+                                <th class="p-3.5 text-center">AKSI</th>
                             </tr>
                         </thead>
-                        <tbody class="text-sm text-slate-600 divide-y divide-slate-100">
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="p-4 pl-6 font-semibold text-slate-700">#TX-00482</td>
-                                <td class="p-4">Ahmad Fauzi</td>
-                                <td class="p-4">Gangguan Jaringan Pusdatin</td>
-                                <td class="p-4">02 Jul 2026</td>
-                                <td class="p-4">
-                                    <span class="bg-amber-100 text-amber-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Pending</span>
-                                </td>
-                                <td class="p-4 pr-6 text-center">
-                                    <button class="text-blue-500 hover:text-blue-700 font-semibold text-xs px-3 py-1.5 bg-blue-50 rounded-lg transition">Proses</button>
-                                </td>
+                        <tbody class="text-xs text-slate-600 divide-y divide-slate-100">
+                            @forelse($unassignedTickets as $ticket)
+                            <tr>
+                                <td class="p-3.5 font-bold text-slate-800">#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</td>
+                                <td class="p-3.5 font-bold">{{ $ticket->pelapor->nama_lengkap ?? 'User' }}</td>
+                                <td class="p-3.5">{{ $ticket->kategori }}</td>
+                                <td class="p-3.5"><span class="px-2 py-1 rounded text-[10px] font-bold border border-amber-200 bg-amber-50 text-amber-600">{{ $ticket->prioritas }}</span></td>
+                                
+                                <form action="{{ route('admin.ticket.assign', $ticket->id) }}" method="POST">
+                                    @csrf
+                                    <td class="p-3.5">
+                                        <select name="penanggung_jawab" required class="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs w-full focus:outline-none focus:border-amber-500">
+                                            <option value="" disabled selected>-- Pilih PJ --</option>
+                                            @foreach($activePjs as $pj)
+                                                <option value="{{ $pj->nama_lengkap }}">{{ $pj->nama_lengkap }} ({{ $pj->divisi }})</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td class="p-3.5 text-center">
+                                        <button type="submit" class="bg-[#0a2540] hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-lg transition">
+                                            Tunjuk PJ
+                                        </button>
+                                    </td>
+                                </form>
                             </tr>
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="p-4 pl-6 font-semibold text-slate-700">#TX-00481</td>
-                                <td class="p-4">Siti Aminah</td>
-                                <td class="p-4">Permintaan Akun Aplikasi</td>
-                                <td class="p-4">02 Jul 2026</td>
-                                <td class="p-4">
-                                    <span class="bg-blue-100 text-blue-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Diproses</span>
-                                </td>
-                                <td class="p-4 pr-6 text-center">
-                                    <button class="text-slate-500 hover:text-slate-700 font-semibold text-xs px-3 py-1.5 bg-slate-100 rounded-lg transition">Detail</button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="p-4 pl-6 font-semibold text-slate-700">#TX-00480</td>
-                                <td class="p-4">Budi Setiawan</td>
-                                <td class="p-4">Perbaikan Hardware Ruang Rapat</td>
-                                <td class="p-4">01 Jul 2026</td>
-                                <td class="p-4">
-                                    <span class="bg-green-100 text-green-800 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">Selesai</span>
-                                </td>
-                                <td class="p-4 pr-6 text-center">
-                                    <button class="text-slate-500 hover:text-slate-700 font-semibold text-xs px-3 py-1.5 bg-slate-100 rounded-lg transition">Detail</button>
-                                </td>
-                            </tr>
+                            @empty
+                            <tr><td colspan="6" class="p-8 text-center text-slate-400">Tidak ada tiket yang butuh penunjukan PJ.</td></tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
-        </main>
-    </div>
+            <!-- BAGIAN B: VERIFIKASI CLOSED (TIKET STATUS RESOLVED) -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-4">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-green-600"></i>
+                        <h3 class="font-bold text-slate-800 text-base">Tiket Resolved (Siap Diclosed Admin)</h3>
+                    </div>
+                    <span class="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full">
+                        {{ $resolvedTickets->count() }} Siap Verifikasi
+                    </span>
+                </div>
 
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 text-xs font-semibold border-b border-slate-100">
+                                <th class="p-3.5">ID TIKET</th>
+                                <th class="p-3.5">PELAPOR</th>
+                                <th class="p-3.5">PJ TEKNISI</th>
+                                <th class="p-3.5">BUKTI FOTO</th>
+                                <th class="p-3.5 text-center">AKSI UBAH CLOSED</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs text-slate-600 divide-y divide-slate-100">
+                            @forelse($resolvedTickets as $ticket)
+                            <tr>
+                                <td class="p-3.5 font-bold text-slate-800">#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</td>
+                                <td class="p-3.5 font-bold">{{ $ticket->pelapor->nama_lengkap ?? 'User' }}</td>
+                                <td class="p-3.5 text-slate-800 font-semibold">{{ $ticket->penanggung_jawab }}</td>
+                                <td class="p-3.5">
+                                    @if($ticket->hasil_resolved_foto)
+                                        <a href="{{ asset('storage/' . $ticket->hasil_resolved_foto) }}" target="_blank" class="text-amber-600 hover:underline font-bold">
+                                            <i class="fa-solid fa-image me-1"></i>Lihat Foto
+                                        </a>
+                                    @else
+                                        <span class="text-slate-400">-</span>
+                                    @endif
+                                </td>
+                                <td class="p-3.5 text-center">
+                                    <form action="{{ route('admin.ticket.close', $ticket->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" onclick="return confirm('Ubah status tiket menjadi Closed?')" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg transition">
+                                            <i class="fa-solid fa-lock me-1"></i> Ubah Ke Closed
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr><td colspan="5" class="p-8 text-center text-slate-400">Tidak ada tiket berstatus Resolved.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- ================= JAVASCRIPT LOGIKA SWITCH 2 TAB ================= -->
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white";
+            });
+
+            if (tabId === 'approvalTab') {
+                document.getElementById('btnApprovalTab').className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-400 text-[#0a2540]";
+                document.getElementById('pageTitle').innerText = "Persetujuan Akun Pengguna";
+            } else if (tabId === 'ticketTab') {
+                document.getElementById('btnTicketTab').className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-400 text-[#0a2540]";
+                document.getElementById('pageTitle').innerText = "Manajemen Tiket Helpdesk";
+            }
+        }
+    </script>
 </body>
 </html>

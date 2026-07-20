@@ -6,9 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Users; 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Routing\Controller;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Cache;
 
 class AuthController extends Controller
 {
@@ -21,17 +22,9 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'nama_lengkap' => [
-                    'required', 'string', 'min:3', 'max:150',
-                    Rule::when($request->input('role') === 'pj', [
-                        Rule::unique('users', 'nama_lengkap')
-                            ->where(fn ($query) => $query->where('role', 'pj')),
-                    ]),
-                ],
+                'nama_lengkap' => ['required', 'string', 'min:3', 'max:150'],
                 'email'        => 'required|email:rfc,dns|max:254|unique:users,email',
-                'divisi'       => 'required|string|in:IT,Humas,Perpustakaan,Perencanaan,Keuangan,Monitoring,Kepegawaian,Sarana Prasarana,Keamanan dan Kebersihan,Pengadaan,Kearsipan,Angkutan',
                 'no_telp'      => ['required', 'regex:/^[0-9+\-\s()]{8,20}$/'],
-                'role'         => 'required|in:user,pj',
                 'password'     => [
                     'required', 
                     'string', 
@@ -51,112 +44,126 @@ class AuthController extends Controller
             ], 422);
         }
 
+        // Simpan data registrasi baru dengan role default 'user' & status 'pending'
         Users::create([
             'nama_lengkap' => $request->nama_lengkap,
             'email'        => $request->email,
-            'divisi'       => $request->divisi, 
             'no_telp'      => $request->no_telp,
             'password'     => Hash::make($request->password),
-            'role'         => $request->role,         
+            'divisi'       => null,  
+            'role'         => 'user', 
+            'status'       => 'pending',
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Registrasi berhasil. Silakan login.'
+            'message' => 'Registrasi berhasil. Permohonan pendaftaran Anda telah diterima dan sedang menunggu persetujuan Admin.'
         ]);
     }
 
     public function login(Request $request)
-    {
-        try {
-            $request->validate([
-                'Email'    => 'required|email:rfc,dns',
-                'password' => 'required|string'
-            ], [
-                'Email.email' => 'Format email tidak valid.',
-                'password.required' => 'Password wajib diisi.'
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->validator->errors()->first()
-            ], 422);
-        }
-
-        $user = Users::where('email', $request->Email)->first();
-
-        if ($user) {
-            $throttleKey = \Illuminate\Support\Str::lower($request->Email) . '|' . $request->ip();
-
-            // 1. Cek apakah user saat ini sedang dalam kondisi terblokir (klik ke-6++ dst)
-            if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($throttleKey, 5)) {
-                $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($throttleKey);
-                
-                return response()->json([
-                    'success' => false,
-                    'message' => "Terlalu banyak percobaan login. Silakan tunggu " . $seconds . " detik lagi."
-                ], 429);
-            }
-
-            // 2. Cek apakah password salah
-            if (!Hash::check($request->password, $user->password)) {
-                \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 60);
-
-                // FITUR UTAMA: Jika sentuhan klik ini adalah kegagalan ke-5, paksa kunci 60 detik penuh
-                if (\Illuminate\Support\Facades\RateLimiter::attempts($throttleKey) === 5) {
-                    $cacheKey = config('cache.prefix') . ':timer:' . $throttleKey;
-                    \Illuminate\Support\Facades\Cache::put($cacheKey, now()->addSeconds(60)->timestamp, 60);
-
-                    // Berikan respon 429 instan di klik ke-5 dengan waktu tepat 60 detik
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Terlalu banyak percobaan login. Silakan tunggu 60 detik lagi."
-                    ], 429);
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Email atau password salah.'
-                ], 401);
-            }
-
-            // Jika password benar, bersihkan catatan kegagalan email ini
-            \Illuminate\Support\Facades\RateLimiter::clear($throttleKey);
-
-        } else {
-            // JIKA EMAIL TIDAK TERDAFTAR DI DATABASE
-            return response()->json([
-                'success' => false,
-                'message' => 'Email atau password salah.'
-            ], 401);
-        }
-
-        // --- PROSES PEMBUATAN SESSION JIKA LOGIN SUKSES ---
-        $request->session()->regenerate();
-
-        $request->session()->put([
-            'user_id'      => $user->id,
-            'user_logged'  => $user->email,
-            'nama_lengkap' => $user->nama_lengkap,
-            'user_role'    => $user->role
+{
+    try {
+        $request->validate([
+            'Email'    => 'required|email:rfc,dns',
+            'password' => 'required|string'
+        ], [
+            'Email.email'       => 'Format email tidak valid.',
+            'Email.required'    => 'Email wajib diisi.',
+            'password.required' => 'Password wajib diisi.'
         ]);
-        
-        $request->session()->save();
+    } catch (ValidationException $e) {
+        $errors = $e->validator->errors();
+        $field = $errors->has('Email') ? 'email_login' : ($errors->has('password') ? 'password_login' : null);
 
-        if ($user->role === 'admin') {
-            $redirectUrl = route('admin.dashboard');
-        } elseif ($user->role === 'pj') {
-            $redirectUrl = route('pj.dashboard');
-        } else {
-            $redirectUrl = route('user.dashboard');
+        return response()->json([
+            'success' => false,
+            'field'   => $field,
+            'message' => $errors->first()
+        ], 422);
+    }
+
+    $user = Users::where('email', $request->Email)->first();
+
+    // 1. Cek email apakah terdaftar
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'field'   => 'email_login',
+            'message' => 'Alamat email belum terdaftar.'
+        ], 401);
+    }
+
+    $throttleKey = \Illuminate\Support\Str::lower($request->Email) . '|' . $request->ip();
+
+    // 2. Cek Rate Limiter jika over dari 5 ke blok 1 menit
+    if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+        $seconds = RateLimiter::availableIn($throttleKey);
+        return response()->json([
+            'success' => false,
+            'message' => "Terlalu banyak percobaan login. Silakan tunggu " . $seconds . " detik lagi."
+        ], 429);
+    }
+
+    // 3. Cek Kebenaran Password
+    if (!Hash::check($request->password, $user->password)) {
+        RateLimiter::hit($throttleKey, 60);
+
+        if (RateLimiter::attempts($throttleKey) === 5) {
+            $cacheKey = config('cache.prefix') . ':timer:' . $throttleKey;
+            Cache::put($cacheKey, now()->addSeconds(60)->timestamp, 60);
+
+            return response()->json([
+                'success' => false,
+                'message' => "Terlalu banyak percobaan login. Silakan tunggu 60 detik lagi."
+            ], 429);
         }
 
         return response()->json([
-            'success'  => true,
-            'message'  => 'Login berhasil.',
-            'redirect' => $redirectUrl
-        ]);
+            'success' => false,
+            'field'   => 'password_login',
+            'message' => 'Password yang Anda masukkan salah.'
+        ], 401);
     }
+
+    // 4. CEK PEMBATASAN AKSES jika belum di aprov oleh admin belum bisa login
+    if ($user->status !== 'active') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Akun Anda belum disetujui oleh Admin. Silakan tunggu hingga proses verifikasi selesai.'
+        ], 403);
+    }
+
+    // Reset Limiter jika lolos autentikasi
+    RateLimiter::clear($throttleKey);
+
+    // 5. Pembuatan Session
+    $request->session()->regenerate();
+
+    $request->session()->put([
+        'user_id'      => $user->id,
+        'user_logged'  => $user->email,
+        'nama_lengkap' => $user->nama_lengkap,
+        'divisi'       => $user->divisi,
+        'user_role'    => $user->role
+    ]);
+    
+    $request->session()->save();
+
+    if ($user->role === 'admin') {
+        $redirectUrl = route('admin.dashboard');
+    } elseif ($user->role === 'pj') {
+        $redirectUrl = route('pj.dashboard');
+    } else {
+        $redirectUrl = route('user.dashboard');
+    }
+
+    return response()->json([
+        'success'  => true,
+        'message'  => 'Login berhasil.',
+        'redirect' => $redirectUrl
+    ]);
+}
     public function logout(Request $request)
     {
         $request->session()->invalidate();
