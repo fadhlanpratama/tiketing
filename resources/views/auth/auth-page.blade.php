@@ -33,6 +33,7 @@
         
         <div class="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#0a2540_1px,transparent_1px)] [background-size:16px_16px] z-0"></div>
 
+        <!-- ================= FORM LOGIN ================= -->
         <div class="relative md:absolute top-0 left-0 w-full md:w-1/2 h-full flex flex-col justify-center items-center px-6 md:px-12 text-center transition-custom z-20 py-4 md:py-0" id="loginFormBox">
             <div class="w-full max-w-sm relative z-20">
                 <div class="mb-4 flex flex-col items-center justify-center gap-1">
@@ -45,13 +46,20 @@
                 
                 <div id="loginAlert" class="hidden mb-4 p-3 rounded-xl text-xs font-semibold"></div>
 
-                <div class="space-y-3 mb-1">
-                    <input type="email" id="email_login" placeholder="Masukkan Alamat Email" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
-                    <div class="relative">
-                        <input type="password" id="password_login" placeholder="Masukkan Password" class="w-full bg-slate-50 border border-slate-200 p-3 pr-11 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
-                        <button type="button" class="toggle-password-btn absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition" data-target="password_login">
-                            <i class="fa-solid fa-eye text-sm"></i>
-                        </button>
+                <div class="space-y-3 mb-1 text-left">
+                    <div>
+                        <input type="email" id="email_login" placeholder="Masukkan Alamat Email" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                        <span id="field_error_email_login" class="hidden text-[11px] text-red-500 font-semibold mt-1 pl-1 block"></span>
+                    </div>
+                    
+                    <div>
+                        <div class="relative">
+                            <input type="password" id="password_login" placeholder="Masukkan Password" class="w-full bg-slate-50 border border-slate-200 p-3 pr-11 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                            <button type="button" class="toggle-password-btn absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition" data-target="password_login">
+                                <i class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                        <span id="field_error_password_login" class="hidden text-[11px] text-red-500 font-semibold mt-1 pl-1 block"></span>
                     </div>
                 </div>
                 
@@ -67,53 +75,40 @@
             </div>
         </div>
 
+        <!-- ================= FORM REGISTER ================= -->
         <div class="hidden md:absolute top-0 right-0 w-full md:w-1/2 h-full overflow-y-auto custom-scrollbar transition-custom z-10 p-6 flex flex-col" id="registerFormBox">
             <div class="w-full max-w-sm relative z-20 mx-auto py-4 my-auto min-h-max">
                 <div class="mb-2 flex flex-col items-center justify-center gap-1">
                     <img src="{{ asset('image/esdm.png') }}" alt="Logo ESDM" class="h-12 w-auto object-contain mb-1">
-                    <span class="text-xs font-bold text-slate-700 tracking-wider uppercase">sistem tiketing</span>
+                    <span class="text-xs font-bold text-slate-700 tracking-wider uppercase">Sistem Tiketing</span>
                 </div>
 
                 <h2 class="text-2xl font-extrabold text-slate-900 mb-1 tracking-tight text-center">Buat Akun Baru</h2>
-                <p class="text-xs text-slate-500 mb-4 text-center">Daftarkan identitas Anda untuk akses layanan</p>
+                <p class="text-xs text-slate-500 mb-4 text-center">Daftarkan identitas Anda untuk permohonan akses</p>
                 
                 <div id="registerAlert" class="hidden mb-3 p-3 rounded-xl text-xs font-semibold text-center"></div>
 
                 <div class="space-y-2 mb-4 text-left">
                     <input type="text" id="nama_lengkap_register" placeholder="Nama Lengkap" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
-                    <input type="email" id="email_register" placeholder="Alamat Email" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
-                    <input type="tel" id="no_telp_register" placeholder="Nomor Telepon" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
                     
-                    <div class="relative w-full text-left" id="roleWrapper">
-                        <input type="hidden" id="role_register" value="">
-                        <button type="button" id="roleBtn" class="w-full bg-slate-50 border border-slate-200 p-2.5 pr-10 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-sm text-slate-400 font-medium flex justify-between items-center cursor-pointer hover:bg-slate-100/60">
-                            <span id="roleLabel">Pilih Jenis Akun</span>
-                            <svg id="roleArrow" class="h-4 w-4 text-[#0a2540]/70 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                        <div id="roleMenu" class="hidden absolute left-0 z-50 mt-1 w-full bg-white border border-slate-200 shadow-2xl rounded-xl p-1 space-y-0.5 text-sm text-slate-700 font-medium">
-                            <div data-value="user" class="role-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Karyawan (User)</div>
-                            <div data-value="pj" class="role-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900">Teknisi (PJ)</div>
-                        </div>
+                    <div>
+                        <input type="email" id="email_register" placeholder="Alamat Email" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                        <span id="field_error_email_register" class="hidden text-[11px] text-red-500 font-semibold mt-1 pl-1 block"></span>
                     </div>
 
-                    <div class="relative w-full text-left" id="dropdownWrapper">
-                        <input type="hidden" id="divisi_register" value="">
-                        <button type="button" id="dropdownBtn" disabled class="w-full bg-slate-200/50 border border-slate-200 p-2.5 pr-10 rounded-xl text-sm text-slate-400 font-medium flex justify-between items-center cursor-not-allowed transition-all">
-                            <span id="dropdownLabel">Pilih Jenis Akun Dahulu</span>
-                            <svg id="dropdownArrow" class="h-4 w-4 text-[#0a2540]/40 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                        <div id="dropdownMenu" class="hidden absolute left-0 z-50 mt-1 w-full max-h-48 overflow-y-auto bg-white border border-slate-200 shadow-2xl rounded-xl p-1 space-y-0.5 text-sm text-slate-700 font-medium"></div>
+                    <div>
+                        <input type="tel" id="no_telp_register" placeholder="Nomor Telepon" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                        <span id="field_error_no_telp_register" class="hidden text-[11px] text-red-500 font-semibold mt-1 pl-1 block"></span>
                     </div>
                     
-                    <div class="relative">
-                        <input type="password" id="password_register" placeholder="Masukan Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 pr-11 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
-                        <button type="button" class="toggle-password-btn absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition" data-target="password_register">
-                            <i class="fa-solid fa-eye text-sm"></i>
-                        </button>
+                    <div>
+                        <div class="relative">
+                            <input type="password" id="password_register" placeholder="Masukkan Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 pr-11 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                            <button type="button" class="toggle-password-btn absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition" data-target="password_register">
+                                <i class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                        <span id="field_error_password_register" class="hidden text-[11px] text-red-500 font-semibold mt-1 pl-1 block"></span>
                     </div>
                     
                     <div id="passwordRequirements" class="hidden bg-slate-50 border border-slate-100 rounded-xl p-2.5 space-y-1 text-[11px] font-medium text-slate-500">
@@ -131,11 +126,19 @@
                         </div>
                     </div>
 
-                    <div class="relative">
-                        <input type="password" id="password_confirmation_register" placeholder="Konfirmasi Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 pr-11 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
-                        <button type="button" class="toggle-password-btn absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition" data-target="password_confirmation_register">
-                            <i class="fa-solid fa-eye text-sm"></i>
-                        </button>
+                    <div>
+                        <div class="relative">
+                            <input type="password" id="password_confirmation_register" placeholder="Konfirmasi Password" class="w-full bg-slate-50 border border-slate-200 p-2.5 pr-11 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm">
+                            <button type="button" class="toggle-password-btn absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition" data-target="password_confirmation_register">
+                                <i class="fa-solid fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                        <span id="field_error_password_confirmation_register" class="hidden text-[11px] text-red-500 font-semibold mt-1 pl-1 block"></span>
+                    </div>
+
+                    <div class="bg-amber-50 border border-amber-200/60 rounded-xl p-2.5 flex items-start gap-2 text-[11px] text-amber-800 font-medium mt-2">
+                        <i class="fa-solid fa-circle-info text-amber-500 mt-0.5 shrink-0"></i>
+                        <span>Divisi dan hak akses akun akan ditentukan serta diverifikasi oleh Admin setelah proses pendaftaran selesai. Akun hanya dapat digunakan setelah mendapat persetujuan Admin.</span>
                     </div>
                 </div>
                 
@@ -144,6 +147,7 @@
                 </button>
             </div>
         </div>
+
 
         <div class="relative md:absolute bottom-0 md:top-0 right-0 w-full md:w-1/2 h-auto md:h-full bg-[#ffde00] text-slate-900 transition-custom z-30 shadow-2xl overflow-hidden mt-4 md:mt-0 py-6 md:py-0 flex items-center justify-center" id="colorOverlayContainer">
             <div class="flex flex-col items-center justify-center px-8 text-center w-full">
@@ -157,6 +161,7 @@
 
     </div>
 
+    <!-- ================= MODAL LUPA PASSWORD ================= -->
     <div id="forgotPasswordModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-in fade-in zoom-in-95 duration-200">
             <h3 class="text-xl font-bold text-slate-900 mb-2">Reset Password</h3>
@@ -173,92 +178,10 @@
         </div>
     </div>
 
-   <script>
+    <script>
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
         document.addEventListener('DOMContentLoaded', () => {
-            const roleBtn = document.getElementById('roleBtn');
-            const roleMenu = document.getElementById('roleMenu');
-            const roleLabel = document.getElementById('roleLabel');
-            const roleArrow = document.getElementById('roleArrow');
-            const roleInput = document.getElementById('role_register');
-            const roleItems = document.querySelectorAll('.role-item');
-
-            const dropdownBtn = document.getElementById('dropdownBtn');
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            const dropdownLabel = document.getElementById('dropdownLabel');
-            const dropdownArrow = document.getElementById('dropdownArrow');
-            const hiddenInput = document.getElementById('divisi_register');
-
-            const daftarDivisi = ["IT", "Humas", "Perpustakaan", "Perencanaan", "Keuangan", "Monitoring", "Kepegawaian", "Sarana Prasarana", "Keamanan dan Kebersihan", "Pengadaan", "Kearsipan", "Angkutan"];
-
-            roleBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isOpen = !roleMenu.classList.contains('hidden');
-                closeAllDropdowns();
-                if (!isOpen) {
-                    roleMenu.classList.remove('hidden');
-                    roleArrow.classList.add('rotate-180');
-                }
-            });
-
-            roleItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    const selectedRole = item.getAttribute('data-value');
-                    roleInput.value = selectedRole;
-                    roleLabel.innerText = item.innerText;
-                    roleLabel.className = "text-slate-700 font-medium";
-                    roleMenu.classList.add('hidden');
-                    roleArrow.classList.remove('rotate-180');
-                    hiddenInput.value = "";
-                    dropdownLabel.innerText = "Pilih Divisi";
-                    dropdownLabel.className = "text-slate-400 font-medium";
-                    setupDivisiDropdown(selectedRole);
-                });
-            });
-
-            function setupDivisiDropdown(role) {
-                dropdownBtn.removeAttribute('disabled');
-                dropdownBtn.className = "w-full bg-slate-50 border border-slate-200 p-2.5 pr-10 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-sm text-slate-400 font-medium flex justify-between items-center cursor-pointer hover:bg-slate-100/60";
-                
-                let menuHtml = '';
-                daftarDivisi.forEach(div => {
-                    let extraClass = div === "Keamanan dan Kebersihan" ? "text-xs sm:text-sm truncate" : "";
-                    menuHtml += `<div data-value="${div}" class="dynamic-divisi-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition text-slate-900 ${extraClass}">${div}</div>`;
-                });
-                
-                dropdownMenu.innerHTML = menuHtml;
-
-                document.querySelectorAll('.dynamic-divisi-item').forEach(el => {
-                    el.addEventListener('click', () => {
-                        const val = el.getAttribute('data-value');
-                        hiddenInput.value = val;
-                        dropdownLabel.innerText = val;
-                        dropdownLabel.className = "text-slate-700 font-medium";
-                        dropdownMenu.classList.add('hidden');
-                        dropdownArrow.classList.remove('rotate-180');
-                    });
-                });
-            }
-
-            dropdownBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (dropdownBtn.hasAttribute('disabled')) return;
-                const isOpen = !dropdownMenu.classList.contains('hidden');
-                closeAllDropdowns();
-                if (!isOpen) {
-                    dropdownMenu.classList.remove('hidden');
-                    dropdownArrow.classList.add('rotate-180');
-                }
-            });
-
-            function closeAllDropdowns() {
-                roleMenu.classList.add('hidden');
-                roleArrow.classList.remove('rotate-180');
-                dropdownMenu.classList.add('hidden');
-                dropdownArrow.classList.remove('rotate-180');
-            }
-            document.addEventListener('click', closeAllDropdowns);
-
-            // ==================== LOGIKA MODAL POP-UP LUPA PASSWORD ====================
             const forgotModal = document.getElementById('forgotPasswordModal');
             const openForgotModalBtn = document.getElementById('openForgotModalBtn');
             const closeForgotModalBtn = document.getElementById('closeForgotModalBtn');
@@ -308,7 +231,6 @@
             });
         });
 
-        // ==================== TOGGLE AUTH FORM SWITCHER ====================
         const btnToggleAuth = document.getElementById('btnToggleAuth');
         const overlayTitle = document.getElementById('overlayTitle');
         const overlayDesc = document.getElementById('overlayDesc');
@@ -321,6 +243,7 @@
 
         btnToggleAuth.addEventListener('click', () => {
             btnToggleAuth.blur();
+            clearFormStates();
             if (!isRegisterActive) {
                 if (isMobile()) {
                     loginFormBox.classList.add('hidden');
@@ -355,8 +278,6 @@
             }
         });
 
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
         function showAlertBox(alertId, message, isSuccess = false) {
             const alertBox = document.getElementById(alertId);
             alertBox.innerText = message;
@@ -365,8 +286,49 @@
             else alertBox.classList.add('bg-red-100', 'text-red-800', 'block');
         }
 
-        // ==================== VALIDASI DILAYAR PASSWORD ====================
-        let passwordStatus = { length: false, letters: false, number: false , uppercase: false };
+        function clearFormStates() {
+            document.getElementById('loginAlert').classList.add('hidden');
+            document.getElementById('registerAlert').classList.add('hidden');
+
+            document.querySelectorAll('[id^="field_error_"]').forEach(span => {
+                span.innerText = "";
+                span.classList.add('hidden');
+            });
+
+            document.querySelectorAll('input').forEach(el => {
+                el.classList.remove('border-red-400', 'bg-red-50/10');
+            });
+        }
+
+        function showSingleFieldError(fieldId, message) {
+            const errorSpan = document.getElementById(`field_error_${fieldId}`);
+            const inputEl = document.getElementById(fieldId);
+            
+            if (errorSpan) {
+                errorSpan.innerText = message;
+                errorSpan.classList.remove('hidden');
+            }
+            if (inputEl) {
+                inputEl.classList.add('border-red-400', 'bg-red-50/10');
+            }
+        }
+
+        function markMassalInvalid(elementIds) {
+            elementIds.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.add('border-red-400', 'bg-red-50/10');
+            });
+        }
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                input.classList.remove('border-red-400', 'bg-red-50/10');
+                const span = document.getElementById(`field_error_${input.id}`);
+                if(span) span.classList.add('hidden');
+            });
+        });
+
+        let passwordStatus = { length: false, letters: false, number: false, uppercase: false };
 
         function updateRuleUI(elementId, conditionMet) {
             const el = document.getElementById(elementId);
@@ -398,13 +360,17 @@
             updateRuleUI('req-uppercase', passwordStatus.uppercase);
         });
 
-        // ==================== PROSES SUBMIT LOGIN ====================
         let loginCountdownInterval = null; 
         document.getElementById('submitLoginBtn').addEventListener('click', async () => {
+            clearFormStates();
             const email = document.getElementById('email_login').value.trim();
             const password = document.getElementById('password_login').value;
 
-            if (!email || !password) return showAlertBox('loginAlert', 'Email dan password wajib diisi!', false);
+            if (!email || !password) {
+                if(!email) markMassalInvalid(['email_login']);
+                if(!password) markMassalInvalid(['password_login']);
+                return showAlertBox('loginAlert', 'Email dan password wajib diisi!', false);
+            }
             if (loginCountdownInterval) clearInterval(loginCountdownInterval);
 
             try {
@@ -423,45 +389,73 @@
                     showAlertBox('loginAlert', result.message || "Berhasil masuk...", true);
                     setTimeout(() => { window.location.href = result.redirect ? result.redirect : '/dashboard'; }, 800);
                 } else {
-                    if (response.status === 429 || (result.message && result.message.includes('tunggu'))) {
-                        let match = result.message.match(/\d+/);
+                    const msg = result.message || "Terjadi kesalahan.";
+
+                    if (result.field) {
+                        showSingleFieldError(result.field, msg);
+                        return;
+                    }
+
+                    if (response.status === 429) {
+                        let match = msg.match(/\d+/);
                         if (match) {
                             let secondsLeft = parseInt(match[0], 10);
                             showAlertBox('loginAlert', `Terlalu banyak percobaan login. Silakan tunggu ${secondsLeft} detik lagi.`, false);
+                            
                             loginCountdownInterval = setInterval(() => {
                                 secondsLeft--;
                                 if (secondsLeft <= 0) {
                                     clearInterval(loginCountdownInterval);
                                     showAlertBox('loginAlert', 'Waktu tunggu habis. Silakan coba login kembali.', true);
-                                } else showAlertBox('loginAlert', `Terlalu banyak percobaan login. Silakan tunggu ${secondsLeft} detik lagi.`, false);
+                                } else {
+                                    showAlertBox('loginAlert', `Terlalu banyak percobaan login. Silakan tunggu ${secondsLeft} detik lagi.`, false);
+                                }
                             }, 1000);
                         }
                         return;
                     }
-                    throw new Error(result.message || "Email atau password salah.");
+
+                    showAlertBox('loginAlert', msg, false);
                 }
             } catch (err) { showAlertBox('loginAlert', err.message, false); }
         });
 
-        // ==================== PROSES SUBMIT REGISTER ====================
         document.getElementById('submitRegisterBtn').addEventListener('click', async () => {
+            clearFormStates();
             const nama_lengkap = document.getElementById('nama_lengkap_register').value.trim();
             const email = document.getElementById('email_register').value.trim();
-            const role = document.getElementById('role_register').value.trim();
-            const divisi = document.getElementById('divisi_register').value.trim();
             const no_telp = document.getElementById('no_telp_register').value.trim();
             const password = document.getElementById('password_register').value;
             const password_confirmation = document.getElementById('password_confirmation_register').value;
 
-            if (!nama_lengkap || !email || !role || !divisi || !no_telp || !password || !password_confirmation) {
+            if (!nama_lengkap || !email || !no_telp || !password || !password_confirmation) {
+                let emptyFields = [];
+                if(!nama_lengkap) emptyFields.push('nama_lengkap_register');
+                if(!email) emptyFields.push('email_register');
+                if(!no_telp) emptyFields.push('no_telp_register');
+                if(!password) emptyFields.push('password_register');
+                if(!password_confirmation) emptyFields.push('password_confirmation_register');
+                
+                markMassalInvalid(emptyFields);
                 return showAlertBox('registerAlert', 'Semua data registrasi wajib diisi!', false);
             }
-            if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showAlertBox('registerAlert', 'Email tidak valid!', false);
-            if(!/^[0-9+\-\s()]{8,20}$/.test(no_telp)) return showAlertBox('registerAlert', 'Nomor telepon tidak valid!', false);
-            if (!passwordStatus.length || !passwordStatus.letters || !passwordStatus.number || !passwordStatus.uppercase) {
-                return showAlertBox('registerAlert', 'Password harus terdiri dari minimal 8 karakter dan mengandung huruf besar, huruf kecil, serta angka.', false);
+
+            if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showSingleFieldError('email_register', 'Format alamat email tidak valid!');
+                return;
             }
-            if (password !== password_confirmation) return showAlertBox('registerAlert', 'Konfirmasi password tidak cocok dengan password utama!', false);
+            if(!/^[0-9+\-\s()]{8,20}$/.test(no_telp)) {
+                showSingleFieldError('no_telp_register', 'Nomor telepon tidak valid!');
+                return;
+            }
+            if (!passwordStatus.length || !passwordStatus.letters || !passwordStatus.number || !passwordStatus.uppercase) {
+                showSingleFieldError('password_register', 'Password harus minimal 8 karakter dengan kombinasi huruf besar, kecil, dan angka.');
+                return;
+            }
+            if (password !== password_confirmation) {
+                showSingleFieldError('password_confirmation_register', 'Konfirmasi password tidak cocok dengan password utama!');
+                return;
+            }
             
             try {
                 let response = await fetch('/register', {
@@ -471,24 +465,15 @@
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ nama_lengkap, email, role, divisi, no_telp, password, password_confirmation })
+                    body: JSON.stringify({ nama_lengkap, email, no_telp, password, password_confirmation })
                 });
                 
                 let result = await response.json();
                 if (response.ok && result.success) {
-                    showAlertBox('registerAlert', result.message || "Registrasi berhasil!", true);
+                    showAlertBox('registerAlert', result.message || "Registrasi berhasil. Permohonan pendaftaran Anda telah diterima dan sedang menunggu persetujuan Admin.", true);
+                    
                     document.getElementById('nama_lengkap_register').value = "";
                     document.getElementById('email_register').value = "";
-                    document.getElementById('role_register').value = "";
-                    document.getElementById('roleLabel').innerText = "Pilih Jenis Akun";
-                    document.getElementById('roleLabel').className = "text-slate-400";
-                    document.getElementById('divisi_register').value = "";
-                    
-                    const dBtn = document.getElementById('dropdownBtn');
-                    dBtn.setAttribute('disabled', 'disabled');
-                    dBtn.className = "w-full bg-slate-200/50 border border-slate-200 p-2.5 pr-10 rounded-xl text-sm text-slate-400 font-medium flex justify-between items-center cursor-not-allowed transition-all";
-                    
-                    document.getElementById('dropdownLabel').innerText = "Pilih Jenis Akun Dahulu";
                     document.getElementById('no_telp_register').value = "";
                     document.getElementById('password_register').value = "";
                     document.getElementById('password_confirmation_register').value = "";
@@ -496,7 +481,14 @@
                     
                     ['req-length', 'req-letters', 'req-number', 'req-uppercase'].forEach(id => updateRuleUI(id, false));
                     setTimeout(() => btnToggleAuth.click(), 1200);
-                } else throw new Error(result.message || "Gagal membuat akun.");
+                } else {
+                    const msg = result.message || "Gagal membuat akun.";
+                    if (msg.toLowerCase().includes('email')) {
+                        showSingleFieldError('email_register', msg);
+                    } else {
+                        showAlertBox('registerAlert', msg, false);
+                    }
+                }
             } catch (err) { showAlertBox('registerAlert', err.message, false); }
         });
 
@@ -527,7 +519,6 @@
 
         document.querySelectorAll('.toggle-password-btn').forEach(btn => {
             btn.setAttribute('type', 'button');
-            
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
