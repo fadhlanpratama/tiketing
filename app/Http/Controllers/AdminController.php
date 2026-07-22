@@ -21,7 +21,7 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // 2. Data Master Seluruh Tiket (Full Data Semua Status)
+        // 2. Data Master Seluruh Tiket
         $allTickets = Ticket::with('pelapor')
             ->orderBy('created_at', 'desc')
             ->get();

@@ -381,7 +381,7 @@
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ Email: email, password: password })
+                    body: JSON.stringify({ email: email, password: password })
                 });
                 
                 let result = await response.json();

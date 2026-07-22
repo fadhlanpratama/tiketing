@@ -14,7 +14,7 @@ return new class extends Migration
             // Relasi ke tabel users
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             
-            // Kolom Keluhan & Aset
+            // Kolom keluhan oleh user
             $table->string('kategori', 100)->index();
             $table->string('sub_kategori', 150);
             $table->text('deskripsi_masalah');

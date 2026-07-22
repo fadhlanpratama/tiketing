@@ -29,6 +29,7 @@ class Ticket extends Model
         'tanggal_selesai',
         'hasil_resolved_foto',
         'survei_kepuasan',
+        'closed_by',
     ];
 
     protected $hidden = [
