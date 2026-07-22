@@ -22,6 +22,7 @@ class Users extends Authenticatable
         'divisi',
         'no_telp',
         'role',
+        'status',
     ];
     protected $hidden = [
         'password',
