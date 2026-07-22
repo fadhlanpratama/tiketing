@@ -45,8 +45,8 @@
             <div class="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
             <div class="relative z-10">
                 <span class="bg-amber-400 text-[#0a2540] text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md mb-3 inline-block">Akses Penanggung Jawab</span>
-                <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight">Tugas Anda Hari Ini</h2>
-                <p class="text-slate-300 text-xs sm:text-sm mt-1">Tinjau, kerjakan, dan selesaikan tiket yang ditugaskan kepada Anda dengan bukti penyelesaian yang jelas.</p>
+                <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight">Kelola Penugasan Anda</h2>
+                <p class="text-slate-300 text-xs sm:text-sm mt-1">Tinjau, tangani, dan selesaikan setiap tiket yang menjadi tanggung jawab Anda.</p>
             </div>
         </div>
 
@@ -55,7 +55,7 @@
                 class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'Open' ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-100' }}">
                 <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-folder-open"></i></div>
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tiket Dalam Antrian</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Dalam Antrian</p>
                     <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ $menunggu }} Tiket</h3>
                 </div>
             </a>
@@ -287,7 +287,6 @@
                         <p class="text-[11px] text-slate-300" id="modalTicketCode"></p>
                     </div>
                 </div>
-                <button type="button" onclick="closeSelesaikanModal()" class="text-slate-300 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="p-6 overflow-y-auto flex-1">

@@ -55,7 +55,7 @@
             <div class="relative z-10">
                 <span class="bg-amber-400 text-[#0a2540] text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md mb-3 inline-block">Akses Pengguna</span>
                 <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight">Butuh Bantuan?</h2>
-                <p class="text-slate-300 text-xs sm:text-sm mt-1">Buat, pantau, dan kelola semua permintaan tiket internal Anda dengan mudah.</p>
+                <p class="text-slate-300 text-xs sm:text-sm mt-1">Ajukan tiket untuk melaporkan kendala atau mengajukan permintaan layanan kepada tim terkait.</p>
             </div>
             
             <a href="{{ route('user.ticket.create') }}" class="relative z-10 bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition transform active:scale-95 flex items-center gap-2 justify-center w-full sm:w-auto shrink-0">
@@ -68,7 +68,7 @@
                 class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'Open' ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-100' }}">
                 <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-folder-open"></i></div>
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tiket Dalam Antrian</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Dalam Antrian</p>
                     <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ $TiketAktif }} Tiket</h3>
                 </div>
             </a>
