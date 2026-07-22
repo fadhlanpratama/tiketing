@@ -99,6 +99,9 @@
                 </div>
             </div>
             @endif
+
+            @include('partials.ticket-chat-survey', ['chatRoute' => 'user.ticket.chat', 'isPj' => false])
+            
         </div>
 
         <div class="p-4 border-t border-slate-100 flex justify-end bg-slate-50">

@@ -105,6 +105,59 @@ class TicketController extends Controller
         return view('user.detail', compact('ticket'));
     }
 
+    public function storeMessage(Request $request, string $id)
+    {
+        $request->validate([
+            'pesan' => 'required|string|max:1000',
+        ]);
+
+        $userId = session('user_id');
+        $ticket = Ticket::where('id', $id)->where('user_id', $userId)->firstOrFail();
+
+        if ($ticket->status !== 'In Progress') {
+            return back()->with('error', 'Chat hanya tersedia saat tiket berstatus In Progress.');
+        }
+
+        $ticket->messages()->create([
+            'sender_type' => 'user',
+            'sender_nama' => $ticket->pelapor->nama_lengkap ?? session('nama_lengkap', 'Pelapor'),
+            'pesan'       => strip_tags($request->pesan),
+        ]);
+
+        return back()->with('success', 'Pesan terkirim.');
+    }
+
+    public function storeSurvey(Request $request, string $id)
+    {
+        $request->validate([
+            'survei_kepuasan' => 'required|in:Tidak Puas,Kurang puas,Cukup,Puas,Sangat Puas',
+        ]);
+
+        $userId = session('user_id');
+        $ticket = Ticket::where('id', $id)->where('user_id', $userId)->first();
+
+        if (!$ticket) {
+            return back()->with('error', 'Tiket tidak ditemukan.');
+        }
+
+        $bisaSurvei = $ticket->status === 'Resolved' 
+            || ($ticket->status === 'Closed' && $ticket->closed_by !== 'user');
+
+        if (!$bisaSurvei) {
+            return back()->with('error', 'Tiket ini belum dapat dinilai.');
+        }
+
+        if ($ticket->survei_kepuasan !== null) {
+            return back()->with('error', 'Anda sudah memberikan penilaian untuk tiket ini.');
+        }
+
+        $ticket->survei_kepuasan = $request->survei_kepuasan;
+        $ticket->timestamps = false;
+        $ticket->save();
+
+        return back()->with('success', 'Terima kasih atas penilaian Anda!');
+    }
+
     public function destroy(string $id)
     {
         $userId = session('user_id');

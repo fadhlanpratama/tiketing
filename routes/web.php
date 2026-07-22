@@ -35,6 +35,8 @@ Route::prefix('user')->name('user.')->middleware(['cek.login:user', 'no.cache'])
     Route::post('/ticket/store', [TicketController::class, 'store'])->middleware('throttle:10,1')->name('ticket.store'); 
     Route::get('/ticket/{id}', [TicketController::class, 'show'])->name('ticket.show');
     Route::delete('/ticket/{id}', [TicketController::class, 'destroy'])->name('ticket.destroy'); 
+    Route::post('/ticket/{id}/chat', [TicketController::class, 'storeMessage'])->name('ticket.chat');
+    Route::post('/ticket/{id}/survei', [TicketController::class, 'storeSurvey'])->name('ticket.survei');
 });
 
 
@@ -46,6 +48,7 @@ Route::prefix('pj')->name('pj.')->middleware(['cek.login:pj', 'no.cache'])->grou
     Route::post('/ticket/{id}/terima', [PjController::class, 'terima'])->name('ticket.terima');
     Route::post('/ticket/{id}/selesaikan', [PjController::class, 'selesaikan'])->name('ticket.selesaikan');
     Route::get('/ticket/{id}', [PjController::class, 'show'])->name('ticket.show');
+    Route::post('/ticket/{id}/chat', [PjController::class, 'storeMessage'])->name('ticket.chat');
 });
 
 
