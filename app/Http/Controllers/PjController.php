@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ticket;
+use App\Models\Users;
+use Illuminate\Validation\Rules\Password;
 
 class PjController extends Controller
 {
@@ -42,6 +44,58 @@ class PjController extends Controller
             'selesai'      => $counts->selesai ?? 0,
             'statusFilter' => $request->input('status', 'semua'),
         ]);
+    }
+
+    public function editProfile()
+    {
+        $userId = session('user_id');
+        $user = Users::findOrFail($userId);
+
+        return view('pj.edit', compact('user'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $userId = session('user_id');
+        $user = Users::findOrFail($userId);
+        $namaLama = $user->nama_lengkap; 
+
+        $rules = [
+            'nama_lengkap' => ['required', 'string', 'min:3', 'max:150'],
+            'email'        => 'required|email:rfc,dns|max:254|unique:users,email,' . $userId,
+            'no_telp'      => ['required', 'regex:/^[0-9+\-\s()]{8,20}$/'],
+        ];
+
+        if ($request->filled('password')) {
+            $rules['password'] = ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()->mixedCase()];
+        }
+
+        $request->validate($rules, [
+            'email.unique'       => 'Email sudah terdaftar. Silakan gunakan email lain.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'no_telp.regex'      => 'Format nomor telepon/WhatsApp tidak valid.',
+        ]);
+
+        $namaBaru = strip_tags($request->nama_lengkap);
+
+        $user->nama_lengkap = $namaBaru;
+        $user->email        = strip_tags($request->email);
+        $user->no_telp      = strip_tags($request->no_telp);
+
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+
+        $user->save();
+
+        if ($namaLama !== $namaBaru) {
+            Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaLama)])
+                ->update(['penanggung_jawab' => $namaBaru]);
+        }
+    
+        session(['nama_lengkap' => $user->nama_lengkap]);
+
+        return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
     }
 
     public function terima(string $id)

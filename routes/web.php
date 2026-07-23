@@ -45,6 +45,8 @@ Route::prefix('user')->name('user.')->middleware(['cek.login:user', 'no.cache'])
 // ================= AREA: PENANGGUNG JAWAB =================
 Route::prefix('pj')->name('pj.')->middleware(['cek.login:pj', 'no.cache'])->group(function () {
     Route::get('/dashboard', [PjController::class, 'index'])->name('dashboard');
+    Route::get('/profile/edit', [PjController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile/update', [PjController::class, 'updateProfile'])->name('profile.update');
 
     // Aksi PJ terhadap tiket
     Route::post('/ticket/{id}/terima', [PjController::class, 'terima'])->name('ticket.terima');
