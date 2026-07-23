@@ -93,6 +93,27 @@ class PjController extends Controller
             ->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil diselesaikan.');
     }
 
+    public function storeMessage(Request $request, string $id)
+    {
+        $request->validate([
+            'pesan' => 'required|string|max:1000',
+        ]);
+
+        $namaPj = session('nama_lengkap');
+        $ticket = Ticket::where('id', $id)
+            ->whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
+            ->where('status', 'In Progress')
+            ->firstOrFail();
+
+        $ticket->messages()->create([
+            'sender_type' => 'pj',
+            'sender_nama' => $namaPj,
+            'pesan'       => strip_tags($request->pesan),
+        ]);
+
+        return back()->with('success', 'Pesan terkirim.');
+    }
+
     public function show(string $id)
     {
         $namaPj = session('nama_lengkap');

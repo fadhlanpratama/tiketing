@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ticket extends Model
 {
@@ -41,6 +42,11 @@ class Ticket extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(TicketMessage::class, 'ticket_id')->orderBy('created_at', 'asc');
+    }
 
     public function pelapor(): BelongsTo
     {

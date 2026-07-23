@@ -21,6 +21,7 @@ class AdminSeeder extends Seeder
             'no_telp'      => '010101010101',
             'password'     => Hash::make('Admin123'),
             'role'         => 'admin',
+            'status'       => 'active',
         ]);
     }
 }
