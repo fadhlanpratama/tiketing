@@ -6,6 +6,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\Models\Users;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
@@ -41,6 +42,50 @@ class TicketController extends Controller
             'selesai'      => $counts->selesai ?? 0,
             'statusFilter' => $request->input('status', 'semua'),
         ]);
+    }
+
+   public function editProfile()
+    {
+        $userId = session('user_id');
+        $user = Users::findOrFail($userId);
+
+        return view('user.edit', compact('user'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $userId = session('user_id');
+        $user = Users::findOrFail($userId);
+
+        $rules = [
+            'nama_lengkap' => ['required', 'string', 'min:3', 'max:150'],
+            'email'        => 'required|email:rfc,dns|max:254|unique:users,email,' . $userId,
+            'no_telp'      => ['required', 'regex:/^[0-9+\-\s()]{8,20}$/'],
+        ];
+
+        if ($request->filled('password')) {
+            $rules['password'] = ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()->mixedCase()];
+        }
+
+        $request->validate($rules, [
+            'email.unique'       => 'Email sudah terdaftar. Silakan gunakan email lain.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'no_telp.regex'      => 'Format nomor telepon/WhatsApp tidak valid.',
+        ]);
+
+        $user->nama_lengkap = strip_tags($request->nama_lengkap);
+        $user->email        = strip_tags($request->email);
+        $user->no_telp      = strip_tags($request->no_telp);
+
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+
+        $user->save();
+
+        session(['nama_lengkap' => $user->nama_lengkap]);
+
+        return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
     }
 
     public function create()

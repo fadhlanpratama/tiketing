@@ -25,7 +25,7 @@
                         <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Pengguna</p>
                         <p class="text-sm font-bold text-white mt-0.5">{{ session('nama_lengkap', 'Pegawai ESDM') }}</p>
                     </div>
-                    <a href="#" class="bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white w-9 h-9 flex items-center justify-center rounded-xl transition text-xs" title="Edit Profil">
+                    <a href="{{route('user.profile.edit')}}" class="bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white w-9 h-9 flex items-center justify-center rounded-xl transition text-xs" title="Edit Profil">
                         <i class="fa-solid fa-user-gear text-sm"></i>
                     </a>
                 </div>

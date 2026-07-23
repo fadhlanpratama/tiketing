@@ -29,6 +29,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // ================= AREA: USER =================
 Route::prefix('user')->name('user.')->middleware(['cek.login:user', 'no.cache'])->group(function () {
     Route::get('/dashboard', [TicketController::class, 'index'])->name('dashboard');
+    Route::get('/profile/edit', [TicketController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile/update', [TicketController::class, 'updateProfile'])->name('profile.update');
 
     // Aksi user Terhadap tiket
     Route::get('/ticket/create', [TicketController::class, 'create'])->name('ticket.create'); 

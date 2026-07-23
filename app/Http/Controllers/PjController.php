@@ -112,7 +112,7 @@ class PjController extends Controller
         ]);
 
         return back()->with('success', 'Pesan terkirim.');
-}
+    }
 
     public function show(string $id)
     {
