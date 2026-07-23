@@ -30,7 +30,7 @@
                     </a>
                 </div>
                 
-                <a href="#" class="sm:hidden bg-slate-700/40 text-amber-400 w-10 h-10 flex flex-col items-center justify-center rounded-xl border border-slate-700/60 active:scale-95 transition" title="Edit Profil">
+                <a href="{{route('user.profile.edit')}}" class="sm:hidden bg-slate-700/40 text-amber-400 w-10 h-10 flex flex-col items-center justify-center rounded-xl border border-slate-700/60 active:scale-95 transition" title="Edit Profil">
                     <i class="fa-solid fa-user-gear text-sm"></i>
                     <span class="text-[8px] font-bold tracking-tight mt-0.5">Profil</span>
                 </a>

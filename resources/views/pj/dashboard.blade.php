@@ -20,18 +20,28 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-3 sm:gap-4">
-                <div class="text-right hidden sm:block">
-                    <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Penanggung Jawab</p>
-                    <p class="text-sm font-bold text-white mt-0.5">{{ session('nama_lengkap', 'PJ ESDM') }}</p>
+             <div class="flex items-center gap-3 sm:gap-4">
+                <div class="text-right hidden sm:flex items-center gap-3">
+                    <div>
+                        <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Penanggung Jawab</p>
+                        <p class="text-sm font-bold text-white mt-0.5">{{ session('nama_lengkap', 'PJ ESDM') }}</p>
+                    </div>
+                    <a href="{{route('pj.profile.edit')}}" class="bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white w-9 h-9 flex items-center justify-center rounded-xl transition text-xs" title="Edit Profil">
+                        <i class="fa-solid fa-user-gear text-sm"></i>
+                    </a>
                 </div>
+                
+                <a href="{{route('pj.profile.edit')}}" class="sm:hidden bg-slate-700/40 text-amber-400 w-10 h-10 flex flex-col items-center justify-center rounded-xl border border-slate-700/60 active:scale-95 transition" title="Edit Profil">
+                    <i class="fa-solid fa-user-gear text-sm"></i>
+                    <span class="text-[8px] font-bold tracking-tight mt-0.5">Profil</span>
+                </a>
 
-                <div class="h-6 w-px bg-slate-700 hidden sm:block"></div>
-
+                <div class="h-6 w-px bg-slate-700"></div>
+                
                 <form action="{{ route('logout') }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="flex items-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white px-3.5 py-2.5 sm:px-4 rounded-xl text-xs font-semibold transition shadow-sm cursor-pointer">
-                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <i class="fa-solid fa-right-from-bracket"></i> 
                         <span class="hidden md:inline">Logout</span>
                     </button>
                 </form>
