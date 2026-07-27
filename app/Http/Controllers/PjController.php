@@ -172,7 +172,13 @@ class PjController extends Controller
     public function storeMessage(Request $request, string $id)
     {
         $request->validate([
-            'pesan' => 'required|string|max:1000',
+            'pesan' => 'nullable|string|max:1000|required_without:foto',
+            'foto'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ], [
+            'pesan.required_without' => 'Tulis pesan atau lampirkan foto.',
+            'foto.image' => 'File harus berupa gambar.',
+            'foto.mimes' => 'Format foto harus jpg, jpeg, atau png.',
+            'foto.max'   => 'Ukuran foto maksimal 2MB.',
         ]);
 
         $namaPj = session('nama_lengkap');
@@ -181,10 +187,16 @@ class PjController extends Controller
             ->where('status', 'In Progress')
             ->firstOrFail();
 
+        $path = null;
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('ticket_messages', 'public');
+        }
+
         $ticket->messages()->create([
             'sender_type' => 'pj',
             'sender_nama' => $namaPj,
-            'pesan'       => strip_tags($request->pesan),
+            'pesan'       => $request->filled('pesan') ? strip_tags($request->pesan) : null,
+            'foto'        => $path,
         ]);
 
         return back()->with('success', 'Pesan terkirim.');

@@ -166,10 +166,16 @@ class TicketController extends Controller
         return view('user.detail', compact('ticket'));
     }
 
-    public function storeMessage(Request $request, string $id)
+   public function storeMessage(Request $request, string $id)
     {
         $request->validate([
-            'pesan' => 'required|string|max:1000',
+            'pesan' => 'nullable|string|max:1000|required_without:foto',
+            'foto'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ], [
+            'pesan.required_without' => 'Tulis pesan atau lampirkan foto.',
+            'foto.image' => 'File harus berupa gambar.',
+            'foto.mimes' => 'Format foto harus jpg, jpeg, atau png.',
+            'foto.max'   => 'Ukuran foto maksimal 2MB.',
         ]);
 
         $userId = session('user_id');
@@ -179,10 +185,16 @@ class TicketController extends Controller
             return back()->with('error', 'Chat hanya tersedia saat tiket berstatus In Progress.');
         }
 
+        $path = null;
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('ticket_messages', 'public');
+        }
+
         $ticket->messages()->create([
             'sender_type' => 'user',
             'sender_nama' => $ticket->pelapor->nama_lengkap ?? session('nama_lengkap', 'Pelapor'),
-            'pesan'       => strip_tags($request->pesan),
+            'pesan'       => $request->filled('pesan') ? strip_tags($request->pesan) : null,
+            'foto'        => $path,
         ]);
 
         return back()->with('success', 'Pesan terkirim.');

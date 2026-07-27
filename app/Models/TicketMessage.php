@@ -14,6 +14,7 @@ class TicketMessage extends Model
         'sender_type',
         'sender_nama',
         'pesan',
+        'foto',
     ];
 
     public function ticket(): BelongsTo
