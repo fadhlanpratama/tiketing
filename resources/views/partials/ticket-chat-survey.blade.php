@@ -82,7 +82,7 @@
         <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm">
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
                 <h3 class="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-comments text-blue-600"></i> Diskusi & Komentar
+                    <i class="fa-solid fa-comments text-blue-600"></i>Komentar
                 </h3>
                 <span class="text-xs text-slate-500 font-medium">
                     {{ $ticket->messages->count() }} Komentar
@@ -113,7 +113,7 @@
                                     <span class="text-xs sm:text-sm font-bold text-slate-800">{{ $nama }}</span>
                                     {{-- Badge Role Pengirim --}}
                                     @if($isMsgPj)
-                                        <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">PJ / Petugas</span>
+                                        <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Teknisi</span>
                                     @else
                                         <span class="bg-slate-100 text-slate-600 text-[10px] font-medium px-2 py-0.5 rounded-full">Pelapor</span>
                                     @endif
@@ -157,7 +157,7 @@
             @else
             <div class="mt-4 pt-3 border-t border-slate-100 text-center">
                 <p class="text-xs text-slate-400 font-medium italic">
-                    <i class="fa-solid fa-lock text-xs mr-1"></i> Diskusi telah dikunci karena tiket berstatus {{ $ticket->status }}.
+                    <i class="fa-solid fa-lock text-xs mr-1"></i> Komentar telah dikunci karena tiket berstatus {{ $ticket->status }}.
                 </p>
             </div>
             @endif
@@ -208,7 +208,7 @@
 
                 <div class="grid grid-cols-2 gap-2.5 pt-2 border-t border-slate-100">
                     <button type="button" onclick="closeSurveiModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs py-2.5 rounded-xl transition cursor-pointer">
-                        Batal / Nanti
+                        Nanti
                     </button>
                     <button type="submit" class="bg-amber-400 hover:bg-amber-500 text-[#0a2540] font-black text-xs py-2.5 rounded-xl transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
                         <i class="fa-solid fa-paper-plane text-xs"></i>
