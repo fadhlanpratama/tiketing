@@ -59,18 +59,34 @@ class TicketController extends Controller
 
         $rules = [
             'nama_lengkap' => ['required', 'string', 'min:3', 'max:150'],
-            'email'        => 'required|email:rfc,dns|max:254|unique:users,email,' . $userId,
+            'email'        => ['required', 'email:rfc,dns', 'max:254', 'unique:users,email,' . $userId],
             'no_telp'      => ['required', 'regex:/^[0-9+\-\s()]{8,20}$/'],
         ];
 
         if ($request->filled('password')) {
-            $rules['password'] = ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()->mixedCase()];
+            $rules['password'] = [
+                'required',
+                'string',
+                'confirmed',
+                Password::min(8)
+                    ->letters()
+                    ->numbers()
+                    ->mixedCase()
+            ];
         }
 
         $request->validate($rules, [
-            'email.unique'       => 'Email sudah terdaftar. Silakan gunakan email lain.',
-            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
-            'no_telp.regex'      => 'Format nomor telepon/WhatsApp tidak valid.',
+            'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
+            'nama_lengkap.min'      => 'Nama lengkap minimal 3 karakter.',
+            'nama_lengkap.max'      => 'Nama lengkap maksimal 150 karakter.',
+            'email.required'        => 'Email wajib diisi.',
+            'email.email'           => 'Format alamat email tidak valid!',
+            'email.unique'          => 'Email sudah terdaftar. Silakan gunakan email lain.',
+            'no_telp.required'      => 'Nomor telepon wajib diisi.',
+            'no_telp.regex'         => 'Nomor telepon tidak valid!',
+            'password.required'     => 'Kata sandi baru wajib diisi.',
+            'password.min'          => 'Password minimal 8 karakter.',
+            'password.confirmed'    => 'Konfirmasi kata sandi tidak cocok.',
         ]);
 
         $user->nama_lengkap = strip_tags($request->nama_lengkap);
@@ -203,13 +219,32 @@ class TicketController extends Controller
         return back()->with('success', 'Terima kasih atas penilaian Anda!');
     }
 
-    public function destroy(string $id)
+   public function destroy(Request $request, string $id)
     {
-        $userId = session('user_id');
-        $ticket = Ticket::where('id', $id)->where('user_id', $userId)->where('status', 'Open')->firstOrFail();
+        $request->validate([
+            'alasan_tutup' => 'required|string|max:1000',
+        ], [
+            'alasan_tutup.required' => 'Alasan penutupan tiket wajib diisi.',
+        ]);
 
-        $ticket->status = 'Closed';
-        $ticket->closed_by = 'user';
+        $userId = session('user_id');
+        $ticket = Ticket::where('id', $id)
+            ->where('user_id', $userId)
+            ->whereIn('status', ['Open', 'In Progress'])
+            ->firstOrFail();
+
+        $namaUser = session('nama_lengkap', 'Pelapor');
+        $tanggal  = now()->format('d-m-Y H:i');
+        $alasan   = strip_tags($request->alasan_tutup);
+
+        $log = "\n\n--- Ditutup oleh Pelapor ---\n"
+            . "Nama    : {$namaUser}\n"
+            . "Tanggal : {$tanggal} WIB\n"
+            . "Alasan  : {$alasan}";
+
+        $ticket->deskripsi_masalah = $ticket->deskripsi_masalah . $log;
+        $ticket->status     = 'Closed';
+        $ticket->closed_by  = 'user';
         $ticket->save();
 
         return redirect()->route('user.dashboard')->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil dibatalkan.');

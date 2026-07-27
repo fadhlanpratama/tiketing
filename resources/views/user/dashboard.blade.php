@@ -6,6 +6,16 @@
     <title>ESDM - Sistem Tiketing - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+        .shake {
+            animation: shake 0.35s ease-in-out;
+        }
+    </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans antialiased flex flex-col">
 
@@ -165,7 +175,7 @@
                                 @endif
                             </td>
                             <td class="p-4 pr-6 flex items-center justify-center gap-2 action-buttons">
-                                @if($ticket->status == 'Open')
+                                @if($ticket->status == 'Open' || $ticket->status == 'In Progress')
                                 <button type="button" class="btn-delete-trigger text-red-600 hover:text-red-800 font-semibold text-xs px-2.5 py-1.5 bg-red-50 rounded-lg transition cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"><i class="fa-solid fa-ban"></i>  Tutup tiket</button>
                                 @endif
                             </td>
@@ -212,8 +222,8 @@
                             </span>
                         </span>
                     </div>
-                    <div class="grid {{ $ticket->status == 'Open' ? 'grid-cols-2' : 'grid-cols-1' }} gap-1.5 pt-2 border-t border-slate-200/60 action-buttons">
-                        @if($ticket->status == 'Open')
+                    <div class="grid {{ ($ticket->status == 'Open' || $ticket->status == 'In Progress') ? 'grid-cols-2' : 'grid-cols-1' }} gap-1.5 pt-2 border-t border-slate-200/60 action-buttons">
+                        @if($ticket->status == 'Open' || $ticket->status == 'In Progress')
                           <button type="button" class="btn-delete-trigger col-span-2 text-center text-red-600 font-bold text-xs py-2 bg-white border border-slate-200 rounded-xl cursor-pointer" data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">Tutup Tiket</button>
                         @endif
                     </div>
@@ -273,13 +283,21 @@
             </div>
             <div>
                <h3 class="text-lg font-bold text-slate-800">Tutup Tiket?</h3>
-                <p class="text-xs text-slate-400 mt-1"><span id="deleteTicketCode" class="font-bold text-slate-700"></span> akan ditutup dan tidak akan di proses. apakah anda yakin ?</p>
+                <p class="text-xs text-slate-400 mt-1"><span id="deleteTicketCode" class="font-bold text-slate-700"></span> akan ditutup dan tidak akan diproses lebih lanjut. Mohon isi alasan penutupan di bawah ini.</p>
             </div>
             
-            <form id="deleteTicketForm" action="" method="POST">
+            <form id="deleteTicketForm" action="" method="POST" class="text-left space-y-1" novalidate>
                 @csrf
                 @method('DELETE')
-                <div class="grid grid-cols-2 gap-3 pt-2">
+                <label for="alasanTutup" class="text-xs font-semibold text-slate-600 block">Alasan Penutupan </label>
+                <textarea name="alasan_tutup" id="alasanTutup" rows="3" maxlength="1000"
+                    placeholder="Contoh: Masalah sudah selesai sendiri / tiket salah input, dll."
+                    class="w-full text-xs border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-100 focus:border-amber-400 resize-none transition-colors"></textarea>
+                <p id="alasanTutupError" class="hidden text-[11px] text-red-600 font-semibold items-center gap-1 pt-0.5">
+                    <i class="fa-solid fa-circle-exclamation"></i> Alasan penutupan wajib diisi.
+                </p>
+
+                <div class="grid grid-cols-2 gap-3 pt-3">
                     <button type="button" onclick="closeDeleteModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm py-2.5 rounded-xl transition cursor-pointer">Batal</button>
                     <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-semibold text-sm py-2.5 rounded-xl transition shadow-md cursor-pointer">Tutup Tiket</button>
                 </div>
@@ -325,7 +343,10 @@
         }
 
         const deleteModal = document.getElementById('deleteModal');
-        
+        const deleteForm = document.getElementById('deleteTicketForm');
+        const alasanTutup = document.getElementById('alasanTutup');
+        const alasanTutupError = document.getElementById('alasanTutupError');
+
         document.querySelectorAll('.btn-delete-trigger').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -333,7 +354,9 @@
                 const ticketCode = this.getAttribute('data-code');
 
                 document.getElementById('deleteTicketCode').innerText = ticketCode;
-                document.getElementById('deleteTicketForm').setAttribute('action', `/user/ticket/${ticketId}`);
+                alasanTutup.value = '';
+                resetAlasanError();
+                deleteForm.setAttribute('action', `/user/ticket/${ticketId}`);
                 
                 deleteModal.classList.remove('hidden');
                 deleteModal.classList.add('flex');
@@ -342,6 +365,35 @@
                     deleteModal.querySelector('.max-w-sm').classList.remove('scale-95');
                 }, 50);
             });
+        });
+
+        function resetAlasanError() {
+            alasanTutup.classList.remove('border-red-400', 'ring-2', 'ring-red-100', 'shake');
+            alasanTutup.classList.add('border-slate-200');
+            alasanTutupError.classList.add('hidden');
+            alasanTutupError.classList.remove('flex');
+        }
+
+        function showAlasanError() {
+            alasanTutup.classList.remove('border-slate-200');
+            alasanTutup.classList.add('border-red-400', 'ring-2', 'ring-red-100', 'shake');
+            alasanTutupError.classList.remove('hidden');
+            alasanTutupError.classList.add('flex');
+            alasanTutup.focus();
+            setTimeout(() => alasanTutup.classList.remove('shake'), 400);
+        }
+
+        alasanTutup.addEventListener('input', () => {
+            if (alasanTutup.value.trim().length > 0) {
+                resetAlasanError();
+            }
+        });
+
+        deleteForm.addEventListener('submit', function(e) {
+            if (alasanTutup.value.trim().length === 0) {
+                e.preventDefault();
+                showAlasanError();
+            }
         });
 
         function closeDeleteModal() {

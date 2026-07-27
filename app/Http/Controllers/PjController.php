@@ -58,29 +58,51 @@ class PjController extends Controller
     {
         $userId = session('user_id');
         $user = Users::findOrFail($userId);
-        $namaLama = $user->nama_lengkap; 
+        $namaLama = $user->nama_lengkap;
 
         $rules = [
             'nama_lengkap' => ['required', 'string', 'min:3', 'max:150'],
-            'email'        => 'required|email:rfc,dns|max:254|unique:users,email,' . $userId,
-            'no_telp'      => ['required', 'regex:/^[0-9+\-\s()]{8,20}$/'],
+
+            'email' => [
+                'required',
+                'max:254',
+                'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',
+                'unique:users,email,' . $userId,
+            ],
+
+            'no_telp' => [
+                'required',
+                'regex:/^[0-9+\-\s()]{8,20}$/',
+            ],
         ];
 
         if ($request->filled('password')) {
-            $rules['password'] = ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()->mixedCase()];
+            $rules['password'] = [
+                'required',
+                'confirmed',
+                Password::min(8)
+                    ->letters()
+                    ->numbers()
+                    ->mixedCase(),
+            ];
         }
 
         $request->validate($rules, [
-            'email.unique'       => 'Email sudah terdaftar. Silakan gunakan email lain.',
+            'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
+            'nama_lengkap.min'      => 'Nama lengkap minimal 3 karakter.',
+            'email.required' => 'Masukkan alamat email.',
+            'email.regex'    => 'Sertakan "@" dan domain yang valid pada alamat email (contoh: nama@domain.com).',
+            'email.unique'   => 'Email ini sudah digunakan oleh akun lain.',
+            'no_telp.required' => 'Nomor telepon wajib diisi.',
+            'no_telp.regex'    => 'Format nomor telepon tidak valid! Gunakan angka 8-20 digit.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
-            'no_telp.regex'      => 'Format nomor telepon/WhatsApp tidak valid.',
+            'password.min'       => 'Password minimal 8 karakter.',
         ]);
 
         $namaBaru = strip_tags($request->nama_lengkap);
-
         $user->nama_lengkap = $namaBaru;
-        $user->email        = strip_tags($request->email);
-        $user->no_telp      = strip_tags($request->no_telp);
+        $user->email = strip_tags($request->email);
+        $user->no_telp = strip_tags($request->no_telp);
 
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);
@@ -92,7 +114,7 @@ class PjController extends Controller
             Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaLama)])
                 ->update(['penanggung_jawab' => $namaBaru]);
         }
-    
+
         session(['nama_lengkap' => $user->nama_lengkap]);
 
         return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
