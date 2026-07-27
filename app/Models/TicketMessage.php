@@ -15,6 +15,13 @@ class TicketMessage extends Model
         'sender_nama',
         'pesan',
         'foto',
+        'read_by_pj',
+        'read_by_user',
+    ];
+
+    protected $casts = [
+        'read_by_pj'   => 'boolean',
+        'read_by_user' => 'boolean',
     ];
 
     public function ticket(): BelongsTo

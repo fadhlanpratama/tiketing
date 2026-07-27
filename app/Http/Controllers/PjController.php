@@ -156,6 +156,7 @@ class PjController extends Controller
         $ticket->status = 'Resolved';
         $ticket->tanggal_selesai = now();
         $ticket->hasil_resolved_foto = $path;
+        $ticket->user_notif_resolved_read = false;
 
         if ($request->filled('catatan_penyelesaian')) {
             $ticket->deskripsi_masalah .= "\n\n[Catatan PJ - " . now()->format('Y-m-d H:i') . "]: "
@@ -193,10 +194,12 @@ class PjController extends Controller
         }
 
         $ticket->messages()->create([
-            'sender_type' => 'pj',
-            'sender_nama' => $namaPj,
-            'pesan'       => $request->filled('pesan') ? strip_tags($request->pesan) : null,
-            'foto'        => $path,
+            'sender_type'  => 'pj',
+            'sender_nama'  => $namaPj,
+            'pesan'        => $request->filled('pesan') ? strip_tags($request->pesan) : null,
+            'foto'         => $path,
+            'read_by_pj'   => true,
+            'read_by_user' => false,
         ]);
 
         return back()->with('success', 'Pesan terkirim.');
@@ -210,6 +213,19 @@ class PjController extends Controller
             ->whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
             ->with('pelapor')
             ->firstOrFail();
+
+        // Tandai pesan dari pelapor sebagai sudah dibaca oleh PJ
+        $ticket->messages()
+            ->where('sender_type', '!=', 'pj')
+            ->where('read_by_pj', false)
+            ->update(['read_by_pj' => true]);
+
+        // Tandai notif tiket ditutup pelapor sebagai sudah dibaca
+        if ($ticket->status === 'Closed' && $ticket->closed_by === 'user' && !$ticket->pj_notif_closed_read) {
+            $ticket->timestamps = false;
+            $ticket->pj_notif_closed_read = true;
+            $ticket->save();
+        }
 
         return view('pj.detail', compact('ticket'));
     }
