@@ -163,6 +163,19 @@ class TicketController extends Controller
         $userId = session('user_id');
         $ticket = Ticket::where('id', $id)->where('user_id', $userId)->firstOrFail();
 
+        // Tandai pesan dari PJ sebagai sudah dibaca oleh user
+        $ticket->messages()
+            ->where('sender_type', 'pj')
+            ->where('read_by_user', false)
+            ->update(['read_by_user' => true]);
+
+        // Tandai notif tiket Resolved sebagai sudah dibaca
+        if ($ticket->status === 'Resolved' && !$ticket->user_notif_resolved_read) {
+            $ticket->timestamps = false;
+            $ticket->user_notif_resolved_read = true;
+            $ticket->save();
+        }
+
         return view('user.detail', compact('ticket'));
     }
 
@@ -191,10 +204,12 @@ class TicketController extends Controller
         }
 
         $ticket->messages()->create([
-            'sender_type' => 'user',
-            'sender_nama' => $ticket->pelapor->nama_lengkap ?? session('nama_lengkap', 'Pelapor'),
-            'pesan'       => $request->filled('pesan') ? strip_tags($request->pesan) : null,
-            'foto'        => $path,
+            'sender_type'  => 'user',
+            'sender_nama'  => $ticket->pelapor->nama_lengkap ?? session('nama_lengkap', 'Pelapor'),
+            'pesan'        => $request->filled('pesan') ? strip_tags($request->pesan) : null,
+            'foto'         => $path,
+            'read_by_pj'   => false,
+            'read_by_user' => true,
         ]);
 
         return back()->with('success', 'Pesan terkirim.');
@@ -257,6 +272,7 @@ class TicketController extends Controller
         $ticket->deskripsi_masalah = $ticket->deskripsi_masalah . $log;
         $ticket->status     = 'Closed';
         $ticket->closed_by  = 'user';
+        $ticket->pj_notif_closed_read = false;
         $ticket->save();
 
         return redirect()->route('user.dashboard')->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil dibatalkan.');
