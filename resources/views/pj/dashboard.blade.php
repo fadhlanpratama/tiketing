@@ -79,6 +79,38 @@
                             @empty
                             @endforelse
 
+                            @forelse(($notifAssignedPj ?? []) as $t)
+                            <a href="{{ route('pj.ticket.show', $t->id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-clipboard-list text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        Tugas baru — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500">Anda memiliki tugas baru untuk tiket ini</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
+                            @forelse(($notifAdminClosedPj ?? []) as $t)
+                            <a href="{{ route('pj.ticket.show', $t->id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-lock text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        Tiket ditutup Admin — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500">Tiket telah resmi ditutup oleh admin</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
                             @if(($notifCount ?? 0) === 0)
                             <div class="p-6 text-center">
                                 <i class="fa-regular fa-bell-slash text-slate-300 text-2xl mb-2"></i>
@@ -88,7 +120,6 @@
                         </div>
                     </div>
                 </div>
-
                 <a href="{{route('pj.profile.edit')}}" class="hidden sm:flex bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white w-9 h-9 items-center justify-center rounded-xl transition text-xs" title="Edit Profil">
                     <i class="fa-solid fa-user-gear text-sm"></i>
                 </a>

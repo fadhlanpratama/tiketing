@@ -60,9 +60,55 @@
                 <h2 class="text-xl font-bold text-slate-800" id="pageTitle">Persetujuan Akun Pengguna</h2>
                 <p class="text-xs text-slate-400 mt-0.5">Kelola verifikasi pendaftaran akun dan alur penanganan tiket helpdesk</p>
             </div>
-            <span class="bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200">
-                <i class="fa-solid fa-user-shield text-amber-500 me-1"></i> Mode Admin
-            </span>
+
+            <div class="flex items-center gap-3">
+                {{-- ===== NOTIFIKASI BELL ADMIN (khusus tiket Resolved siap ditutup) ===== --}}
+                <div class="relative" id="notifWrapperAdmin">
+                    <button type="button" id="notifBtnAdmin"
+                        class="relative bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 w-10 h-10 flex items-center justify-center rounded-xl transition cursor-pointer">
+                        <i class="fa-solid fa-bell text-sm"></i>
+                        @if(($notifCountAdmin ?? 0) > 0)
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                            {{ $notifCountAdmin > 9 ? '9+' : $notifCountAdmin }}
+                        </span>
+                        @endif
+                    </button>
+
+                    <div id="notifMenuAdmin" class="hidden absolute right-0 mt-2 w-80 max-w-[90vw] bg-white border border-slate-200 shadow-2xl rounded-2xl z-50 overflow-hidden">
+                        <div class="p-3 border-b border-slate-100 bg-slate-50">
+                            <p class="text-xs font-bold text-slate-700 uppercase tracking-wide">Tiket Siap Diverifikasi</p>
+                        </div>
+
+                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                            @forelse(($notifResolvedAdmin ?? []) as $t)
+                            <button type="button"
+                                onclick="switchTab('ticketTab'); document.getElementById('notifMenuAdmin').classList.add('hidden');"
+                                class="w-full text-left flex gap-2.5 p-3 hover:bg-slate-50 transition cursor-pointer">
+                                <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-circle-check text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }} siap ditutup
+                                    </p>
+                                    <p class="text-[11px] text-slate-500 truncate">Pelapor: {{ $t->pelapor->nama_lengkap ?? '-' }} · PJ: {{ $t->penanggung_jawab }}</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
+                                </div>
+                            </button>
+                            @empty
+                            <div class="p-6 text-center">
+                                <i class="fa-regular fa-bell-slash text-slate-300 text-2xl mb-2"></i>
+                                <p class="text-xs text-slate-400">Belum ada tiket yang perlu ditutup.</p>
+                            </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                <span class="bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200">
+                    <i class="fa-solid fa-user-shield text-amber-500 me-1"></i> Mode Admin
+                </span>
+            </div>
         </div>
 
         <!-- Notifikasi Session -->
@@ -262,7 +308,6 @@
 
     </main>
 
-    <!-- ================= JAVASCRIPT LOGIKA SWITCH 2 TAB ================= -->
     <script>
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -279,6 +324,23 @@
                 document.getElementById('btnTicketTab').className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-400 text-[#0a2540]";
                 document.getElementById('pageTitle').innerText = "Manajemen Tiket Helpdesk";
             }
+        }
+
+        // ===== TOGGLE NOTIFIKASI BELL ADMIN =====
+        const notifBtnAdmin = document.getElementById('notifBtnAdmin');
+        const notifMenuAdmin = document.getElementById('notifMenuAdmin');
+
+        if (notifBtnAdmin && notifMenuAdmin) {
+            notifBtnAdmin.addEventListener('click', (e) => {
+                e.stopPropagation();
+                notifMenuAdmin.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', () => {
+                notifMenuAdmin.classList.add('hidden');
+            });
+
+            notifMenuAdmin.addEventListener('click', (e) => e.stopPropagation());
         }
     </script>
 </body>

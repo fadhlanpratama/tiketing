@@ -88,6 +88,54 @@
                             @empty
                             @endforelse
 
+                            @forelse(($notifAssignedUser ?? []) as $t)
+                            <a href="{{ route('user.ticket.show', $t->id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-user-check text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        PJ ditentukan — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500">Tiket Anda sedang ditangani oleh {{ $t->penanggung_jawab }}</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
+                            @forelse(($notifInProgress ?? []) as $t)
+                            <a href="{{ route('user.ticket.show', $t->id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-spinner text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        Sedang dikerjakan — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500">{{ $t->penanggung_jawab }} mulai menangani tiket Anda</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
+                            @forelse(($notifAdminClosedUser ?? []) as $t)
+                            <a href="{{ route('user.ticket.show', $t->id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-lock text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        Tiket ditutup Admin — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500">Tiket Anda telah resmi ditutup oleh admin</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
                             @if(($notifCountUser ?? 0) === 0)
                             <div class="p-6 text-center">
                                 <i class="fa-regular fa-bell-slash text-slate-300 text-2xl mb-2"></i>

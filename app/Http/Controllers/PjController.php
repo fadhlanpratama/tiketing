@@ -120,7 +120,7 @@ class PjController extends Controller
         return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
     }
 
-    public function terima(string $id)
+   public function terima(string $id)
     {
         $namaPj = session('nama_lengkap');
         $ticket = Ticket::where('id', $id)
@@ -129,6 +129,7 @@ class PjController extends Controller
             ->firstOrFail();
 
         $ticket->status = 'In Progress';
+        $ticket->user_notif_inprogress_read = false;
         $ticket->timestamps = false;
         $ticket->save();
 
@@ -220,10 +221,28 @@ class PjController extends Controller
             ->where('read_by_pj', false)
             ->update(['read_by_pj' => true]);
 
-        // Tandai notif tiket ditutup pelapor sebagai sudah dibaca
+        $needsSave = false;
+
+        // Notif: tiket dibatalkan pelapor
         if ($ticket->status === 'Closed' && $ticket->closed_by === 'user' && !$ticket->pj_notif_closed_read) {
-            $ticket->timestamps = false;
             $ticket->pj_notif_closed_read = true;
+            $needsSave = true;
+        }
+
+        // Notif: tiket ditutup admin
+        if ($ticket->status === 'Closed' && $ticket->closed_by === 'admin' && !$ticket->pj_notif_admin_closed_read) {
+            $ticket->pj_notif_admin_closed_read = true;
+            $needsSave = true;
+        }
+
+        // Notif: penugasan baru dari admin
+        if (!$ticket->pj_notif_assigned_read) {
+            $ticket->pj_notif_assigned_read = true;
+            $needsSave = true;
+        }
+
+        if ($needsSave) {
+            $ticket->timestamps = false;
             $ticket->save();
         }
 

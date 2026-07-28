@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+   public function boot(): void
     {
         // ================= NOTIFIKASI SISI PJ =================
         View::composer('pj.*', function ($view) {
@@ -46,10 +46,26 @@ class AppServiceProvider extends ServiceProvider
                 ->take(10)
                 ->get();
 
+            $notifAssignedPj = Ticket::whereIn('id', $ticketIdsPj)
+                ->where('pj_notif_assigned_read', false)
+                ->latest('updated_at')
+                ->take(10)
+                ->get();
+
+            $notifAdminClosedPj = Ticket::whereIn('id', $ticketIdsPj)
+                ->where('status', 'Closed')
+                ->where('closed_by', 'admin')
+                ->where('pj_notif_admin_closed_read', false)
+                ->latest('updated_at')
+                ->take(10)
+                ->get();
+
             $view->with([
-                'notifMessages' => $notifMessages,
-                'notifClosed'   => $notifClosed,
-                'notifCount'    => $notifMessages->count() + $notifClosed->count(),
+                'notifMessages'      => $notifMessages,
+                'notifClosed'        => $notifClosed,
+                'notifAssignedPj'    => $notifAssignedPj,
+                'notifAdminClosedPj' => $notifAdminClosedPj,
+                'notifCount'         => $notifMessages->count() + $notifClosed->count() + $notifAssignedPj->count() + $notifAdminClosedPj->count(),
             ]);
         });
 
@@ -74,10 +90,55 @@ class AppServiceProvider extends ServiceProvider
                 ->take(10)
                 ->get();
 
+            $notifAssignedUser = Ticket::whereIn('id', $ticketIdsUser)
+                ->where('user_notif_assigned_read', false)
+                ->whereNotNull('penanggung_jawab')
+                ->where('penanggung_jawab', '!=', '')
+                ->latest('updated_at')
+                ->take(10)
+                ->get();
+
+            $notifInProgress = Ticket::whereIn('id', $ticketIdsUser)
+                ->where('status', 'In Progress')
+                ->where('user_notif_inprogress_read', false)
+                ->latest('updated_at')
+                ->take(10)
+                ->get();
+
+            $notifAdminClosedUser = Ticket::whereIn('id', $ticketIdsUser)
+                ->where('status', 'Closed')
+                ->where('closed_by', 'admin')
+                ->where('user_notif_admin_closed_read', false)
+                ->latest('updated_at')
+                ->take(10)
+                ->get();
+
             $view->with([
-                'notifMessagesUser' => $notifMessagesUser,
-                'notifResolved'     => $notifResolved,
-                'notifCountUser'    => $notifMessagesUser->count() + $notifResolved->count(),
+                'notifMessagesUser'    => $notifMessagesUser,
+                'notifResolved'        => $notifResolved,
+                'notifAssignedUser'    => $notifAssignedUser,
+                'notifInProgress'      => $notifInProgress,
+                'notifAdminClosedUser' => $notifAdminClosedUser,
+                'notifCountUser'       => $notifMessagesUser->count() + $notifResolved->count()
+                                        + $notifAssignedUser->count() + $notifInProgress->count()
+                                        + $notifAdminClosedUser->count(),
+            ]);
+        });
+
+        // ================= NOTIFIKASI SISI ADMIN (hanya tiket Resolved) =================
+        View::composer('admin.*', function ($view) {
+            $adminId = session('user_id');
+            if (!$adminId) return;
+
+            $notifResolvedAdmin = Ticket::where('status', 'Resolved')
+                ->with('pelapor')
+                ->latest('updated_at')
+                ->take(10)
+                ->get();
+
+            $view->with([
+                'notifResolvedAdmin' => $notifResolvedAdmin,
+                'notifCountAdmin'    => $notifResolvedAdmin->count(),
             ]);
         });
     }
