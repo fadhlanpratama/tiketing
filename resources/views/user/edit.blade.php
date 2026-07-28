@@ -25,7 +25,7 @@
                         <h1 class="text-white font-black tracking-wider text-base sm:text-lg leading-tight">SISTEM TIKETING</h1>
                         <span class="text-[9px] sm:text-[10px] text-amber-400 uppercase font-bold tracking-widest block">Portal Pengguna</span>
                     </div>
-               </div>
+                </div>
             </div>
             
             <div class="flex items-center gap-3">
@@ -38,7 +38,7 @@
     </header>
 
     {{-- Main Container --}}
-    <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
         {{-- Banner Header Card --}}
         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm flex items-center justify-between gap-4">
@@ -62,8 +62,6 @@
                 </div>
             </div>
         @endif
-
-        {{-- ALERT ERROR SERVERSIDE ATAS SUDAH DIHAPUS SESUAI PERMINTAAN --}}
 
         {{-- Form Container --}}
         <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8">

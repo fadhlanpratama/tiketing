@@ -9,9 +9,9 @@
 </head>
 <body class="bg-slate-100/70 min-h-screen font-sans text-slate-800 flex flex-col antialiased">
 
-    {{-- 1. Header Utama ESDM (Disamakan dengan Halaman Edit Profil) --}}
+    {{-- 1. Header Utama ESDM --}}
     <header class="bg-[#0a2540] text-white sticky top-0 z-30 shadow-lg border-b border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div class="w-full px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3.5">
                 <div class="flex items-center gap-3">
                     <img src="{{ asset('image/esdm.png') }}" alt="Logo" class="w-10 h-10 object-contain">
@@ -32,10 +32,10 @@
     </header>
 
     {{-- 2. Main Content Area --}}
-    <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <main class="flex-1 w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
         {{-- Banner Card Identitas Tiket --}}
-        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
             <div class="space-y-1.5">
                 <div class="flex items-center gap-2.5 flex-wrap">
                     {{-- Status Badge --}}
@@ -72,13 +72,13 @@
         </div>
 
         {{-- Grid 2 Kolom --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
             
             {{-- KOLOM KIRI (2/3): Detail Deskripsi & Foto --}}
             <div class="lg:col-span-2 space-y-6">
                 
                 {{-- Card Informasi Masalah --}}
-                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6 w-full">
                     <div class="border-b border-slate-100 pb-4 space-y-2">
                         <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#0a2540] uppercase tracking-wider bg-slate-100 px-3 py-1 rounded-lg border border-slate-200/60">
                             <i class="fa-solid fa-layer-group text-amber-500"></i> {{ $ticket->kategori }}
@@ -123,7 +123,7 @@
 
                 {{-- Card Lampiran Foto --}}
                 @if($ticket->attachment_foto || $ticket->hasil_resolved_foto)
-                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-5">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-5 w-full">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
                         <div class="w-2.5 h-5 bg-[#0a2540] rounded-full"></div>
                         <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Lampiran Dokumentasi</h3>
@@ -167,7 +167,7 @@
             <div class="space-y-6">
 
                 {{-- Card Informasi Pelapor --}}
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4">
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4 w-full">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
                         <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
                         <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Informasi Pelapor</h3>
@@ -192,7 +192,7 @@
                 </div>
 
                 {{-- Partial Chat/Diskusi --}}
-                <div class="bg-white rounded-3xl p-2 shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="bg-white rounded-3xl p-2 shadow-sm border border-slate-200/80 overflow-hidden w-full">
                     @include('partials.ticket-chat-survey', ['chatRoute' => 'pj.ticket.chat', 'isPj' => true])
                 </div>
 

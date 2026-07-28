@@ -16,7 +16,8 @@ use App\Http\Controllers\AdminController;
 
 // ================= AUTENTIKASI UTAMA =================
 Route::middleware(['guest.redirect', 'no.cache'])->group(function () {
-    Route::get('/', [AuthController::class, 'showAuthForm'])->name('home');
+    Route::get('/', [AuthController::class, 'landing'])->name('landing');
+    Route::get('/portal', [AuthController::class, 'showAuthForm'])->name('home');
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/register', [AuthController::class, 'register'])
         ->middleware('throttle:5,1')->name('register');

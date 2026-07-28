@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Cache;
 
 class AuthController extends Controller
 {
+    public function landing()
+    {
+        return view('auth.landing');
+    }
+
     public function showAuthForm()
     {
         return view('auth.auth-page');
