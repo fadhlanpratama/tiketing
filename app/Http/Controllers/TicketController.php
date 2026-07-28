@@ -169,10 +169,34 @@ class TicketController extends Controller
             ->where('read_by_user', false)
             ->update(['read_by_user' => true]);
 
-        // Tandai notif tiket Resolved sebagai sudah dibaca
+        $needsSave = false;
+
+        // Notif: tiket Resolved oleh PJ
         if ($ticket->status === 'Resolved' && !$ticket->user_notif_resolved_read) {
-            $ticket->timestamps = false;
             $ticket->user_notif_resolved_read = true;
+            $needsSave = true;
+        }
+
+        // Notif: PJ sudah ditentukan admin
+        if (!$ticket->user_notif_assigned_read) {
+            $ticket->user_notif_assigned_read = true;
+            $needsSave = true;
+        }
+
+        // Notif: tiket mulai dikerjakan (In Progress)
+        if ($ticket->status === 'In Progress' && !$ticket->user_notif_inprogress_read) {
+            $ticket->user_notif_inprogress_read = true;
+            $needsSave = true;
+        }
+
+        // Notif: tiket ditutup admin
+        if ($ticket->status === 'Closed' && $ticket->closed_by === 'admin' && !$ticket->user_notif_admin_closed_read) {
+            $ticket->user_notif_admin_closed_read = true;
+            $needsSave = true;
+        }
+
+        if ($needsSave) {
+            $ticket->timestamps = false;
             $ticket->save();
         }
 

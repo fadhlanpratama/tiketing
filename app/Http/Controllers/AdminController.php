@@ -105,6 +105,9 @@ class AdminController extends Controller
 
         $ticket = Ticket::where('id', $id)->firstOrFail();
         $ticket->penanggung_jawab = $request->penanggung_jawab;
+        $ticket->user_notif_assigned_read = false;
+        $ticket->pj_notif_assigned_read = false;
+
         $ticket->save();
 
         return redirect()->back()->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil ditugaskan ke PJ: ' . $request->penanggung_jawab);
@@ -116,6 +119,8 @@ class AdminController extends Controller
 
         $ticket->status = 'Closed';
         $ticket->closed_by = 'admin';
+        $ticket->user_notif_admin_closed_read = false;
+        $ticket->pj_notif_admin_closed_read = false;
         $ticket->save();
 
         return redirect()->back()->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' resmi ditutup (Closed).');

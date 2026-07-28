@@ -29,78 +29,129 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-2 sm:gap-4">
                 <div class="text-right hidden sm:flex items-center gap-3">
                     <div>
                         <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Pengguna</p>
                         <p class="text-sm font-bold text-white mt-0.5">{{ session('nama_lengkap', 'Pegawai ESDM') }}</p>
                     </div>
-                    
-                    {{-- ===== NOTIFIKASI BELL ===== --}}
-                    <div class="relative" id="notifWrapper">
-                        <button type="button" id="notifBtn"
-                            class="relative bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl transition cursor-pointer">
-                            <i class="fa-solid fa-bell text-sm"></i>
-                            @if(($notifCountUser ?? 0) > 0)
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                                {{ $notifCountUser > 9 ? '9+' : $notifCountUser }}
-                            </span>
-                            @endif
-                        </button>
-
-                        <div id="notifMenu" class="hidden absolute right-0 mt-2 w-80 max-w-[90vw] bg-white border border-slate-200 shadow-2xl rounded-2xl z-50 overflow-hidden">
-                            <div class="p-3 border-b border-slate-100 bg-slate-50">
-                                <p class="text-xs font-bold text-slate-700 uppercase tracking-wide">Notifikasi</p>
-                            </div>
-
-                            <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
-                                @forelse(($notifMessagesUser ?? []) as $msg)
-                                <a href="{{ route('user.ticket.show', $msg->ticket_id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
-                                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                                        <i class="fa-solid fa-comment-dots text-xs"></i>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <p class="text-xs font-semibold text-slate-800 truncate">
-                                            Balasan Teknisi — #TKT-{{ str_pad($msg->ticket_id, 5, '0', STR_PAD_LEFT) }}
-                                        </p>
-                                        <p class="text-[11px] text-slate-500 truncate">{{ $msg->pesan ?? 'Mengirim foto' }}</p>
-                                        <p class="text-[10px] text-slate-400 mt-0.5">{{ $msg->created_at->diffForHumans() }}</p>
-                                    </div>
-                                </a>
-                                @empty
-                                @endforelse
-
-                                @forelse(($notifResolved ?? []) as $t)
-                                <a href="{{ route('user.ticket.show', $t->id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
-                                    <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
-                                        <i class="fa-solid fa-circle-check text-xs"></i>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <p class="text-xs font-semibold text-slate-800 truncate">
-                                            Tiket selesai dikerjakan — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
-                                        </p>
-                                        <p class="text-[11px] text-slate-500">Mohon isi survei kepuasan Anda</p>
-                                        <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
-                                    </div>
-                                </a>
-                                @empty
-                                @endforelse
-
-                                @if(($notifCountUser ?? 0) === 0)
-                                <div class="p-6 text-center">
-                                    <i class="fa-regular fa-bell-slash text-slate-300 text-2xl mb-2"></i>
-                                    <p class="text-xs text-slate-400">Tidak ada notifikasi baru.</p>
-                                </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    <a href="{{route('user.profile.edit')}}" class="bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white w-9 h-9 flex items-center justify-center rounded-xl transition text-xs" title="Edit Profil">
-                        <i class="fa-solid fa-user-gear text-sm"></i>
-                    </a>
                 </div>
                 
+                {{-- ===== NOTIFIKASI BELL (DESKTOP & MOBILE) ===== --}}
+                <div class="relative" id="notifWrapper">
+                    <button type="button" id="notifBtn"
+                        class="relative bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl transition cursor-pointer">
+                        <i class="fa-solid fa-bell text-sm"></i>
+                        @if(($notifCountUser ?? 0) > 0)
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                            {{ $notifCountUser > 9 ? '9+' : $notifCountUser }}
+                        </span>
+                        @endif
+                    </button>
+
+                    {{-- Dropdown Notifikasi Responsif --}}
+                    <div id="notifMenu" class="hidden absolute -right-12 sm:right-0 mt-2 w-[85vw] sm:w-80 max-w-xs sm:max-w-none bg-white border border-slate-200 shadow-2xl rounded-2xl z-50 overflow-hidden">
+                        <div class="p-3 border-b border-slate-100 bg-slate-50">
+                            <p class="text-xs font-bold text-slate-700 uppercase tracking-wide">Notifikasi</p>
+                        </div>
+
+                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                            @forelse(($notifMessagesUser ?? []) as $msg)
+                            <a href="{{ route('user.ticket.show', $msg->ticket_id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-comment-dots text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        Balasan Teknisi — #TKT-{{ str_pad($msg->ticket_id, 5, '0', STR_PAD_LEFT) }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500 truncate">{{ $msg->pesan ?? 'Mengirim foto' }}</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $msg->created_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
+                            @forelse(($notifResolved ?? []) as $t)
+                            <a href="{{ route('user.ticket.show', $t->id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-circle-check text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        Tiket selesai dikerjakan — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500">Mohon isi survei kepuasan Anda</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
+                            @forelse(($notifAssignedUser ?? []) as $t)
+                            <a href="{{ route('user.ticket.show', $t->id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-user-check text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        PJ ditentukan — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500">Tiket Anda sedang ditangani oleh {{ $t->penanggung_jawab }}</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
+                            @forelse(($notifInProgress ?? []) as $t)
+                            <a href="{{ route('user.ticket.show', $t->id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-spinner text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        Sedang dikerjakan — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500">{{ $t->penanggung_jawab }} mulai menangani tiket Anda</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
+                            @forelse(($notifAdminClosedUser ?? []) as $t)
+                            <a href="{{ route('user.ticket.show', $t->id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-lock text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        Tiket ditutup Admin — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500">Tiket Anda telah resmi ditutup oleh admin</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
+                            @if(($notifCountUser ?? 0) === 0)
+                            <div class="p-6 text-center">
+                                <i class="fa-regular fa-bell-slash text-slate-300 text-2xl mb-2"></i>
+                                <p class="text-xs text-slate-400">Tidak ada notifikasi baru.</p>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Tombol Profil Desktop --}}
+                <a href="{{route('user.profile.edit')}}" class="hidden sm:flex bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white w-9 h-9 items-center justify-center rounded-xl transition text-xs" title="Edit Profil">
+                    <i class="fa-solid fa-user-gear text-sm"></i>
+                </a>
+                
+                {{-- Tombol Profil Mobile --}}
                 <a href="{{route('user.profile.edit')}}" class="sm:hidden bg-slate-700/40 text-amber-400 w-10 h-10 flex flex-col items-center justify-center rounded-xl border border-slate-700/60 active:scale-95 transition" title="Edit Profil">
                     <i class="fa-solid fa-user-gear text-sm"></i>
                     <span class="text-[8px] font-bold tracking-tight mt-0.5">Profil</span>
