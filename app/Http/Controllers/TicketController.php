@@ -16,6 +16,16 @@ class TicketController extends Controller
         $this->middleware('cek.login');
     }
 
+    private function getTiketBelumSurvei(Int $userId)
+    {
+        return Ticket::where('user_id', $userId)
+            ->where('status', 'Closed')
+            ->where('closed_by', 'admin')
+            ->whereNull('survei_kepuasan')
+            ->orderBy('created_at', 'asc')
+            ->pluck('id');
+    }
+
     public function index(Request $request)
     {
         $userId = session('user_id');
@@ -35,12 +45,15 @@ class TicketController extends Controller
             COUNT(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 END) as selesai
         ")->first();
 
+        $tiketBelumSurvei = $this->getTiketBelumSurvei($userId);
+
         return view('user.dashboard', [
-            'tickets'      => $tickets,
-            'TiketAktif'   => $counts->aktif ?? 0,
-            'dalamProses'  => $counts->proses ?? 0,
-            'selesai'      => $counts->selesai ?? 0,
-            'statusFilter' => $request->input('status', 'semua'),
+            'tickets'          => $tickets,
+            'TiketAktif'       => $counts->aktif ?? 0,
+            'dalamProses'      => $counts->proses ?? 0,
+            'selesai'          => $counts->selesai ?? 0,
+            'statusFilter'     => $request->input('status', 'semua'),
+            'tiketBelumSurvei' => $tiketBelumSurvei,
         ]);
     }
 
@@ -108,6 +121,13 @@ class TicketController extends Controller
     {
         $userId = session('user_id');
         $user = Users::find($userId);
+        $tiketBelumSurvei = $this->getTiketBelumSurvei($userId);
+
+        if ($tiketBelumSurvei->isNotEmpty()) {
+            return redirect()->route('user.dashboard')
+                ->with('survei_pending', $tiketBelumSurvei->toArray());
+        }
+
         $counts = Ticket::where('user_id', $userId)->selectRaw("
             COUNT(CASE WHEN status = 'Open' THEN 1 END) as aktif,
             COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as proses,
@@ -124,6 +144,14 @@ class TicketController extends Controller
 
     public function store(Request $request)
     {
+        $userId = session('user_id');
+        $tiketBelumSurvei = $this->getTiketBelumSurvei($userId);
+
+        if ($tiketBelumSurvei->isNotEmpty()) {
+            return redirect()->route('user.dashboard')
+                ->with('survei_pending', $tiketBelumSurvei->toArray());
+        }
+
         $request->validate([
             'kategori'             => 'required|in:IT—Software,IT—Hardware,IT—Jaringan,Administrasi,Sarana—Prasarana,Keamanan,Kebersihan,Lainnya',
             'sub_kategori'         => 'required|string|max:100',

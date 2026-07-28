@@ -221,9 +221,6 @@
         
         {{-- Header Pop-up --}}
         <div class="bg-gradient-to-r from-[#0a2540] to-[#16406c] text-white p-5 text-center relative">
-            <button type="button" onclick="closeSurveiModal()" class="absolute top-4 right-4 text-white/70 hover:text-white transition cursor-pointer">
-                <i class="fa-solid fa-xmark text-base"></i>
-            </button>
             <div class="w-12 h-12 bg-amber-400 text-[#0a2540] rounded-2xl flex items-center justify-center text-xl mx-auto mb-2 shadow-lg">
                 <i class="fa-solid fa-star"></i>
             </div>

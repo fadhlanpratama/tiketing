@@ -18,6 +18,45 @@
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans antialiased flex flex-col">
+    {{-- Popup Notifikasi Survei Belum Diisi (muncul saat user coba buat tiket baru) --}}
+    @if(session('survei_pending'))
+    <div id="popupSurveiPending" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center text-xl shrink-0">
+                    <i class="fa-solid fa-star-half-stroke"></i>
+                </div>
+                <div>
+                    <h4 class="text-base font-bold text-slate-800">Survei Kepuasan Belum Diisi</h4>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Anda memiliki {{ count(session('survei_pending')) }} tiket yang sudah ditutup namun belum diberi penilaian. Isi dahulu sebelum membuat tiket baru.
+                    </p>
+                </div>
+            </div>
+
+            <div class="max-h-56 overflow-y-auto space-y-2 border-t border-slate-100 pt-3">
+                @foreach(session('survei_pending') as $id)
+                <a href="{{ route('user.ticket.show', $id) }}" class="flex items-center justify-between bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 transition group">
+                    <span class="text-xs font-bold text-slate-700">#TKT-{{ str_pad($id, 5, '0', STR_PAD_LEFT) }}</span>
+                    <span class="text-[10px] font-semibold text-amber-600 group-hover:translate-x-0.5 transition flex items-center gap-1">
+                        Isi Survei <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                    </span>
+                </a>
+                @endforeach
+            </div>
+
+            <button id="closeSurveiPending" class="w-full bg-[#0a2540] hover:bg-slate-800 text-white text-xs font-semibold py-2.5 rounded-xl transition shadow-md">
+                Mengerti, Nanti Saya Isi
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('closeSurveiPending').addEventListener('click', () => {
+            document.getElementById('popupSurveiPending').classList.add('hidden');
+        });
+    </script>
+    @endif
 
     <header class="bg-[#0a2540] text-white sticky top-0 z-30 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">

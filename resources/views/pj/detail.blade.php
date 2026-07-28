@@ -11,7 +11,7 @@
 
     {{-- 1. Header Utama ESDM --}}
     <header class="bg-[#0a2540] text-white sticky top-0 z-30 shadow-lg border-b border-slate-800">
-        <div class="w-full px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3.5">
                 <div class="flex items-center gap-3">
                     <img src="{{ asset('image/esdm.png') }}" alt="Logo" class="w-10 h-10 object-contain">
@@ -32,7 +32,7 @@
     </header>
 
     {{-- 2. Main Content Area --}}
-    <main class="flex-1 w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
         {{-- Banner Card Identitas Tiket --}}
         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
