@@ -4,44 +4,41 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sistem Tiketing Layanan Internal - PSDMBP</title>
-    
-    <!-- Google Fonts -->
+    <title>ESDM - Sistem Tiketing</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap 5 & FontAwesome 6 & Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <!-- AOS (Animate On Scroll) CSS -->
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
 
-    <style>  
-        :root {  
-            --primary-color: #0a2540;  
+    <style>
+        :root {
+            --primary-color: #0a2540;
             --primary-dark: #06182b;
-            --secondary-color: #FFC53A;  
+            --primary-soft: #12365c;
+            --secondary-color: #FFC53A;
             --secondary-hover: #e0b032;
             --accent-green: #1fa466;
-            --text-light: #FFFFFF;  
-            --text-dark: #1e293b;  
+            --text-light: #FFFFFF;
+            --text-dark: #1e293b;
             --text-muted: #64748b;
-            --background-light: #f4f7fa;  
-            --card-background: #FFFFFF;  
-            --card-shadow: 0 4px 20px rgba(10, 37, 64, 0.05);  
-            --card-hover-shadow: 0 12px 28px rgba(10, 37, 64, 0.12);  
-        }  
-
-        * {
-            box-sizing: border-box;
+            --background-light: #f4f7fa;
+            --card-background: #FFFFFF;
+            --card-shadow: 0 4px 20px rgba(10, 37, 64, 0.05);
+            --card-hover-shadow: 0 12px 28px rgba(10, 37, 64, 0.12);
+            --sla-tinggi: #dc2626;
+            --sla-tinggi-bg: #fef2f2;
+            --sla-sedang: #d97706;
+            --sla-sedang-bg: #fffbeb;
+            --sla-rendah: #16a34a;
+            --sla-rendah-bg: #f0fdf4;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -55,20 +52,9 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        a {
-            text-decoration: none;
-        }
+        a { text-decoration: none; }
+        section[id] { scroll-margin-top: 120px; }
 
-        /* Top Announcement Bar */
-        .top-info-bar {
-            background: #06182b;
-            color: #cbd5e1;
-            font-size: 0.78rem;
-            padding: 7px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        /* Custom Header Navbar */
         .navbar-custom {
             background: var(--primary-color);
             padding: 14px 0;
@@ -85,11 +71,7 @@
             gap: 12px;
         }
 
-        .brand-logo-img {
-            width: 38px;
-            height: 38px;
-            object-fit: contain;
-        }
+        .brand-logo-img { width: 38px; height: 38px; object-fit: contain; }
 
         .brand-small {
             font-size: 0.65rem;
@@ -108,6 +90,34 @@
             line-height: 1.1;
         }
 
+        .navbar-custom .nav-link-custom {
+            color: #cbd5e1 !important;
+            font-size: 0.86rem;
+            font-weight: 700;
+            padding: 8px 14px !important;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .navbar-custom .nav-link-custom:hover,
+        .navbar-custom .nav-link-custom.active-link {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .navbar-custom .nav-link-custom.active-link {
+            color: var(--secondary-color) !important;
+        }
+
+        .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.2);
+            padding: 6px 10px;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.85)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
         .btn-login {
             background: var(--secondary-color);
             color: var(--primary-color) !important;
@@ -121,6 +131,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
         }
 
         .btn-login:hover {
@@ -130,15 +141,26 @@
             color: var(--primary-color) !important;
         }
 
-        /* Hero Banner Container */
         .hero-banner-card {
-            background: var(--primary-color);
+            background: linear-gradient(155deg, var(--primary-color) 0%, var(--primary-soft) 100%);
             color: #ffffff;
             border-radius: 24px;
             padding: 48px 40px;
             box-shadow: 0 10px 30px rgba(10, 37, 64, 0.12);
             position: relative;
             overflow: hidden;
+        }
+
+        .hero-banner-card::after {
+            content: "";
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 197, 58, 0.14) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         .hero-badge-tag {
@@ -156,25 +178,25 @@
             margin-bottom: 20px;
         }
 
-        .hero-title {  
-            font-size: 32px;  
-            font-weight: 900;  
-            margin-bottom: 12px;  
-            letter-spacing: -0.02em;  
+        .hero-title {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
             line-height: 1.25;
             color: #ffffff;
-        }  
+        }
 
-        .hero-subtitle {  
-            font-size: 0.95rem;  
-            font-weight: 400;  
+        .hero-subtitle {
+            font-size: 0.95rem;
+            font-weight: 400;
             color: #cbd5e1;
             margin-bottom: 0;
-            max-width: 700px;
-            line-height: 1.6;
-        }  
+            max-width: 900px;
+            line-height: 1.8;
+            margin-top: 24px;
+        }
 
-        /* Quick Stats Badges (Pengganti Search Bar) */
         .hero-stats-badge {
             background: rgba(255, 255, 255, 0.07);
             border: 1px solid rgba(255, 255, 255, 0.12);
@@ -188,77 +210,74 @@
             backdrop-filter: blur(4px);
         }
 
-        /* Services Grid Cards */  
-        .services-grid {  
-            display: grid;  
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;  
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
             margin-top: 28px;
-        }  
+        }
 
-        .service-card-hero {  
-            background-color: #ffffff;  
-            border-radius: 20px;  
-            padding: 24px 20px;  
-            text-align: center;  
-            transition: all 0.25s ease;  
-            display: flex;  
-            flex-direction: column;  
-            align-items: center;  
-            justify-content: center;  
-            text-decoration: none;  
-            color: var(--text-dark);  
-            border: 1px solid #e2e8f0;  
+        .service-card-hero {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-dark);
+            border: 1px solid #e2e8f0;
             box-shadow: var(--card-shadow);
             cursor: pointer;
-        }  
+        }
 
-        .service-card-hero:hover {  
-            transform: translateY(-5px);  
+        .service-card-hero:hover {
+            transform: translateY(-5px);
             border-color: var(--secondary-color);
             box-shadow: var(--card-hover-shadow);
-        }  
+        }
 
-        .service-icon-hero {  
-            background-color: #f1f5f9;  
-            border-radius: 16px;  
-            width: 58px;  
-            height: 58px;  
-            display: flex;  
-            align-items: center;  
-            justify-content: center;  
-            margin-bottom: 14px;  
+        .service-icon-hero {
+            background-color: #f1f5f9;
+            border-radius: 16px;
+            width: 58px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
             transition: all 0.25s ease;
-        }  
+        }
 
         .service-card-hero:hover .service-icon-hero {
             background-color: #fef9c3;
             transform: scale(1.05);
         }
 
-        .service-icon-hero i {  
-            font-size: 24px;  
-            color: var(--primary-color);  
-            transition: color 0.25s ease;
-        }  
+        .service-icon-hero i {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
 
-        .service-title-hero {  
-            font-size: 14px;  
-            font-weight: 800;  
+        .service-title-hero {
+            font-size: 14px;
+            font-weight: 800;
             color: var(--text-dark);
-            line-height: 1.3;  
-        }  
+            line-height: 1.3;
+        }
 
-        /* Section Title Indicator */
-        .section-title {  
-            font-size: 22px;  
-            font-weight: 900;  
-            color: var(--primary-color);  
-            margin-bottom: 16px;  
+        .section-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--primary-color);
+            margin-bottom: 16px;
             display: inline-flex;
             align-items: center;
             gap: 10px;
-        }  
+        }
 
         .section-title::before {
             content: "";
@@ -266,11 +285,6 @@
             height: 22px;
             border-radius: 999px;
             background: var(--secondary-color);
-        }
-
-        /* Penjelasan Sistem Tiketing */
-        .system-about-section {
-            padding: 10px 0;
         }
 
         .system-about-box {
@@ -296,7 +310,6 @@
             margin-bottom: 0;
         }
 
-        /* Step Procedure Section */
         .step-section-pu {
             background: #ffffff;
             border-radius: 24px;
@@ -305,101 +318,188 @@
             padding: 36px 28px;
         }
 
-        .step-nav-tabs {
+        .actor-tabs {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
-            margin-bottom: 28px;
+            margin-bottom: 30px;
         }
 
-        .step-tab-btn {
+        .actor-tab-btn {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-radius: 30px;
-            padding: 8px 18px;
-            font-size: 0.82rem;
-            font-weight: 700;
+            border-radius: 14px;
+            padding: 12px 22px;
+            font-size: 0.86rem;
+            font-weight: 800;
             color: var(--text-dark);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
-        .step-tab-num {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: #cbd5e1;
-            color: #ffffff;
-            font-size: 0.72rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
+        .actor-tab-btn i {
+            font-size: 1rem;
+            color: var(--primary-color);
         }
 
-        .step-tab-btn.active-step {
+        .actor-tab-btn.active-actor {
             background: var(--primary-color);
             color: #ffffff;
             border-color: var(--primary-color);
             box-shadow: 0 4px 12px rgba(10, 37, 64, 0.2);
         }
 
-        .step-tab-btn.active-step .step-tab-num {
-            background: var(--secondary-color);
-            color: var(--primary-color);
+        .actor-tab-btn.active-actor i { color: var(--secondary-color); }
+
+        .actor-tab-sub {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 600;
+            opacity: 0.7;
         }
 
-        .step-detail-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 24px;
+        .actor-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
         }
 
-        .step-detail-box h5 {
-            font-size: 1.1rem;
+        .timeline-row {
+            display: flex;
+            gap: 20px;
+            position: relative;
+        }
+
+        .timeline-marker-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .timeline-dot {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .timeline-line {
+            width: 2px;
+            flex-grow: 1;
+            background: #e2e8f0;
+            margin: 4px 0;
+        }
+
+        .timeline-row:last-child .timeline-line { display: none; }
+
+        .timeline-content {
+            padding-bottom: 28px;
+            flex-grow: 1;
+        }
+
+        .timeline-content h6 {
+            font-size: 0.98rem;
             font-weight: 800;
             color: var(--primary-color);
+            margin-bottom: 6px;
         }
 
-        .step-detail-box p {
-            font-size: 0.88rem;
+        .timeline-content p {
+            font-size: 0.85rem;
             color: #475569;
             line-height: 1.6;
-        }
-
-        .prosedur-list {
-            list-style: none;
-            padding-left: 0;
             margin-bottom: 0;
         }
 
-        .prosedur-list li {
-            position: relative;
-            padding-left: 20px;
-            margin-bottom: 8px;
-            font-size: 0.84rem;
-            color: #334155;
+        .sla-card {
+            border-radius: 18px;
+            padding: 22px 22px 20px;
+            height: 100%;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .sla-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .sla-priority-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 999px;
+            margin-bottom: 16px;
+        }
+
+        .sla-card.sla-tinggi { border-top: 4px solid var(--sla-tinggi); }
+        .sla-card.sla-sedang { border-top: 4px solid var(--sla-sedang); }
+        .sla-card.sla-rendah { border-top: 4px solid var(--sla-rendah); }
+
+        .sla-tinggi .sla-priority-pill { background: var(--sla-tinggi-bg); color: var(--sla-tinggi); }
+        .sla-sedang .sla-priority-pill { background: var(--sla-sedang-bg); color: var(--sla-sedang); }
+        .sla-rendah .sla-priority-pill { background: var(--sla-rendah-bg); color: var(--sla-rendah); }
+
+        .sla-metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 10px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .sla-metric-row:last-of-type { border-bottom: none; }
+
+        .sla-metric-label {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .sla-metric-value {
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+
+        .sla-example {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 14px;
             line-height: 1.5;
         }
 
-        .prosedur-list li::before {
-            content: "\F26A";
-            font-family: "bootstrap-icons";
-            position: absolute;
-            left: 0;
-            top: 1px;
-            color: var(--accent-green);
-            font-size: 0.88rem;
-            font-weight: 800;
+        .sla-footnote {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
         }
 
-        /* Informasi Kontak Teknis */
         .info-contact-section {
             background: #ffffff;
             color: var(--text-dark);
@@ -417,11 +517,7 @@
             margin-bottom: 4px;
         }
 
-        .info-contact-text p {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin: 0;
-        }
+        .info-contact-text p { font-size: 0.85rem; color: #64748b; margin: 0; }
 
         .info-contact-item {
             display: flex;
@@ -431,42 +527,26 @@
             color: var(--text-dark);
         }
 
-        .info-contact-item i { 
-            color: var(--primary-color); 
+        .info-contact-item i { color: var(--primary-color); }
+
+        .chat-support { position: fixed; bottom: 24px; right: 24px; z-index: 1000; }
+
+        .chat-avatar {
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            width: 58px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+            transition: all 0.25s ease;
         }
 
-        /* Floating Support Chat Avatar */  
-        .chat-support {  
-            position: fixed;  
-            bottom: 24px;  
-            right: 24px;  
-            z-index: 1000;  
-        }  
+        .chat-avatar:hover { transform: scale(1.08); background-color: var(--secondary-hover); }
+        .chat-avatar i { font-size: 24px; color: var(--primary-color); }
 
-        .chat-avatar {  
-            background-color: var(--secondary-color);  
-            border-radius: 50%;  
-            width: 58px;  
-            height: 58px;  
-            display: flex;  
-            align-items: center;  
-            justify-content: center;  
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);  
-            cursor: pointer;  
-            transition: all 0.25s ease;  
-        }  
-
-        .chat-avatar:hover {  
-            transform: scale(1.08);  
-            background-color: var(--secondary-hover);
-        }  
-        
-        .chat-avatar i {  
-            font-size: 24px;  
-            color: var(--primary-color);  
-        }  
-
-        /* Footer Section */
         footer {
             background: var(--primary-dark);
             color: #cbd5e1;
@@ -516,34 +596,24 @@
         }
 
         @media (max-width: 992px) {
-            .services-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .services-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 768px) {
-            .hero-title {
-                font-size: 24px;
-            }
-            .hero-banner-card {
-                padding: 30px 20px;
-            }
-            .info-contact-box {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+            .hero-title { font-size: 24px; }
+            .hero-banner-card { padding: 30px 20px; }
+            .navbar-custom .nav-link-custom { padding: 10px 12px !important; }
         }
 
         @media (max-width: 576px) {
-            .services-grid {
-                grid-template-columns: 1fr;
-            }
+            .services-grid { grid-template-columns: 1fr; }
+            .timeline-row { gap: 14px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Custom Navbar -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container" style="max-width: 1200px;">
             <a class="navbar-brand m-0" href="{{ route('landing') }}">
@@ -551,268 +621,490 @@
                     <img src="{{ asset('image/esdm.png') }}" alt="Logo ESDM" class="brand-logo-img">
                     <div>
                         <div class="brand-main">SISTEM TIKETING</div>
-                        <div class="brand-small">PORTAL PENGGUNA</div>
+                        <div class="brand-small">LAYANAN INTERNAL</div>
                     </div>
                 </div>
             </a>
 
-            <div class="d-flex align-items-center gap-3">
-                <a href="{{ route('home') }}" class="btn btn-login">
-                    <i class="bi bi-box-arrow-in-right"></i> Masuk Sistem
-                </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMainMenu" aria-controls="navMainMenu" aria-expanded="false" aria-label="Buka menu navigasi">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navMainMenu">
+                <ul class="navbar-nav mx-auto my-2 my-lg-0 gap-1">
+                    <li class="nav-item"><a class="nav-link nav-link-custom active-link" href="#beranda">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#layanan">Kategori Layanan</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#alur-tiket">Alur Tiket</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#sla">SLA</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#kontak">Kontak</a></li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{{ route('home') }}" class="btn btn-login">
+                        <i class="bi bi-box-arrow-in-right"></i> Masuk Sistem
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- Main Container -->
-    <main class="container py-4 space-y-6" style="max-width: 1200px;">
+    <main class="container py-4" style="max-width: 1200px;">
 
-        <!-- Hero Section Banner Card -->
-        <section class="hero-banner-card my-3" data-aos="fade-up">
+        <section class="hero-banner-card my-3" id="beranda" data-aos="fade-up">
             <div class="row items-center">
                 <div class="col-lg-12">
                     <div class="hero-badge-tag">
                         <i class="fa-solid fa-building-flag"></i>
-                        <span>AKSES PENGGUNA TERPADU</span>
+                        <span>SISTEM TIKETING LAYANAN INTERNAL</span>
                     </div>
 
-                    <h1 class="hero-title">
-                        Butuh Bantuan Teknis atau Pelaporan BMN?
-                    </h1>
+                    <h1 class="hero-title">Kelola Tiket Layanan Internal dengan Cepat, Transparan, dan Terukur</h1>
 
                     <p class="hero-subtitle">
-                        Sampaikan keluhan atau ajukan permintaan layanan operasional sarana gedung, jaringan, serta perawatan aset Barang Milik Negara (BMN) kepada tim teknis.
+                        Sistem Ticketing Layanan Internal membantu proses pelaporan, penugasan, pemantauan, hingga penyelesaian tiket dalam satu platform terintegrasi. Seluruh aktivitas terdokumentasi secara sistematis sehingga meningkatkan efisiensi, transparansi, dan akuntabilitas layanan.
                     </p>
 
-                    <!-- SOLUSI NO. 2: Ringkasan Keunggulan / Quick Badges -->
                     <div class="d-flex flex-wrap gap-3 mt-4 pt-2">
                         <div class="hero-stats-badge">
-                            <i class="bi bi-shield-check text-warning"></i>
-                            <span>Penanganan Terukur</span>
+                            <i class="bi bi-bell-fill text-warning"></i>
+                            <span>Notifikasi Real-Time</span>
                         </div>
-                        <div class="hero-stats-badge">
+                        <a class="hero-stats-badge" style="text-decoration:none;">
                             <i class="bi bi-clock-history text-warning"></i>
-                            <span>SLA Respon Maks. 1x24 Jam</span>
-                        </div>
+                            <span>Monitoring Status Tiket</span>
+                        </a>
                         <div class="hero-stats-badge">
-                            <i class="bi bi-person-badge text-warning"></i>
-                            <span>Tim Teknisi ESDM</span>
+                            <i class="bi bi-shield-check text-warning"></i>
+                            <span>Dokumentasi Penyelesaian</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Services Grid Overlay -->
-        <section class="my-4">
+        <!-- Services Grid -->
+        <section class="my-5" id="layanan">
+            <div class="text-center mb-4">
+                <div class="section-title">Kategori Layanan Utama</div>
+                <p class="text-muted small mb-0">Setiap kategori mewakili jenis layanan dan permasalahan yang dapat dilaporkan melalui Sistem Tiketing.</p>
+            </div>
             <div class="services-grid">
-                <a href="{{ route('home') }}" class="service-card-hero" data-aos="fade-up" data-aos-delay="100">
-                    <div class="service-icon-hero">
-                        <i class="fa-solid fa-wifi"></i>
-                    </div>
-                    <div class="service-title-hero">Jaringan & Internet</div>
+                <a  class="service-card-hero" data-aos="fade-up" data-aos-delay="100">
+                    <div class="service-icon-hero"><i class="fa-solid fa-laptop-code"></i></div>
+                    <div class="service-title-hero">IT — Software</div>
+                    <div class="service-sla-tag text-muted small mt-2"><i class="bi bi-tag-fill"></i> Aplikasi & Sistem Informasi</div>
                 </a>
 
-                <a href="{{ route('home') }}" class="service-card-hero" data-aos="fade-up" data-aos-delay="200">
-                    <div class="service-icon-hero">
-                        <i class="fa-solid fa-laptop-code"></i>
-                    </div>
-                    <div class="service-title-hero">Hardware & Aset BMN</div>
+                <a  class="service-card-hero" data-aos="fade-up" data-aos-delay="150">
+                    <div class="service-icon-hero"><i class="fa-solid fa-desktop"></i></div>
+                    <div class="service-title-hero">IT — Hardware</div>
+                    <div class="service-sla-tag text-muted small mt-2"><i class="bi bi-tag-fill"></i> Komputer, Printer & Perangkat</div>
                 </a>
 
-                <a href="{{ route('home') }}" class="service-card-hero" data-aos="fade-up" data-aos-delay="300">
-                    <div class="service-icon-hero">
-                        <i class="fa-solid fa-bolt"></i>
-                    </div>
-                    <div class="service-title-hero">Sarana & Kelistrikan</div>
+                <a  class="service-card-hero" data-aos="fade-up" data-aos-delay="200">
+                    <div class="service-icon-hero"><i class="fa-solid fa-wifi"></i></div>
+                    <div class="service-title-hero">IT — Jaringan</div>
+                    <div class="service-sla-tag text-muted small mt-2"><i class="bi bi-tag-fill"></i> Internet, Wi-Fi & LAN</div>
                 </a>
 
-                <a href="{{ route('home') }}" class="service-card-hero" data-aos="fade-up" data-aos-delay="400">
-                    <div class="service-icon-hero">
-                        <i class="fa-solid fa-code"></i>
-                    </div>
-                    <div class="service-title-hero">Sistem & Aplikasi</div>
+                <a class="service-card-hero" data-aos="fade-up" data-aos-delay="250">
+                    <div class="service-icon-hero"><i class="fa-solid fa-folder-open"></i></div>
+                    <div class="service-title-hero">Administrasi</div>
+                    <div class="service-sla-tag text-muted small mt-2"><i class="bi bi-tag-fill"></i> Layanan Administrasi</div>
                 </a>
 
-                <a href="{{ route('home') }}" class="service-card-hero" data-aos="fade-up" data-aos-delay="500">
-                    <div class="service-icon-hero">
-                        <i class="fa-solid fa-print"></i>
-                    </div>
-                    <div class="service-title-hero">Printer & Scanner</div>
+                <a  class="service-card-hero" data-aos="fade-up" data-aos-delay="300">
+                    <div class="service-icon-hero"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="service-title-hero">Sarana-Prasarana</div>
+                    <div class="service-sla-tag text-muted small mt-2"><i class="bi bi-tag-fill"></i> Gedung & Kelistrikan</div>
                 </a>
 
-                <a href="{{ route('home') }}" class="service-card-hero" data-aos="fade-up" data-aos-delay="600">
-                    <div class="service-icon-hero">
-                        <i class="fa-solid fa-building"></i>
-                    </div>
-                    <div class="service-title-hero">Fasilitas Gedung</div>
+                <a  class="service-card-hero" data-aos="fade-up" data-aos-delay="350">
+                    <div class="service-icon-hero"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="service-title-hero">Keamanan</div>
+                    <div class="service-sla-tag text-muted small mt-2"><i class="bi bi-tag-fill"></i> Fasilitas & Keamanan</div>
+                </a>
+
+                <a  class="service-card-hero" data-aos="fade-up" data-aos-delay="400">
+                    <div class="service-icon-hero"><i class="fa-solid fa-broom"></i></div>
+                    <div class="service-title-hero">Kebersihan</div>
+                    <div class="service-sla-tag text-muted small mt-2"><i class="bi bi-tag-fill"></i> Area & Kebersihan Gedung</div>
+                </a>
+
+                <a  class="service-card-hero" data-aos="fade-up" data-aos-delay="450">
+                    <div class="service-icon-hero"><i class="fa-solid fa-ellipsis"></i></div>
+                    <div class="service-title-hero">Lainnya</div>
+                    <div class="service-sla-tag text-muted small mt-2"><i class="bi bi-tag-fill"></i> Permasalahan Lainnya</div>
                 </a>
             </div>
         </section>
 
-        <!-- Penjelasan Sistem Tiketing Layanan Internal -->
-        <section class="system-about-section my-4" id="penjelasan-sistem">
+        <!-- Penjelasan Sistem Tiketing -->
+        <section class="my-5">
             <div class="system-about-box" data-aos="fade-up">
-                <h3><i class="bi bi-info-circle-fill me-2 text-warning"></i> Tentang Sistem Tiketing Layanan Internal & Pengelolaan BMN</h3>
+                <h3><i class="bi bi-info-circle-fill me-2 text-warning"></i>  Tentang Sistem Tiketing Layanan Internal</h3>
                 <p>
-                    Portal E-Ticketing PSDMBP dirancang sebagai media pelaporan terpadu untuk mempermudah seluruh pegawai dalam mengajukan permohonan bantuan teknis, perbaikan fasilitas gedung, kendala jaringan komunikasi, hingga perawatan aset Barang Milik Negara (BMN). Melalui sistem ini, setiap laporan ditangani secara transparan, terukur, dan dapat dipantau progresnya secara real-time guna mendukung efektivitas operasional lingkungan kerja Gedung Kantor PSDMBP Bandung.
+                     Sistem Tiketing Layanan Internal merupakan platform yang digunakan untuk mencatat, mengelola, dan memantau setiap laporan layanan berdasarkan kategori yang tersedia. Melalui sistem ini, proses pelaporan, penugasan, penanganan, hingga penyelesaian tiket dilakukan secara terintegrasi sehingga mendukung pelayanan yang lebih cepat, transparan, dan terdokumentasi.
                 </p>
             </div>
         </section>
 
-        <!-- Detail Prosedur Penanganan Tiket -->
-        <section class="my-4">
+        <!-- Alur Tiket (3 Role) -->
+        <section class="my-5" id="alur-tiket">
             <div class="step-section-pu" data-aos="fade-up">
                 <div class="text-center mb-4">
-                    <div class="section-title">Detail Prosedur Penanganan Tiket</div>
-                    <p class="text-muted small">Klik pada tiap tahapan di bawah untuk melihat rincian alur kerja penanganan tiket</p>
+                    <div class="section-title">Alur Kerja Sistem Tiketing</div>
+                    <p class="text-muted small mb-0">Pilih peran untuk memahami alur kerja, tanggung jawab, serta notifikasi yang diterima pada setiap tahapan penanganan tiket.</p>
                 </div>
 
-                <div class="step-nav-tabs">
-                    <button class="step-tab-btn active-step" id="btnStep1" type="button" onclick="switchStep(1, '#detailLangkah1')">
-                        <div class="step-tab-num">1</div>
-                        <span>Buat Laporan</span>
+                <div class="actor-tabs">
+                    <button class="actor-tab-btn active-actor" id="actorBtn1" type="button" onclick="switchActor(1)">
+                        <i class="bi bi-person-fill"></i>
+                        <span>Pelapor</span>
                     </button>
-                    <button class="step-tab-btn" id="btnStep2" type="button" onclick="switchStep(2, '#detailLangkah2')">
-                        <div class="step-tab-num">2</div>
-                        <span>Verifikasi</span>
+                    <button class="actor-tab-btn" id="actorBtn2" type="button" onclick="switchActor(2)">
+                        <i class="bi bi-tools"></i>
+                        <span>Penanggung Jawab</span>
                     </button>
-                    <button class="step-tab-btn" id="btnStep3" type="button" onclick="switchStep(3, '#detailLangkah3')">
-                        <div class="step-tab-num">3</div>
-                        <span>Disposisi</span>
-                    </button>
-                    <button class="step-tab-btn" id="btnStep4" type="button" onclick="switchStep(4, '#detailLangkah4')">
-                        <div class="step-tab-num">4</div>
-                        <span>Penanganan</span>
-                    </button>
-                    <button class="step-tab-btn" id="btnStep5" type="button" onclick="switchStep(5, '#detailLangkah5')">
-                        <div class="step-tab-num">5</div>
-                        <span>Penyelesaian</span>
+                    <button class="actor-tab-btn" id="actorBtn3" type="button" onclick="switchActor(3)">
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <span>Admin Data</span>
                     </button>
                 </div>
 
-                <div class="position-relative">
-                    <div class="collapse show toggle-zone" id="detailLangkah1">
-                        <div class="step-detail-box">
-                            <span class="badge bg-primary text-white mb-2 px-3 py-1.5 fw-semibold">Tahap 1 dari 5</span>
-                            <h5 class="mb-3">Tahap 1: Pengisian Formulir "Buat Tiket Baru" (Sisi Pengguna)</h5>
-                            <p class="mb-4">
-                                Pengguna yang mengalami kendala operasional mengisi formulir pengaduan layanan secara langsung pada portal sistem. Pengisian dilakukan dengan memilih spesifikasi masalah hingga melampirkan data pendukung agar penanganan dapat diproses dengan cepat.
-                            </p>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <ul class="prosedur-list">
-                                        <li><strong>Pilihan Kategori & Sub-Kategori:</strong> Memilih Kategori Utama masalah serta Sub-Kategori teknis terkait secara rinci.</li>
-                                        <li><strong>Nomor BMN (Barang Milik Negara):</strong> Mengisi nomor BMN aset fisik (`Format: BMN-TAHUN-NOMOR-JENIS`) jika terkait barang inventaris.</li>
-                                        <li><strong>Tingkat Urgensi / Prioritas:</strong> Menentukan tingkat kegentingan perbaikan (Pilihan: <em>Rendah</em>, <em>Sedang</em>, atau <em>Tinggi</em>).</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="prosedur-list">
-                                        <li><strong>Deskripsi Masalah:</strong> Menuliskan detail kronologi keluhan, rincian ruangan, atau kendala yang dialami secara mendalam.</li>
-                                        <li><strong>Lampiran Foto Dokumen / Kerusakan:</strong> Mengunggah bukti foto fisik kerusakan atau tangkapan layar (<em>JPG/PNG, max 2MB</em>).</li>
-                                        <li><strong>Identitas Otomatis:</strong> Nama Pelapor dan Divisi/Unit Kerja akan terdeteksi otomatis sesuai akun yang sedang aktif.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Sisi Pelapor -->
+                <div class="actor-panel" id="actorPanel1">
+                    <div class="alert alert-light border mb-4">
+                        <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                        <strong>Informasi:</strong> Pengguna yang belum memiliki akun dapat melakukan registrasi. Akun akan diverifikasi oleh Admin sebelum dapat digunakan untuk login dan membuat tiket layanan.
                     </div>
+                    <div class="actor-timeline">
 
-                    <div class="collapse toggle-zone" id="detailLangkah2">
-                        <div class="step-detail-box">
-                            <span class="badge bg-primary text-white mb-2 px-3 py-1.5 fw-semibold">Tahap 2 dari 5</span>
-                            <h5 class="mb-3">Tahap 2: Verifikasi & Cek Kelengkapan Data (Sisi Admin Helpdesk)</h5>
-                            <p class="mb-4">
-                                Setiap tiket pelaporan yang masuk akan ditinjau langsung oleh Admin Helpdesk. Validasi ini bertujuan untuk memagari sistem dari data yang tidak valid, penumpukan laporan ganda, serta ketidaksesuaian nomor aset inventaris.
-                            </p>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <ul class="prosedur-list">
-                                        <li><strong>Pemeriksaan Kelayakan Foto:</strong> Memastikan bukti foto yang diunggah jelas dan sesuai deskripsi keluhan.</li>
-                                        <li><strong>Pencocokan Master Data BMN:</strong> Verifikasi kebenaran nomor aset dengan lokasi dan pengguna terdaftar.</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="prosedur-list">
-                                        <li><strong>Penetapan Tingkat Urgensi:</strong> Menentukan prioritas perbaikan (Rendah, Sedang, Tinggi, Darurat).</li>
-                                        <li><strong>Filter Laporan Ganda:</strong> Penggabungan tiket jika ada keluhan serupa pada ruangan yang sama.</li>
-                                    </ul>
-                                </div>
+                        <!-- STEP 1 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">1</div>
+                                <div class="timeline-line"></div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Pembuatan Tiket (Status: <strong>Open</strong>)</h6>
+                                <p>
+                                    Pelapor membuat tiket dengan mengisi kategori layanan, subkategori, deskripsi permasalahan,
+                                    prioritas, serta lampiran pendukung apabila diperlukan. Setelah berhasil dikirim,
+                                    sistem akan membuat ID tiket secara otomatis dan status tiket menjadi
+                                    <strong>Open</strong>.
+                                </p>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="collapse toggle-zone" id="detailLangkah3">
-                        <div class="step-detail-box">
-                            <span class="badge bg-primary text-white mb-2 px-3 py-1.5 fw-semibold">Tahap 3 dari 5</span>
-                            <h5 class="mb-3">Tahap 3: Disposisi Penugasan Lapangan (Sisi Admin Helpdesk)</h5>
-                            <p class="mb-4">
-                                Tiket yang telah dinyatakan valid akan segera didisposisikan oleh Admin Helpdesk kepada tim teknisi lapangan yang membidangi permasalahan tersebut. Sistem secara otomatis menerbitkan instruksi penugasan digital ke dasbor masing-masing petugas.
-                            </p>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <ul class="prosedur-list">
-                                        <li><strong>Penyaluran Spesialisasi Teknisi:</strong> Menunjuk petugas penanggung jawab sesuai divisi teknis terkait.</li>
-                                        <li><strong>Penerbitan Surat Kerja Digital:</strong> Instruksi resmi penanganan terkirim langsung ke dasbor petugas.</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="prosedur-list">
-                                        <li><strong>Penetapan Target Pelayanan:</strong> Penghitungan estimasi waktu penanganan berdasarkan kategori masalah.</li>
-                                        <li><strong>Notifikasi Otomatis ke Pelapor:</strong> Pemberitahuan resmi mengenai identitas teknisi penanggung jawab.</li>
-                                    </ul>
-                                </div>
+                        <!-- STEP 2 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">2</div>
+                                <div class="timeline-line"></div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-bell-fill text-warning me-1"></i>
+                                    Penugasan Penanggung Jawab (PJ)
+                                </h6>
+                                <p>
+                                    Setelah Admin Data menetapkan Penanggung Jawab (PJ), pelapor akan menerima
+                                    notifikasi yang berisi informasi mengenai PJ yang bertanggung jawab atas tiket tersebut.
+                                </p>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="collapse toggle-zone" id="detailLangkah4">
-                        <div class="step-detail-box">
-                            <span class="badge bg-primary text-white mb-2 px-3 py-1.5 fw-semibold">Tahap 4 dari 5</span>
-                            <h5 class="mb-3">Tahap 4: Pelaksanaan Perbaikan & Pembaruan Progres (Sisi Teknisi)</h5>
-                            <p class="mb-4">
-                                Teknisi mendatangi lokasi atau melakukan tindakan perbaikan teknis. Selama proses perbaikan berlangsung, teknisi diwajibkan melakukan pencatatan pembaruan progres secara berkala ke dalam sistem untuk menjaga transparansi kerja.
-                            </p>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <ul class="prosedur-list">
-                                        <li><strong>Inspeksi Fisik Lapangan:</strong> Pemeriksaan kondisi riil perangkat atau sarana gedung di lokasi pelapor.</li>
-                                        <li><strong>Tindakan Perbaikan & Subtitusi:</strong> Eksekusi perbaikan teknis atau penggantian komponen rusak.</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="prosedur-list">
-                                        <li><strong>Log Progres Real-Time:</strong> Penginputan persentase kemajuan perbaikan yang dapat dipantau pelapor.</li>
-                                        <li><strong>Uji Fungsi Hasil Perbaikan:</strong> Pengujian bersama pelapor untuk memastikan fasilitas berfungsi normal.</li>
-                                    </ul>
-                                </div>
+                        <!-- STEP 3 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">3</div>
+                                <div class="timeline-line"></div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-tools text-primary me-1"></i>
+                                    Proses Penanganan (Status: <strong>In Progress</strong>)
+                                </h6>
+                                <p>
+                                    Ketika PJ mulai menangani tiket, status berubah menjadi
+                                    <strong>In Progress</strong>. Pelapor dapat memantau perkembangan dan
+                                    berdiskusi melalui fitur komentar. Setiap komentar baru akan mengirimkan
+                                    notifikasi kepada pihak yang terkait.
+                                </p>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="collapse toggle-zone" id="detailLangkah5">
-                        <div class="step-detail-box">
-                            <span class="badge bg-primary text-white mb-2 px-3 py-1.5 fw-semibold">Tahap 5 dari 5</span>
-                            <h5 class="mb-3">Tahap 5: Konfirmasi Pelapor & Pengarsipan Permanen (Sistem Terpadu)</h5>
-                            <p class="mb-4">
-                                Setelah perbaikan tuntas, pelapor akan menerima pemberitahuan untuk melakukan peninjauan akhir. Tiket baru dinyatakan ditutup resmi setelah pelapor mengonfirmasi hasil perbaikan serta memberikan evaluasi kepuasan layanan.
-                            </p>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <ul class="prosedur-list">
-                                        <li><strong>Konfirmasi Final Pelapor:</strong> Pernyataan persetujuan dari pelapor bahwa kendala terselesaikan.</li>
-                                        <li><strong>Penilaian Evaluasi Kepuasan:</strong> Pemberian nilai dan ulasan untuk peningkatan kualitas performa teknis.</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="prosedur-list">
-                                        <li><strong>Penutupan Tiket Otomatis:</strong> Sistem menutup tiket secara permanen pasca konfirmasi pelapor.</li>
-                                        <li><strong>Pengarsipan History Rekapitulasi:</strong> Penyimpanan seluruh riwayat dokumen laporan ke basis data laporan bulanan.</li>
-                                    </ul>
-                                </div>
+                        <!-- STEP 4 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">4</div>
+                                <div class="timeline-line"></div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                    Penyelesaian Tiket (Status: <strong>Resolved</strong>)
+                                </h6>
+                                <p>
+                                    Setelah pekerjaan selesai, PJ mengunggah dokumentasi atau foto bukti
+                                    penyelesaian dan mengubah status tiket menjadi
+                                    <strong>Resolved</strong>. Pelapor akan menerima notifikasi untuk
+                                    meninjau hasil penyelesaian.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- STEP 5 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">5</div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-star-fill text-warning me-1"></i>
+                                    Penutupan Tiket & Survei Kepuasan (Status: <strong>Closed</strong>)
+                                </h6>
+                                <p>
+                                    Setelah Admin Data menutup tiket, status berubah menjadi
+                                    <strong>Closed</strong>. Pelapor diwajibkan mengisi survei kepuasan
+                                    sebagai evaluasi kualitas layanan. Selama survei belum diselesaikan,
+                                    pelapor tidak dapat membuat tiket baru.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Sisi Penanggung Jawab (PJ) -->
+                <div class="actor-panel d-none" id="actorPanel2">
+                    <div class="alert alert-light border mb-4">
+                        <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                        <strong>Informasi:</strong> Pengguna yang belum memiliki akun dapat melakukan registrasi. Akun akan diverifikasi oleh Admin sebelum dapat digunakan untuk login dan membuat tiket layanan.
+                    </div>
+                    <div class="actor-timeline">
+
+                        <!-- STEP 1 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">1</div>
+                                <div class="timeline-line"></div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-bell-fill text-warning me-1"></i>
+                                    Penugasan Tiket (Status: <strong>Open</strong>)
+                                </h6>
+                                <p>
+                                    PJ menerima notifikasi ketika Admin Data menetapkan tiket untuk ditangani. Pada tahap ini status tiket masih
+                                    <strong>Open</strong>. PJ dapat melihat informasi pelapor, kategori layanan, deskripsi permasalahan, prioritas, serta lampiran yang tersedia.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">2</div>
+                                <div class="timeline-line"></div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-tools text-primary me-1"></i>
+                                    Mulai Mengerjakan Tiket (Status: <strong>In Progress</strong>)
+                                </h6>
+                                <p>
+                                    Setelah PJ menekan tombol <strong>Kerjakan</strong>, status tiket berubah menjadi
+                                    <strong>In Progress</strong>. Selama proses penanganan, PJ dapat memberikan komentar atau membalas komentar pelapor. Setiap aktivitas komentar akan mengirimkan notifikasi kepada pihak terkait.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- STEP 3 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">3</div>
+                                <div class="timeline-line"></div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                    Penyelesaian Tiket (Status: <strong>Resolved</strong>)
+                                </h6>
+                                <p>
+                                    Setelah pekerjaan selesai, PJ wajib mengunggah foto atau dokumentasi bukti penyelesaian sebelum mengubah status tiket menjadi
+                                    <strong>Resolved</strong>. Sistem kemudian mengirimkan notifikasi kepada pelapor untuk meninjau hasil penyelesaian.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">4</div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-bell-fill text-warning me-1"></i>
+                                    Notifikasi Penutupan atau Pembatalan Tiket
+                                </h6>
+                                <p>
+                                    PJ akan menerima notifikasi ketika Admin Data mengubah status tiket menjadi
+                                    <strong>Closed</strong>. Apabila pelapor membatalkan tiket (<strong>Closed by User</strong>), PJ juga akan menerima notifikasi yang disertai alasan pembatalan sebagai informasi dan dokumentasi.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Sisi Admin Data -->
+                <div class="actor-panel d-none" id="actorPanel3">
+                    <div class="actor-timeline">
+
+                        <!-- STEP 1 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">1</div>
+                                <div class="timeline-line"></div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-person-check-fill text-success me-1"></i>
+                                    Persetujuan Akun Pengguna
+                                </h6>
+                                <p>
+                                    Admin memverifikasi setiap pendaftaran pengguna sebelum akun dapat digunakan. Pada tahap ini, Admin menentukan <strong>role</strong> (Pelapor atau Penanggung Jawab) serta <strong>divisi</strong> sesuai data pengguna.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">2</div>
+                                <div class="timeline-line"></div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-person-workspace text-primary me-1"></i>
+                                    Penugasan Penanggung Jawab (PJ)
+                                </h6>
+                                <p>
+                                    Setelah tiket dibuat, Admin meninjau kategori, prioritas, dan detail permasalahan, kemudian menetapkan Penanggung Jawab (PJ) yang sesuai. Sistem secara otomatis mengirimkan notifikasi penugasan kepada PJ dan informasi penanggung jawab kepada pelapor.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- STEP 3 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">3</div>
+                                <div class="timeline-line"></div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-bell-fill text-warning me-1"></i>
+                                    Monitoring Penyelesaian Tiket
+                                </h6>
+                                <p>
+                                    Ketika PJ mengubah status tiket menjadi <strong>Resolved</strong>, Admin menerima notifikasi untuk melakukan pemeriksaan terhadap hasil penyelesaian, dokumentasi atau foto bukti, serta memastikan proses penanganan telah sesuai.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4 -->
+                        <div class="timeline-row">
+                            <div class="timeline-marker-col">
+                                <div class="timeline-dot">4</div>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                    Penutupan Tiket (Status: <strong>Closed</strong>)
+                                </h6>
+                                <p>
+                                    Setelah proses verifikasi selesai, Admin mengubah status tiket menjadi <strong>Closed</strong>. Seluruh riwayat perubahan status dan aktivitas tiket tersimpan sebagai dokumentasi untuk keperluan monitoring dan evaluasi layanan.
+                                </p>
                             </div>
                         </div>
                     </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SLA Section -->
+        <section class="my-5" id="sla">
+            <div class="text-center mb-3">
+                <div class="section-title">Monitoring Target Penyelesaian (SLA)</div>
+                <p class="sla-intro-note mx-auto mb-0">Setiap tiket memiliki target waktu penyelesaian berdasarkan tingkat prioritas.</p>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="sla-card sla-tinggi">
+                        <span class="sla-priority-pill"><i class="bi bi-exclamation-triangle-fill"></i> Prioritas Tinggi</span>
+                        <div class="sla-metric-row">
+                            <span class="sla-metric-label">Target Respons</span>
+                            <span class="sla-metric-value">≤ 2 Jam Kerja</span>
+                        </div>
+                        <div class="sla-metric-row">
+                            <span class="sla-metric-label">Target Selesai</span>
+                            <span class="sla-metric-value">≤ 1 Hari Kerja</span>
+                        </div>
+                        <p class="sla-example">Contoh: Jaringan server mati, VPN terputus, kendala mendesak operasional.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="sla-card sla-sedang">
+                        <span class="sla-priority-pill"><i class="bi bi-info-circle-fill"></i> Prioritas Sedang</span>
+                        <div class="sla-metric-row">
+                            <span class="sla-metric-label">Target Respons</span>
+                            <span class="sla-metric-value">≤ 4 Jam Kerja</span>
+                        </div>
+                        <div class="sla-metric-row">
+                            <span class="sla-metric-label">Target Selesai</span>
+                            <span class="sla-metric-value">≤ 3 Hari Kerja</span>
+                        </div>
+                        <p class="sla-example">Contoh: Komputer kerja lambat, printer error, perbaikan fasilitas standar.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="sla-card sla-rendah">
+                        <span class="sla-priority-pill"><i class="bi bi-check-circle-fill"></i> Prioritas Rendah</span>
+                        <div class="sla-metric-row">
+                            <span class="sla-metric-label">Target Respons</span>
+                            <span class="sla-metric-value">≤ 1 Hari Kerja</span>
+                        </div>
+                        <div class="sla-metric-row">
+                            <span class="sla-metric-label">Target Selesai</span>
+                            <span class="sla-metric-value">≤ 7 Hari Kerja</span>
+                        </div>
+                        <p class="sla-example">Contoh: Permintaan instalasi software pendukung, pemeliharaan rutin.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sla-footnote mt-4" data-aos="fade-up">
+                <i class="bi bi-clock-history mt-1"> <span>  SLA dihitung berdasarkan jam kerja operasional.</span></i>
+            </div>
+        </section>
+
+        <!-- Informasi Kontak Teknis -->
+        <section class="my-5" id="kontak">
+            <div class="info-contact-section d-flex flex-wrap justify-content-between align-items-center gap-3" data-aos="fade-up">
+                <div class="info-contact-text">
+                    <h4>Bantuan Teknis & Helpdesk Internal</h4>
+                    <p>Hubungi tim Helpdesk PSDMBP jika memerlukan bantuan terkait akses sistem tiketing.</p>
+                </div>
+                <div class="d-flex flex-wrap gap-4">
+                    <div class="info-contact-item"><i class="bi bi-telephone-fill"></i> (+62) 22-7215297</div>
+                    <div class="info-contact-item"><i class="bi bi-envelope-fill"></i> geologi@esdm.go.id</div>
                 </div>
             </div>
         </section>
@@ -824,9 +1116,7 @@
             <div class="row g-4 justify-content-between">
                 <div class="col-lg-7 col-md-12">
                     <div class="mb-3">
-                        <div class="footer-heading">
-                            PUSAT SUMBER DAYA MINERAL, BATUBARA DAN PANAS BUMI
-                        </div>
+                        <div class="footer-heading">PUSAT SUMBER DAYA MINERAL, BATUBARA DAN PANAS BUMI</div>
                         <div class="fw-semibold text-white-50" style="font-size: 0.82rem;">
                             Badan Geologi - Kementerian Energi dan Sumber Daya Mineral
                         </div>
@@ -871,6 +1161,10 @@
                     </div>
                 </div>
             </div>
+
+            <div class="copyright-bar">
+                &copy; {{ date('Y') }} PSDMBP - Badan Geologi, Kementerian ESDM.
+            </div>
         </div>
     </footer>
 
@@ -878,30 +1172,60 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
     <script>
-        AOS.init({
-            duration: 800,
-            once: true,
-            easing: 'ease-in-out'
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        window.addEventListener('load', () => {
+            if (!window.location.hash || window.location.hash === '#beranda') {
+                window.scrollTo(0, 0);
+            }
         });
 
-        function switchStep(stepNumber, targetCollapseId) {
-            for (let i = 1; i <= 5; i++) {
-                const btn = document.getElementById('btnStep' + i);
-                if(btn) btn.classList.remove('active-step');
-            }
-            const activeBtn = document.getElementById('btnStep' + stepNumber);
-            if(activeBtn) activeBtn.classList.add('active-step');
+        AOS.init({ duration: 700, once: true, easing: 'ease-in-out' });
 
-            const zones = document.querySelectorAll('.toggle-zone');
-            zones.forEach(zone => {
-                const bsCollapse = bootstrap.Collapse.getInstance(zone) || new bootstrap.Collapse(zone, { toggle: false });
-                if ('#' + zone.id === targetCollapseId) {
-                    bsCollapse.show();
-                } else {
-                    bsCollapse.hide();
+        // Tab Switcher untuk 3 Role
+        function switchActor(actorNumber) {
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById('actorBtn' + i);
+                const panel = document.getElementById('actorPanel' + i);
+                if (btn && panel) {
+                    if (i === actorNumber) {
+                        btn.classList.add('active-actor');
+                        panel.classList.remove('d-none');
+                    } else {
+                        btn.classList.remove('active-actor');
+                        panel.classList.add('d-none');
+                    }
+                }
+            }
+        }
+
+        const navLinks = document.querySelectorAll('.nav-link-custom');
+        const sections = Array.from(navLinks)
+            .map(link => document.querySelector(link.getAttribute('href')))
+            .filter(Boolean);
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = '#' + entry.target.id;
+                    navLinks.forEach(link => {
+                        link.classList.toggle('active-link', link.getAttribute('href') === id);
+                    });
                 }
             });
-        }
+        }, { rootMargin: '-40% 0px -50% 0px', threshold: 0 });
+
+        sections.forEach(sec => observer.observe(sec));
+
+        document.querySelectorAll('#navMainMenu .nav-link-custom').forEach(link => {
+            link.addEventListener('click', () => {
+                const menu = document.getElementById('navMainMenu');
+                const bsCollapse = bootstrap.Collapse.getInstance(menu);
+                if (bsCollapse && menu.classList.contains('show')) bsCollapse.hide();
+            });
+        });
     </script>
 </body>
 </html>
