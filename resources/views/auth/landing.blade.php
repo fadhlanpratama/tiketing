@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ESDM - Sistem Tiketing</title>
+    <title>ESDM - Tiketing</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -635,7 +635,6 @@
                     <li class="nav-item"><a class="nav-link nav-link-custom active-link" href="#beranda">Beranda</a></li>
                     <li class="nav-item"><a class="nav-link nav-link-custom" href="#layanan">Kategori Layanan</a></li>
                     <li class="nav-item"><a class="nav-link nav-link-custom" href="#alur-tiket">Alur Tiket</a></li>
-                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#sla">SLA</a></li>
                     <li class="nav-item"><a class="nav-link nav-link-custom" href="#kontak">Kontak</a></li>
                 </ul>
 
@@ -1033,65 +1032,6 @@
                     </div>
                 </div>
 
-            </div>
-        </section>
-
-        <!-- SLA Section -->
-        <section class="my-5" id="sla">
-            <div class="text-center mb-3">
-                <div class="section-title">Monitoring Target Penyelesaian (SLA)</div>
-                <p class="sla-intro-note mx-auto mb-0">Setiap tiket memiliki target waktu penyelesaian berdasarkan tingkat prioritas.</p>
-            </div>
-
-            <div class="row g-3 mt-2">
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                    <div class="sla-card sla-tinggi">
-                        <span class="sla-priority-pill"><i class="bi bi-exclamation-triangle-fill"></i> Prioritas Tinggi</span>
-                        <div class="sla-metric-row">
-                            <span class="sla-metric-label">Target Respons</span>
-                            <span class="sla-metric-value">≤ 2 Jam Kerja</span>
-                        </div>
-                        <div class="sla-metric-row">
-                            <span class="sla-metric-label">Target Selesai</span>
-                            <span class="sla-metric-value">≤ 1 Hari Kerja</span>
-                        </div>
-                        <p class="sla-example">Contoh: Jaringan server mati, VPN terputus, kendala mendesak operasional.</p>
-                    </div>
-                </div>
-
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                    <div class="sla-card sla-sedang">
-                        <span class="sla-priority-pill"><i class="bi bi-info-circle-fill"></i> Prioritas Sedang</span>
-                        <div class="sla-metric-row">
-                            <span class="sla-metric-label">Target Respons</span>
-                            <span class="sla-metric-value">≤ 4 Jam Kerja</span>
-                        </div>
-                        <div class="sla-metric-row">
-                            <span class="sla-metric-label">Target Selesai</span>
-                            <span class="sla-metric-value">≤ 3 Hari Kerja</span>
-                        </div>
-                        <p class="sla-example">Contoh: Komputer kerja lambat, printer error, perbaikan fasilitas standar.</p>
-                    </div>
-                </div>
-
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                    <div class="sla-card sla-rendah">
-                        <span class="sla-priority-pill"><i class="bi bi-check-circle-fill"></i> Prioritas Rendah</span>
-                        <div class="sla-metric-row">
-                            <span class="sla-metric-label">Target Respons</span>
-                            <span class="sla-metric-value">≤ 1 Hari Kerja</span>
-                        </div>
-                        <div class="sla-metric-row">
-                            <span class="sla-metric-label">Target Selesai</span>
-                            <span class="sla-metric-value">≤ 7 Hari Kerja</span>
-                        </div>
-                        <p class="sla-example">Contoh: Permintaan instalasi software pendukung, pemeliharaan rutin.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sla-footnote mt-4" data-aos="fade-up">
-                <i class="bi bi-clock-history mt-1"> <span>  SLA dihitung berdasarkan jam kerja operasional.</span></i>
             </div>
         </section>
 
