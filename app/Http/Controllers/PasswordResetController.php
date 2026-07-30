@@ -1,11 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password as PasswordRule;
+use App\Models\Users;
+use Carbon\Carbon;
 
 class PasswordResetController extends Controller
 {
@@ -25,6 +30,15 @@ class PasswordResetController extends Controller
             ], 422);
         }
 
+        $user = Users::where('email', $request->email)->first();
+
+        if ($user && $user->status !== 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Anda belum disetujui oleh Admin. Fitur lupa password belum bisa digunakan.',
+            ], 403);
+        }
+
         $status = Password::sendResetLink($request->only('email'));
 
         if ($status === Password::RESET_LINK_SENT) {
@@ -42,10 +56,42 @@ class PasswordResetController extends Controller
 
     public function showResetForm(Request $request, string $token)
     {
+        $email = $request->query('email');
+
+        if (!$this->isTokenValid($email, $token)) {
+            return view('auth.reset-password-expired', [
+                'email' => $email,
+            ]);
+        }
+
         return view('auth.reset-password', [
             'token' => $token,
-            'email' => $request->query('email'),
+            'email' => $email,
         ]);
+    }
+
+    protected function isTokenValid(?string $email, string $token): bool
+    {
+        if (!$email) {
+            return false;
+        }
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $email)
+            ->first();
+
+        if (!$record) {
+            return false;
+        }
+
+        $expireMinutes = config('auth.passwords.users.expire', 60);
+        $createdAt = Carbon::parse($record->created_at);
+
+        if ($createdAt->addMinutes($expireMinutes)->isPast()) {
+            return false;
+        }
+
+        return Hash::check($token, $record->token);
     }
 
     public function reset(Request $request)
@@ -63,6 +109,15 @@ class PasswordResetController extends Controller
                 'success' => false,
                 'message' => $validator->errors()->first(),
             ], 422);
+        }
+
+        $user = Users::where('email', $request->email)->first();
+
+        if ($user && $user->status !== 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Anda belum disetujui oleh Admin. Tidak dapat mereset password.',
+            ], 403);
         }
 
         $status = Password::reset(
@@ -84,7 +139,7 @@ class PasswordResetController extends Controller
         return response()->json([
             'success' => false,
             'message' => match ($status) {
-                Password::INVALID_TOKEN => 'Link reset password tidak valid atau sudah kedaluwarsa.',
+                Password::INVALID_TOKEN => 'Link reset password sudah kedaluwarsa.',
                 Password::INVALID_USER  => 'Email tidak ditemukan dalam sistem kami.',
                 default => 'Gagal mereset password. Silakan coba lagi.',
             },
