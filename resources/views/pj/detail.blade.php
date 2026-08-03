@@ -163,32 +163,100 @@
 
             </div>
 
-            {{-- KOLOM KANAN (1/3): Sidebar Pelapor & Diskusi --}}
+            {{-- KOLOM KANAN (1/3): Sidebar Gabungan & Diskusi --}}
             <div class="space-y-6">
 
-                {{-- Card Informasi Pelapor --}}
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4 w-full">
-                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
-                        <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
-                        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Informasi Pelapor</h3>
+                {{-- ===== KARTU GABUNGAN INFORMASI PELAPOR & SLA ===== --}}
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-5 w-full">
+                    
+                    {{-- Sub-bagian 1: Informasi Pelapor --}}
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                            <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
+                            <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Informasi Pelapor</h3>
+                        </div>
+
+                        <div class="flex items-center gap-3.5 p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/60">
+                            <div class="w-11 h-11 rounded-xl bg-[#0a2540] text-amber-400 flex items-center justify-center font-black text-sm shrink-0 shadow-sm">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold text-slate-900 truncate">{{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
+                                <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ $ticket->pelapor->divisi ?? '-' }}</p>
+                            </div>
+                        </div>
+
+                        @if($ticket->status === 'Closed' && $ticket->closed_by === 'user')
+                        <div class="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-2 text-amber-800">
+                            <i class="fa-solid fa-user-slash text-xs text-amber-600"></i>
+                            <p class="text-xs font-semibold">Dibatalkan / Ditutup oleh Pelapor</p>
+                        </div>
+                        @endif
                     </div>
 
-                    <div class="flex items-center gap-3.5 p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/60">
-                        <div class="w-11 h-11 rounded-xl bg-[#0a2540] text-amber-400 flex items-center justify-center font-black text-sm shrink-0 shadow-sm">
-                            <i class="fa-solid fa-user"></i>
+                    {{-- Sub-bagian 2: Informasi SLA --}}
+                    <div class="space-y-3 pt-2 border-t border-slate-100">
+                        <div class="flex items-center justify-between pb-1">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2.5 h-5 bg-[#0a2540] rounded-full"></div>
+                                <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Informasi SLA</h3>
+                            </div>
+                            
+                            {{-- Status Badge SLA --}}
+                            @php $slaBadge = $ticket->sla_badge; @endphp
+                            @if(!$slaBadge)
+                                <span class="text-slate-400 text-xs italic">Belum Diproses</span>
+                            @elseif($slaBadge['terlambat'])
+                                <span class="inline-flex items-center gap-1.5 text-red-700 font-bold bg-red-50 px-2.5 py-1 rounded-lg text-[10px] border border-red-100">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                    {{ $slaBadge['sedang_proses'] ? 'Lewat SLA ' : 'Terlambat ' }}{{ $slaBadge['label'] }}
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 text-green-700 font-bold bg-green-50 px-2.5 py-1 rounded-lg text-[10px] border border-green-100">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    {{ $slaBadge['sedang_proses'] ? 'Dalam SLA' : 'Tepat Waktu' }}
+                                </span>
+                            @endif
                         </div>
-                        <div class="min-w-0">
-                            <p class="text-xs font-bold text-slate-900 truncate">{{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
-                            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ $ticket->pelapor->divisi ?? '-' }}</p>
+
+                        <div class="space-y-2.5 text-xs">
+                            {{-- Waktu Pertama Kali Ditekan ("Mulai Kerjakan") --}}
+                            <div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl">
+                                <p class="text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">Waktu Mulai Dikerjakan</p>
+                                @if($ticket->waktu_mulai_dikerjakan)
+                                    <p class="text-slate-800 font-bold text-xs mt-0.5 flex items-center gap-1.5">
+                                        <i class="fa-regular fa-calendar-check text-blue-500"></i>
+                                        {{ \Carbon\Carbon::parse($ticket->waktu_mulai_dikerjakan)->format('d M Y, H:i') }} WIB
+                                    </p>
+                                @else
+                                    <p class="text-amber-600 font-medium italic text-xs mt-0.5 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-hourglass-start"></i> Menunggu "Mulai Kerjakan"
+                                    </p>
+                                @endif
+                            </div>
+
+                            {{-- Target SLA Berdasarkan Prioritas --}}
+                            <div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl">
+                                <p class="text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">Target SLA ({{ ucfirst($ticket->prioritas ?? 'Rendah') }})</p>
+                                <p class="text-slate-800 font-bold text-xs mt-0.5 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-stopwatch text-amber-500"></i>
+                                    {{ $targetSlaText ?? '7 Hari Kerja' }}
+                                </p>
+                            </div>
                         </div>
+
+                        {{-- Tanggal Selesai Ditangani --}}
+                        @if($ticket->tanggal_selesai)
+                            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                                <span class="text-slate-500 font-medium">Waktu Selesai:</span>
+                                <span class="font-bold text-slate-800">
+                                    <i class="fa-regular fa-circle-check text-green-500 mr-0.5"></i>
+                                    {{ \Carbon\Carbon::parse($ticket->tanggal_selesai)->format('d M Y, H:i') }} WIB
+                                </span>
+                            </div>
+                        @endif
                     </div>
 
-                    @if($ticket->status === 'Closed' && $ticket->closed_by === 'user')
-                    <div class="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-2 text-amber-800">
-                        <i class="fa-solid fa-user-slash text-xs text-amber-600"></i>
-                        <p class="text-xs font-semibold">Dibatalkan / Ditutup oleh Pelapor</p>
-                    </div>
-                    @endif
                 </div>
 
                 {{-- Partial Chat/Diskusi --}}

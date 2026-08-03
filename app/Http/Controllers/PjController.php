@@ -295,6 +295,14 @@ class PjController extends Controller
             $ticket->save();
         }
 
-        return view('pj.detail', compact('ticket'));
+        // Tentukan teks target SLA sesuai prioritas
+        $prioritas = strtolower($ticket->prioritas);
+        $targetSlaText = match($prioritas) {
+            'tinggi' => '1 Hari Kerja',
+            'sedang' => '3 Hari Kerja',
+            default  => '7 Hari Kerja',
+        };
+
+        return view('pj.detail', compact('ticket', 'targetSlaText'));
     }
 }
