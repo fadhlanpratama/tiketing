@@ -144,12 +144,60 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
-        <div class="bg-gradient-to-r from-[#0a2540] to-[#16406c] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-            <div class="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
-            <div class="relative z-10">
-                <span class="bg-amber-400 text-[#0a2540] text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md mb-3 inline-block">Akses Penanggung Jawab</span>
-                <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight">Kelola Penugasan Anda</h2>
-                <p class="text-slate-300 text-xs sm:text-sm mt-1">Tinjau, tangani, dan selesaikan setiap tiket yang menjadi tanggung jawab Anda.</p>
+        <div class="bg-gradient-to-r from-[#0a2540] to-[#16406c] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative">
+            <div class="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+                <div class="absolute inset-0 opacity-5 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            </div>
+            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+                <div>
+                    <span class="bg-amber-400 text-[#0a2540] text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md mb-3 inline-block">Akses Penanggung Jawab</span>
+                    <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight">Kelola Penugasan Anda</h2>
+                    <p class="text-slate-300 text-xs sm:text-sm mt-1">Tinjau, tangani, dan selesaikan setiap tiket yang menjadi tanggung jawab Anda.</p>
+                </div>
+
+                <div class="relative shrink-0" id="slaGaugeWrapper">
+                    <button type="button" id="slaGaugeBtn"
+                        class="w-full sm:w-auto text-left bg-white/10 hover:bg-white/15 backdrop-blur border border-white/20 rounded-2xl p-4 flex items-center gap-3 transition cursor-pointer {{ $slaTerlambat > 0 ? 'ring-2 ring-red-400/40' : '' }}">
+                        <svg width="52" height="32" viewBox="0 0 64 40" class="shrink-0">
+                            <path d="M4,32 A28,28 0 0 1 18,7.75" fill="none" stroke="#86efac" stroke-width="6" stroke-linecap="round"/>
+                            <path d="M18,7.75 A28,28 0 0 1 46,7.75" fill="none" stroke="#fcd34d" stroke-width="6" stroke-linecap="round"/>
+                            <path d="M46,7.75 A28,28 0 0 1 60,32" fill="none" stroke="#fca5a5" stroke-width="6" stroke-linecap="round"/>
+                            <line x1="32" y1="32" x2="32" y2="10" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"
+                                transform="rotate({{ $slaNeedleDeg }},32,32)"/>
+                            <circle cx="32" cy="32" r="3" fill="#ffffff"/>
+                        </svg>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Melebihi SLA</p>
+                            <h3 class="text-lg font-bold {{ $slaTerlambat > 0 ? 'text-red-300' : 'text-white' }} mt-0.5">{{ $slaTerlambat }} Tiket</h3>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-slate-300 text-xs ml-2"></i>
+                    </button>
+
+                    <div id="slaGaugeMenu" class="hidden absolute right-0 left-0 sm:left-auto sm:w-96 mt-2 bg-white border border-slate-200 shadow-2xl rounded-2xl z-50 overflow-hidden text-left">
+                        <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                            <p class="text-xs font-bold text-slate-700 uppercase tracking-wide">Tiket Melebihi SLA</p>
+                            <span class="text-[10px] text-slate-400">{{ $slaPercentage }}% dari tiket berjalan</span>
+                        </div>
+                        <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                            @forelse($ticketsOverSla as $t)
+                            <a href="{{ route('pj.ticket.show', $t->id) }}" class="flex items-center justify-between gap-3 p-3 hover:bg-slate-50 transition">
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">#TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}</p>
+                                    <p class="text-[11px] text-slate-500 truncate">{{ $t->kategori }} — {{ $t->sub_kategori }}</p>
+                                </div>
+                                <span class="shrink-0 text-[11px] font-bold text-red-700 bg-red-50 border border-red-100 px-2 py-1 rounded-lg">
+                                    {{ $t->sla_badge['label'] ?? '-' }}
+                                </span>
+                            </a>
+                            @empty
+                            <div class="p-6 text-center">
+                                <i class="fa-regular fa-circle-check text-green-300 text-2xl mb-2"></i>
+                                <p class="text-xs text-slate-400">Tidak ada tiket yang melebihi SLA saat ini.</p>
+                            </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -220,6 +268,7 @@
                             <th class="p-4">PELAPOR</th>
                             <th class="p-4">PRIORITAS</th>
                             <th class="p-4">STATUS</th>
+                            <th class="p-4">SLA</th>
                             <th class="p-4 pr-6 text-center">AKSI</th>
                         </tr>
                     </thead>
@@ -258,6 +307,22 @@
                                     @endif
                                 @endif
                             </td>
+                            <td class="p-4">
+                                @php $slaBadge = $ticket->sla_badge; @endphp
+                                @if(!$slaBadge)
+                                    <span class="text-slate-300 text-xs italic">-</span>
+                                @elseif($slaBadge['terlambat'])
+                                    <span class="inline-flex items-center gap-1 text-red-700 font-bold bg-red-50 px-2 py-1 rounded-lg text-[11px] border border-red-100">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                        {{ $slaBadge['sedang_proses'] ? 'Lewat SLA ' : 'Terlambat ' }}{{ $slaBadge['label'] }}
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 text-green-700 font-bold bg-green-50 px-2 py-1 rounded-lg text-[11px] border border-green-100">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        {{ $slaBadge['sedang_proses'] ? 'Dalam SLA' : 'Tepat Waktu' }}
+                                    </span>
+                                @endif
+                            </td>
                             <td class="p-4 pr-6" onclick="event.stopPropagation()">
                                 {{-- Tombol Aksi --}}
                                 <div class="flex items-center justify-center gap-2 action-buttons">
@@ -280,7 +345,7 @@
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="6" class="p-8 text-center text-slate-400 text-sm">Belum ada tiket yang ditugaskan.</td></tr>
+                        <tr><td colspan="7" class="p-8 text-center text-slate-400 text-sm">Belum ada tiket yang ditugaskan.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -304,6 +369,20 @@
                     </div>
                     @if($ticket->status == 'Closed' && $ticket->closed_by === 'user')
                         <p class="text-[10px] text-slate-600 italic mt-1"><i class="fa-solid fa-user-slash"></i> Dibatalkan oleh Pelapor</p>
+                    @endif
+                    @php $slaBadgeMobile = $ticket->sla_badge; @endphp
+                    @if($slaBadgeMobile)
+                        @if($slaBadgeMobile['terlambat'])
+                            <span class="inline-flex items-center gap-1 text-red-700 font-bold bg-red-50 px-2 py-1 rounded-lg text-[11px] border border-red-100">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                {{ $slaBadgeMobile['sedang_proses'] ? 'Lewat SLA ' : 'Terlambat ' }}{{ $slaBadgeMobile['label'] }}
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 text-green-700 font-bold bg-green-50 px-2 py-1 rounded-lg text-[11px] border border-green-100">
+                                <i class="fa-solid fa-circle-check"></i>
+                                {{ $slaBadgeMobile['sedang_proses'] ? 'Dalam SLA' : 'Tepat Waktu' }}
+                            </span>
+                        @endif
                     @endif
                     <div>
                         <h4 class="font-bold text-slate-800 text-sm">{{ $ticket->kategori }}</h4>
@@ -550,6 +629,21 @@
         });
 
         notifMenu.addEventListener('click', (e) => e.stopPropagation());
+
+        // ===== TOGGLE GAUGE SLA =====
+        const slaGaugeBtn = document.getElementById('slaGaugeBtn');
+        const slaGaugeMenu = document.getElementById('slaGaugeMenu');
+
+        slaGaugeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            slaGaugeMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', () => {
+            slaGaugeMenu.classList.add('hidden');
+        });
+
+        slaGaugeMenu.addEventListener('click', (e) => e.stopPropagation());
     </script>
 </body>
 </html>

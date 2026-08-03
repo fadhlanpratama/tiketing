@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Concerns\HasSla;
 
 class Ticket extends Model
 {
     use SoftDeletes;
+    use HasSla;
 
     protected $table = 'tickets';
     protected $primaryKey = 'id';
@@ -41,6 +43,7 @@ class Ticket extends Model
         'tanggal_selesai' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'waktu_mulai_dikerjakan' => 'datetime',
     ];
 
     public function messages(): HasMany

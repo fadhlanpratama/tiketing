@@ -37,12 +37,41 @@ class PjController extends Controller
             ")
             ->first();
 
+        $overdueQuery = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
+            ->where(function ($q) {
+                $q->where(function ($qq) {
+                    $qq->where('status', 'In Progress')
+                        ->whereNotNull('waktu_mulai_dikerjakan')
+                        ->whereNotNull('sla_target_menit')
+                        ->whereRaw('TIMESTAMPADD(MINUTE, sla_target_menit, waktu_mulai_dikerjakan) < NOW()');
+                })->orWhere('sla_status', 'Terlambat');
+            });
+
+        $slaTerlambat = (clone $overdueQuery)->count();
+
+        $ticketsOverSla = (clone $overdueQuery)
+            ->orderByDesc('id')
+            ->limit(20)
+            ->get()
+            ->sortByDesc(fn ($t) => $t->sla_lebih_menit_live)
+            ->values();
+
+        $totalTerpantauSla = ($counts->diproses ?? 0) + ($counts->selesai ?? 0);
+        $slaPercentage = $totalTerpantauSla > 0
+            ? min(100, round(($slaTerlambat / $totalTerpantauSla) * 100))
+            : 0;
+        $slaNeedleDeg = -90 + ($slaPercentage / 100) * 180;
+
         return view('pj.dashboard', [
-            'tickets'      => $tickets,
-            'menunggu'     => $counts->menunggu ?? 0,
-            'diproses'     => $counts->diproses ?? 0,
-            'selesai'      => $counts->selesai ?? 0,
-            'statusFilter' => $request->input('status', 'semua'),
+            'tickets'        => $tickets,
+            'menunggu'       => $counts->menunggu ?? 0,
+            'diproses'       => $counts->diproses ?? 0,
+            'selesai'        => $counts->selesai ?? 0,
+            'slaTerlambat'   => $slaTerlambat,
+            'ticketsOverSla' => $ticketsOverSla,
+            'slaPercentage'  => $slaPercentage,
+            'slaNeedleDeg'   => $slaNeedleDeg,
+            'statusFilter'   => $request->input('status', 'semua'),
         ]);
     }
 
@@ -129,6 +158,9 @@ class PjController extends Controller
             ->firstOrFail();
 
         $ticket->status = 'In Progress';
+        $ticket->waktu_mulai_dikerjakan = now();
+        $ticket->sla_target_menit = Ticket::getSlaTargetMenitByPrioritas($ticket->prioritas);
+        $ticket->sla_status = 'Berjalan';
         $ticket->user_notif_inprogress_read = false;
         $ticket->timestamps = false;
         $ticket->save();
@@ -158,6 +190,18 @@ class PjController extends Controller
         $ticket->tanggal_selesai = now();
         $ticket->hasil_resolved_foto = $path;
         $ticket->user_notif_resolved_read = false;
+
+        if ($ticket->waktu_mulai_dikerjakan && $ticket->sla_target_menit) {
+            $deadline = $ticket->waktu_mulai_dikerjakan->copy()->addMinutes($ticket->sla_target_menit);
+
+            if ($ticket->tanggal_selesai->greaterThan($deadline)) {
+                $ticket->sla_lebih_menit = $deadline->diffInMinutes($ticket->tanggal_selesai);
+                $ticket->sla_status = 'Terlambat';
+            } else {
+                $ticket->sla_lebih_menit = 0;
+                $ticket->sla_status = 'Tepat Waktu';
+            }
+        }
 
         if ($request->filled('catatan_penyelesaian')) {
             $ticket->deskripsi_masalah .= "\n\n[Catatan PJ - " . now()->format('Y-m-d H:i') . "]: "
