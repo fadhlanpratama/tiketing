@@ -11,6 +11,7 @@ use Carbon\Carbon;
  * @property-read int|null            $sla_lebih_menit
  * @property-read string|null         $sla_status
  * @property-read string|null         $status
+ * @property-read string|null         $closed_by
  * @property-read string|null         $prioritas
  * @property-read \Carbon\Carbon|null $sla_deadline
  * @property-read int|null            $sla_lebih_menit_live
@@ -44,6 +45,10 @@ trait HasSla
 
     public function getSlaLebihMenitLiveAttribute(): ?int
     {
+        if ($this->status === 'Closed' && $this->closed_by === 'user') {
+            return null;
+        }
+
         $deadline = $this->sla_deadline;
 
         if (!$deadline) {
@@ -63,6 +68,10 @@ trait HasSla
 
     public function getSlaBadgeAttribute(): ?array
     {
+        if ($this->status === 'Closed' && $this->closed_by === 'user') {
+            return null;
+        }
+
         if (!$this->waktu_mulai_dikerjakan) {
             return null;
         }

@@ -23,8 +23,12 @@ class PjController extends Controller
             ->with('pelapor');
 
         if ($request->filled('status') && $request->status !== 'semua') {
-            $statusList = explode(',', $request->status);
-            $query->whereIn('status', $statusList);
+            if ($request->status === 'Dibatalkan') {
+                $query->where('status', 'Closed')->where('closed_by', 'user');
+            } else {
+                $statusList = explode(',', $request->status);
+                $query->whereIn('status', $statusList);
+            }
         }
 
         if ($request->filled('prioritas') && $request->prioritas !== 'semua') {
@@ -37,7 +41,8 @@ class PjController extends Controller
             ->selectRaw("
                 COUNT(CASE WHEN status = 'Open' THEN 1 END) as menunggu,
                 COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as diproses,
-                COUNT(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 END) as selesai
+                COUNT(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 END) as selesai,
+                COUNT(CASE WHEN status = 'Closed' AND closed_by = 'user' THEN 1 END) as dibatalkan
             ")
             ->first();
 
@@ -77,6 +82,7 @@ class PjController extends Controller
             'menunggu'        => $counts->menunggu ?? 0,
             'diproses'        => $counts->diproses ?? 0,
             'selesai'         => $counts->selesai ?? 0,
+            'dibatalkan'      => $counts->dibatalkan ?? 0,
             'slaTerlambat'    => $slaTerlambat,
             'ticketsOverSla'  => $ticketsOverSla,
             'slaPercentage'   => $slaPercentage,

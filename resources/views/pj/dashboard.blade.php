@@ -246,7 +246,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
             <a href="{{ route('pj.dashboard', ['status' => $statusFilter === 'Open' ? 'semua' : 'Open']) }}"
                 class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'Open' ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-100' }}">
                 <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-folder-open"></i></div>
@@ -271,6 +271,15 @@
                     <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ $selesai }} Tiket</h3>
                 </div>
             </a>
+            {{-- KARTU BARU: DIBATALKAN OLEH PELAPOR --}}
+            <a href="{{ route('pj.dashboard', ['status' => $statusFilter === 'Dibatalkan' ? 'semua' : 'Dibatalkan']) }}"
+                class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'Dibatalkan' ? 'border-slate-400 ring-2 ring-slate-200' : 'border-slate-100' }}">
+                <div class="w-12 h-12 bg-slate-100 text-slate-500 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-user-slash"></i></div>
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Dibatalkan</p>
+                    <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ $dibatalkan }} Tiket</h3>
+                </div>
+            </a>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -286,6 +295,7 @@
                         <span id="statusFilterLabel"><i class="fa-solid fa-filter mr-1.5 text-slate-400"></i>
                             @if($statusFilter === 'semua') Semua Status
                             @elseif($statusFilter === 'Resolved,Closed') Resolved dan Closed
+                            @elseif($statusFilter === 'Dibatalkan') Dibatalkan oleh Pelapor
                             @else {{ $statusFilter }}
                             @endif
                         </span>
@@ -299,6 +309,7 @@
                         <div data-value="In Progress" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">In Progress</div>
                         <div data-value="Resolved" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Resolved</div>
                         <div data-value="Closed" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Closed</div>
+                        <div data-value="Dibatalkan" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Dibatalkan oleh Pelapor</div>
                     </div>
                 </div>
             </div>
