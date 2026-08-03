@@ -22,9 +22,13 @@ class PjController extends Controller
         $query = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
             ->with('pelapor');
 
-         if ($request->filled('status') && $request->status !== 'semua') {
+        if ($request->filled('status') && $request->status !== 'semua') {
             $statusList = explode(',', $request->status);
             $query->whereIn('status', $statusList);
+        }
+
+        if ($request->filled('prioritas') && $request->prioritas !== 'semua') {
+            $query->whereRaw('LOWER(prioritas) = ?', [strtolower($request->prioritas)]);
         }
 
         $tickets = $query->orderBy('created_at', 'asc')->paginate(10)->withQueryString();
@@ -72,6 +76,7 @@ class PjController extends Controller
             'slaPercentage'  => $slaPercentage,
             'slaNeedleDeg'   => $slaNeedleDeg,
             'statusFilter'   => $request->input('status', 'semua'),
+            'prioritasFilter' => $request->input('prioritas', 'semua'),
         ]);
     }
 

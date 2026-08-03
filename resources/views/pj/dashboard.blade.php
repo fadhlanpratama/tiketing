@@ -201,6 +201,51 @@
             </div>
         </div>
 
+        {{-- ===== BANNER PEMBERITAHUAN SLA BISA DIKLIK (FILTER PRIORITAS) ===== --}}
+        @php 
+            $currentPrioritas = strtolower($prioritasFilter ?? 'semua'); 
+            $currentStatus = request('status');
+        @endphp
+
+        <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+                <div class="w-10 h-10 bg-amber-400/20 text-amber-700 rounded-xl flex items-center justify-center shrink-0 text-base mt-0.5 md:mt-0">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        Target Waktu Penyelesaian (SLA)
+                    </h4>
+                    <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                        Waktu mulai dihitung saat status <span class="font-bold text-slate-700">In Progress</span> (setelah tombol <i class="text-slate-500">Mulai Kerjakan</i> ditekan) hingga tiket berstatus <span class="font-bold text-slate-700">Resolved</span>. Klik kartu untuk memfilter tabel.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-amber-200/50">
+                {{-- KARTU PRIORITAS TINGGI --}}
+                <a href="{{ route('pj.dashboard', array_filter(['status' => $currentStatus, 'prioritas' => $currentPrioritas === 'tinggi' ? null : 'Tinggi'])) }}"
+                class="p-2 sm:p-2.5 text-center rounded-xl border transition-all duration-200 hover:-translate-y-0.5 shadow-sm {{ $currentPrioritas === 'tinggi' ? 'bg-red-500 text-white border-red-600 ring-2 ring-red-200' : 'bg-white/80 border-red-200/80 hover:bg-red-50' }}">
+                    <span class="block text-[10px] font-bold uppercase {{ $currentPrioritas === 'tinggi' ? 'text-red-100' : 'text-red-600' }}">Tinggi</span>
+                    <span class="block text-[11px] font-extrabold mt-0.5 {{ $currentPrioritas === 'tinggi' ? 'text-white' : 'text-slate-800' }}">1 Hari Kerja</span>
+                </a>
+
+                {{-- KARTU PRIORITAS SEDANG --}}
+                <a href="{{ route('pj.dashboard', array_filter(['status' => $currentStatus, 'prioritas' => $currentPrioritas === 'sedang' ? null : 'Sedang'])) }}"
+                class="p-2 sm:p-2.5 text-center rounded-xl border transition-all duration-200 hover:-translate-y-0.5 shadow-sm {{ $currentPrioritas === 'sedang' ? 'bg-amber-500 text-white border-amber-600 ring-2 ring-amber-200' : 'bg-white/80 border-amber-200/80 hover:bg-amber-50' }}">
+                    <span class="block text-[10px] font-bold uppercase {{ $currentPrioritas === 'sedang' ? 'text-amber-100' : 'text-amber-600' }}">Sedang</span>
+                    <span class="block text-[11px] font-extrabold mt-0.5 {{ $currentPrioritas === 'sedang' ? 'text-white' : 'text-slate-800' }}">3 Hari Kerja</span>
+                </a>
+
+                {{-- KARTU PRIORITAS RENDAH --}}
+                <a href="{{ route('pj.dashboard', array_filter(['status' => $currentStatus, 'prioritas' => $currentPrioritas === 'rendah' ? null : 'Rendah'])) }}"
+                class="p-2 sm:p-2.5 text-center rounded-xl border transition-all duration-200 hover:-translate-y-0.5 shadow-sm {{ $currentPrioritas === 'rendah' ? 'bg-slate-700 text-white border-slate-800 ring-2 ring-slate-200' : 'bg-white/80 border-slate-200/80 hover:bg-slate-100' }}">
+                    <span class="block text-[10px] font-bold uppercase {{ $currentPrioritas === 'rendah' ? 'text-slate-300' : 'text-slate-600' }}">Rendah</span>
+                    <span class="block text-[11px] font-extrabold mt-0.5 {{ $currentPrioritas === 'rendah' ? 'text-white' : 'text-slate-800' }}">7 Hari Kerja</span>
+                </a>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
             <a href="{{ route('pj.dashboard', ['status' => $statusFilter === 'Open' ? 'semua' : 'Open']) }}"
                 class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'Open' ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-100' }}">
@@ -355,41 +400,64 @@
             <div class="md:hidden p-4 space-y-4">
                 @forelse($tickets as $ticket)
                 <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-3 cursor-pointer clickable-row" data-url="{{ route('pj.ticket.show', $ticket->id) }}">
+                    
+                    {{-- Header Kartu Mobile: ID Tiket & Status Saja (Samping Dikosongkan) --}}
                     <div class="flex justify-between items-center">
                         <span class="font-bold text-slate-700">#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</span>
+                        
                         @if($ticket->status == 'Open')
                             <span class="bg-amber-100 text-amber-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Open</span>
                         @elseif($ticket->status == 'In Progress')
-                            <span class="bg-blue-100 text-blue-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">In Progres</span>
+                            <span class="bg-blue-100 text-blue-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">In Progress</span>
                         @elseif($ticket->status == 'Resolved')
                             <span class="bg-green-100 text-green-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Resolved</span>
-                       @elseif($ticket->status == 'Closed')
+                        @elseif($ticket->status == 'Closed')
                             <span class="bg-slate-100 text-slate-600 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Closed</span>
                         @endif
                     </div>
+
                     @if($ticket->status == 'Closed' && $ticket->closed_by === 'user')
                         <p class="text-[10px] text-slate-600 italic mt-1"><i class="fa-solid fa-user-slash"></i> Dibatalkan oleh Pelapor</p>
                     @endif
+
+                    {{-- Badge SLA Mobile --}}
                     @php $slaBadgeMobile = $ticket->sla_badge; @endphp
                     @if($slaBadgeMobile)
-                        @if($slaBadgeMobile['terlambat'])
-                            <span class="inline-flex items-center gap-1 text-red-700 font-bold bg-red-50 px-2 py-1 rounded-lg text-[11px] border border-red-100">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                {{ $slaBadgeMobile['sedang_proses'] ? 'Lewat SLA ' : 'Terlambat ' }}{{ $slaBadgeMobile['label'] }}
-                            </span>
-                        @else
-                            <span class="inline-flex items-center gap-1 text-green-700 font-bold bg-green-50 px-2 py-1 rounded-lg text-[11px] border border-green-100">
-                                <i class="fa-solid fa-circle-check"></i>
-                                {{ $slaBadgeMobile['sedang_proses'] ? 'Dalam SLA' : 'Tepat Waktu' }}
-                            </span>
-                        @endif
+                        <div>
+                            @if($slaBadgeMobile['terlambat'])
+                                <span class="inline-flex items-center gap-1 text-red-700 font-bold bg-red-50 px-2 py-1 rounded-lg text-[11px] border border-red-100">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                    {{ $slaBadgeMobile['sedang_proses'] ? 'Lewat SLA ' : 'Terlambat ' }}{{ $slaBadgeMobile['label'] }}
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 text-green-700 font-bold bg-green-50 px-2 py-1 rounded-lg text-[11px] border border-green-100">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    {{ $slaBadgeMobile['sedang_proses'] ? 'Dalam SLA' : 'Tepat Waktu' }}
+                                </span>
+                            @endif
+                        </div>
                     @endif
+
+                    {{-- Detail Informasi Tiket + Prioritas di Bawah --}}
                     <div>
                         <h4 class="font-bold text-slate-800 text-sm">{{ $ticket->kategori }}</h4>
                         <p class="text-xs text-slate-600 mt-0.5">{{ $ticket->sub_kategori }}</p>
                         <p class="text-[11px] text-slate-400 mt-2"><i class="fa-solid fa-user"></i> Pelapor: {{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
-                        <p class="text-[10px] text-slate-400"><i class="fa-regular fa-clock"></i> Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5"><i class="fa-regular fa-clock"></i> Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</p>
+                        
+                        {{-- POSISI PRIORITAS DI BAWAH (SESUAI GAMBAR USER) --}}
+                        <p class="text-[10px] text-slate-500 font-medium mt-1">
+                            <i class="fa-solid fa-layer-group mr-1 text-slate-400"></i>Prioritas: 
+                            @if(strtolower($ticket->prioritas) == 'tinggi')
+                                <span class="text-red-600 font-bold">Tinggi</span>
+                            @elseif(strtolower($ticket->prioritas) == 'sedang')
+                                <span class="text-amber-600 font-bold">Sedang</span>
+                            @else
+                                <span class="text-slate-700 font-bold">Rendah</span>
+                            @endif
+                        </p>
                     </div>
+
                     {{-- Tombol Aksi --}}
                     <div class="grid grid-cols-1 gap-1.5 pt-2 border-t border-slate-200/60 action-buttons">
                         @if($ticket->status == 'Open')
@@ -413,7 +481,7 @@
                 <p class="text-center text-slate-400 text-sm py-4">Belum ada tiket yang ditugaskan.</p>
                 @endforelse
             </div>
-
+            
             <div class="p-4 border-t border-slate-100">
     @if($tickets->hasPages())
     <nav class="flex flex-col sm:flex-row items-center justify-between gap-3">
