@@ -43,6 +43,12 @@ class PjController extends Controller
 
         $overdueQuery = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
             ->where(function ($q) {
+                $q->where(function ($subQ) {
+                    $subQ->where('closed_by', '!=', 'user')
+                         ->orWhereNull('closed_by');
+                });
+            })
+            ->where(function ($q) {
                 $q->where(function ($qq) {
                     $qq->where('status', 'In Progress')
                         ->whereNotNull('waktu_mulai_dikerjakan')
@@ -67,15 +73,15 @@ class PjController extends Controller
         $slaNeedleDeg = -90 + ($slaPercentage / 100) * 180;
 
         return view('pj.dashboard', [
-            'tickets'        => $tickets,
-            'menunggu'       => $counts->menunggu ?? 0,
-            'diproses'       => $counts->diproses ?? 0,
-            'selesai'        => $counts->selesai ?? 0,
-            'slaTerlambat'   => $slaTerlambat,
-            'ticketsOverSla' => $ticketsOverSla,
-            'slaPercentage'  => $slaPercentage,
-            'slaNeedleDeg'   => $slaNeedleDeg,
-            'statusFilter'   => $request->input('status', 'semua'),
+            'tickets'         => $tickets,
+            'menunggu'        => $counts->menunggu ?? 0,
+            'diproses'        => $counts->diproses ?? 0,
+            'selesai'         => $counts->selesai ?? 0,
+            'slaTerlambat'    => $slaTerlambat,
+            'ticketsOverSla'  => $ticketsOverSla,
+            'slaPercentage'   => $slaPercentage,
+            'slaNeedleDeg'    => $slaNeedleDeg,
+            'statusFilter'    => $request->input('status', 'semua'),
             'prioritasFilter' => $request->input('prioritas', 'semua'),
         ]);
     }
@@ -295,7 +301,7 @@ class PjController extends Controller
             $ticket->save();
         }
 
-        // Tentukan teks target SLA sesuai prioritas
+        // Tentukan teks target SLA berdasarkan prioritas
         $prioritas = strtolower($ticket->prioritas);
         $targetSlaText = match($prioritas) {
             'tinggi' => '1 Hari Kerja',

@@ -204,7 +204,11 @@
                             
                             {{-- Status Badge SLA --}}
                             @php $slaBadge = $ticket->sla_badge; @endphp
-                            @if(!$slaBadge)
+                            @if($ticket->status === 'Closed' && $ticket->closed_by === 'user')
+                                <span class="inline-flex items-center gap-1.5 text-slate-600 font-bold bg-slate-100 px-2.5 py-1 rounded-lg text-[10px] border border-slate-200">
+                                    <i class="fa-solid fa-ban"></i>
+                                </span>
+                            @elseif(!$slaBadge)
                                 <span class="text-slate-400 text-xs italic">Belum Diproses</span>
                             @elseif($slaBadge['terlambat'])
                                 <span class="inline-flex items-center gap-1.5 text-red-700 font-bold bg-red-50 px-2.5 py-1 rounded-lg text-[10px] border border-red-100">
@@ -240,7 +244,11 @@
                                 <p class="text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">Target SLA ({{ ucfirst($ticket->prioritas ?? 'Rendah') }})</p>
                                 <p class="text-slate-800 font-bold text-xs mt-0.5 flex items-center gap-1.5">
                                     <i class="fa-solid fa-stopwatch text-amber-500"></i>
-                                    {{ $targetSlaText ?? '7 Hari Kerja' }}
+                                    @if($ticket->status === 'Closed' && $ticket->closed_by === 'user')
+                                        <span class="text-slate-400 italic font-normal">Tidak Dihitung (Dibatalkan)</span>
+                                    @else
+                                        {{ $targetSlaText ?? '7 Hari Kerja' }}
+                                    @endif
                                 </p>
                             </div>
                         </div>
