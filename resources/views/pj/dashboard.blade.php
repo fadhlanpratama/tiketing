@@ -382,12 +382,13 @@
                                 {{-- Tombol Aksi --}}
                                 <div class="flex items-center justify-center gap-2 action-buttons">
                                     @if($ticket->status == 'Open')
-                                        <form action="{{ route('pj.ticket.terima', $ticket->id) }}" method="POST" class="inline">
-                                            @csrf
-                                            <button type="submit" class="bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-xs px-3 py-2 rounded-lg transition">
-                                                Mulai Kerjakan
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn-mulai bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-xs px-3 py-2 rounded-lg transition"
+                                            data-id="{{ $ticket->id }}"
+                                            data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"
+                                            data-prioritas="{{ $ticket->prioritas }}"
+                                            data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}">
+                                            Mulai Kerjakan
+                                        </button>
                                     @elseif($ticket->status == 'In Progress')
                                         <button type="button" class="btn-selesaikan bg-green-500 hover:bg-green-600 text-white font-bold text-xs px-3 py-2 rounded-lg transition"
                                             data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">
@@ -471,12 +472,13 @@
                     {{-- Tombol Aksi --}}
                     <div class="grid grid-cols-1 gap-1.5 pt-2 border-t border-slate-200/60 action-buttons">
                         @if($ticket->status == 'Open')
-                            <form action="{{ route('pj.ticket.terima', $ticket->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="w-full bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-xs py-2 rounded-xl transition">
-                                    Mulai Kerjakan
-                                </button>
-                            </form>
+                            <button type="button" class="btn-mulai w-full bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-xs py-2 rounded-xl transition"
+                                data-id="{{ $ticket->id }}"
+                                data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"
+                                data-prioritas="{{ $ticket->prioritas }}"
+                                data-kategori="{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}">
+                                Mulai Kerjakan
+                            </button>
                         @elseif($ticket->status == 'In Progress')
                             <button type="button" class="btn-selesaikan w-full bg-green-500 hover:bg-green-600 text-white font-bold text-xs py-2 rounded-xl transition"
                                 data-id="{{ $ticket->id }}" data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}">
@@ -535,6 +537,54 @@
             </div>
         </div>
     </main>
+
+    {{-- ==================== MODAL KONFIRMASI MULAI KERJAKAN ==================== --}}
+    <div id="mulaiModal" class="fixed inset-0 bg-slate-900/60 items-center justify-center p-4 z-50 hidden transition-all opacity-0 duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300">
+            <div class="bg-[#0a2540] text-white p-5 flex justify-between items-center">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-circle-exclamation text-amber-400 text-xl"></i>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold tracking-tight">Konfirmasi Mulai Kerjakan</h3>
+                        <p class="text-[11px] text-slate-300" id="mulaiTicketCode"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 space-y-3">
+                    <div>
+                        <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Kategori Tiket</p>
+                        <p class="text-sm font-bold text-slate-800 mt-0.5" id="mulaiKategori">-</p>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-200/70">
+                        <div>
+                            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Prioritas</p>
+                            <span id="mulaiPrioritasBadge" class="inline-flex items-center gap-1.5 mt-1 text-xs font-bold px-2.5 py-1 rounded-lg border"></span>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Target SLA</p>
+                            <p class="text-sm font-bold text-slate-800 mt-1" id="mulaiSlaText">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    <i class="fa-solid fa-hourglass-start text-amber-500 mr-1"></i>
+                    Perhitungan waktu SLA akan <span class="font-bold text-slate-700">mulai berjalan sejak saat ini</span> setelah Anda menekan tombol konfirmasi. Pastikan Anda benar-benar siap menangani tiket ini sekarang.
+                </p>
+
+                <form id="formMulai" method="POST">
+                    @csrf
+                    <div class="grid grid-cols-2 gap-3 pt-1">
+                        <button type="button" onclick="closeMulaiModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm py-2.5 rounded-xl transition cursor-pointer">Batal</button>
+                        <button type="submit" class="bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-sm py-2.5 rounded-xl transition shadow-md cursor-pointer">Ya, Kerjakan Sekarang</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     {{-- ==================== MODAL PENYELESAIAN TIKET ==================== --}}
     <div id="selesaikanModal" class="fixed inset-0 bg-slate-900/60 items-center justify-center p-4 z-50 hidden transition-all opacity-0 duration-300">
@@ -607,6 +657,48 @@
                 toast.classList.add('opacity-0', 'translate-y-10');
                 setTimeout(() => toast.remove(), 500);
             }
+        }
+
+        // ===== MODAL KONFIRMASI MULAI KERJAKAN =====
+        const mulaiModal = document.getElementById('mulaiModal');
+        const formMulai = document.getElementById('formMulai');
+        const mulaiSlaMap = {
+            tinggi: { text: '1 Hari Kerja', class: 'text-red-700 bg-red-50 border-red-100' },
+            sedang: { text: '3 Hari Kerja', class: 'text-amber-700 bg-amber-50 border-amber-100' },
+            rendah: { text: '7 Hari Kerja', class: 'text-slate-700 bg-slate-100 border-slate-200' },
+        };
+
+        document.querySelectorAll('.btn-mulai').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const prioritas = (btn.getAttribute('data-prioritas') || 'rendah').toLowerCase();
+                const sla = mulaiSlaMap[prioritas] || mulaiSlaMap.rendah;
+
+                document.getElementById('mulaiTicketCode').innerText = btn.getAttribute('data-code');
+                document.getElementById('mulaiKategori').innerText = btn.getAttribute('data-kategori');
+                document.getElementById('mulaiSlaText').innerText = sla.text;
+
+                const badge = document.getElementById('mulaiPrioritasBadge');
+                badge.className = 'inline-flex items-center gap-1.5 mt-1 text-xs font-bold px-2.5 py-1 rounded-lg border ' + sla.class;
+                badge.innerText = btn.getAttribute('data-prioritas');
+
+                formMulai.setAttribute('action', `/pj/ticket/${btn.getAttribute('data-id')}/terima`);
+
+                mulaiModal.classList.remove('hidden');
+                mulaiModal.classList.add('flex');
+                setTimeout(() => {
+                    mulaiModal.classList.remove('opacity-0');
+                    mulaiModal.querySelector('.max-w-md').classList.remove('scale-95');
+                }, 50);
+            });
+        });
+
+        function closeMulaiModal() {
+            mulaiModal.classList.add('opacity-0');
+            mulaiModal.querySelector('.max-w-md').classList.add('scale-95');
+            setTimeout(() => {
+                mulaiModal.classList.add('hidden');
+                mulaiModal.classList.remove('flex');
+            }, 300);
         }
 
         const selesaikanModal = document.getElementById('selesaikanModal');

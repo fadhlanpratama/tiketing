@@ -29,6 +29,13 @@
 </head>
 <body class="bg-slate-100 min-h-screen flex items-center justify-center font-sans antialiased p-4">
 
+    {{-- ================= TOMBOL KEMBALI KE BERANDA ================= --}}
+    <a href="{{ route('landing') }}"
+        class="fixed top-4 left-4 sm:top-6 sm:left-6 z-40 inline-flex items-center gap-2 bg-white/90 hover:bg-white text-slate-700 hover:text-[#0a2540] backdrop-blur border border-slate-200/80 shadow-md px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition active:scale-95">
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+        <span>Kembali</span>
+    </a>
+
     <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl h-auto md:h-[680px] overflow-hidden flex flex-col md:block py-6 md:py-0" id="authContainer">
         
         <div class="absolute inset-0 opacity-5 pointer-events-none bg-[radial-gradient(#0a2540_1px,transparent_1px)] [background-size:16px_16px] z-0"></div>

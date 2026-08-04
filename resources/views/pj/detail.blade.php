@@ -206,7 +206,7 @@
                             @php $slaBadge = $ticket->sla_badge; @endphp
                             @if($ticket->status === 'Closed' && $ticket->closed_by === 'user')
                                 <span class="inline-flex items-center gap-1.5 text-slate-600 font-bold bg-slate-100 px-2.5 py-1 rounded-lg text-[10px] border border-slate-200">
-                                    <i class="fa-solid fa-ban"></i>
+                                    <i class="fa-solid fa-ban"></i>Dibatalkan
                                 </span>
                             @elseif(!$slaBadge)
                                 <span class="text-slate-400 text-xs italic">Belum Diproses</span>
@@ -227,7 +227,19 @@
                             {{-- Waktu Pertama Kali Ditekan ("Mulai Kerjakan") --}}
                             <div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl">
                                 <p class="text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">Waktu Mulai Dikerjakan</p>
-                                @if($ticket->waktu_mulai_dikerjakan)
+                                @if($ticket->status === 'Closed' && $ticket->closed_by === 'user')
+                                    @if($ticket->waktu_mulai_dikerjakan)
+                                        <p class="text-slate-500 font-semibold text-xs mt-0.5 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-ban text-slate-400"></i>
+                                            {{ \Carbon\Carbon::parse($ticket->waktu_mulai_dikerjakan)->format('d M Y, H:i') }} WIB
+                                            <span class="italic text-slate-400">(Dibatalkan)</span>
+                                        </p>
+                                    @else
+                                        <p class="text-slate-400 italic text-xs mt-0.5 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-ban"></i> Dibatalkan sebelum dikerjakan
+                                        </p>
+                                    @endif
+                                @elseif($ticket->waktu_mulai_dikerjakan)
                                     <p class="text-slate-800 font-bold text-xs mt-0.5 flex items-center gap-1.5">
                                         <i class="fa-regular fa-calendar-check text-blue-500"></i>
                                         {{ \Carbon\Carbon::parse($ticket->waktu_mulai_dikerjakan)->format('d M Y, H:i') }} WIB
