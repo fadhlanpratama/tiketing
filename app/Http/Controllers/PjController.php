@@ -25,6 +25,17 @@ class PjController extends Controller
         if ($request->filled('status') && $request->status !== 'semua') {
             if ($request->status === 'Dibatalkan') {
                 $query->where('status', 'Closed')->where('closed_by', 'user');
+            } elseif ($request->status === 'Selesai') {
+                $query->where(function ($q) {
+                    $q->where('status', 'Resolved')
+                    ->orWhere(function ($sub) {
+                        $sub->where('status', 'Closed')
+                            ->where(function ($c) {
+                                $c->where('closed_by', 'admin')
+                                    ->orWhereNull('closed_by');
+                            });
+                    });
+                });
             } else {
                 $statusList = explode(',', $request->status);
                 $query->whereIn('status', $statusList);
@@ -36,12 +47,16 @@ class PjController extends Controller
         }
 
         $tickets = $query->orderBy('created_at', 'asc')->paginate(10)->withQueryString();
+        $countQuery = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)]);
 
-        $counts = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
-            ->selectRaw("
+        if ($request->filled('prioritas') && $request->prioritas !== 'semua') {
+            $countQuery->whereRaw('LOWER(prioritas) = ?', [strtolower($request->prioritas)]);
+        }
+
+        $counts = $countQuery->selectRaw("
                 COUNT(CASE WHEN status = 'Open' THEN 1 END) as menunggu,
                 COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as diproses,
-                COUNT(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 END) as selesai,
+                COUNT(CASE WHEN status = 'Resolved' OR (status = 'Closed' AND (closed_by = 'admin' OR closed_by IS NULL)) THEN 1 END) as selesai,
                 COUNT(CASE WHEN status = 'Closed' AND closed_by = 'user' THEN 1 END) as dibatalkan
             ")
             ->first();
@@ -50,7 +65,7 @@ class PjController extends Controller
             ->where(function ($q) {
                 $q->where(function ($subQ) {
                     $subQ->where('closed_by', '!=', 'user')
-                         ->orWhereNull('closed_by');
+                        ->orWhereNull('closed_by');
                 });
             })
             ->where(function ($q) {

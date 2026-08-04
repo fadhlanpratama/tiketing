@@ -224,7 +224,7 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
             <a href="{{ route('user.dashboard', ['status' => $statusFilter === 'Open' ? 'semua' : 'Open']) }}"
                 class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'Open' ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-100' }}">
                 <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-folder-open"></i></div>
@@ -241,12 +241,20 @@
                     <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ $dalamProses }} Tiket</h3>
                 </div>
             </a>
-            <a href="{{ route('user.dashboard', ['status' => $statusFilter === 'Resolved,Closed' ? 'semua' : 'Resolved,Closed']) }}"
-                class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'Resolved,Closed' ? 'border-green-400 ring-2 ring-green-100' : 'border-slate-100' }}">
+            <a href="{{ route('user.dashboard', ['status' => $statusFilter === 'Selesai' ? 'semua' : 'Selesai']) }}"
+                class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'Selesai' ? 'border-green-400 ring-2 ring-green-100' : 'border-slate-100' }}">
                 <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-circle-check"></i></div>
                 <div>
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Selesai</p>
                     <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ $selesai }} Tiket</h3>
+                </div>
+            </a>
+            <a href="{{ route('user.dashboard', ['status' => $statusFilter === 'Dibatalkan' ? 'semua' : 'Dibatalkan']) }}"
+                class="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4 transition hover:shadow-md hover:-translate-y-0.5 {{ $statusFilter === 'Dibatalkan' ? 'border-slate-400 ring-2 ring-slate-200' : 'border-slate-100' }}">
+                <div class="w-12 h-12 bg-slate-100 text-slate-500 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-user-slash"></i></div>
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Dibatalkan</p>
+                    <h3 class="text-xl font-bold text-slate-800 mt-0.5">{{ $dibatalkan }} Tiket</h3>
                 </div>
             </a>
         </div>
@@ -258,12 +266,13 @@
                     <p class="text-xs text-slate-400">Status pelacakan real-time untuk permohonan layanan internal Anda</p>
                 </div>
 
-                <div class="relative w-full sm:w-52" id="statusFilterWrapper">
+                <div class="relative w-full sm:w-56" id="statusFilterWrapper">
                     <button type="button" id="statusFilterBtn"
                         class="w-full bg-slate-50 border border-slate-200 p-2.5 pr-10 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-xs font-semibold text-slate-600 flex justify-between items-center cursor-pointer hover:bg-slate-100/60">
                         <span id="statusFilterLabel"><i class="fa-solid fa-filter mr-1.5 text-slate-400"></i>
                             @if($statusFilter === 'semua') Semua Status
-                            @elseif($statusFilter === 'Resolved,Closed') Resolved dan Closed
+                            @elseif($statusFilter === 'Selesai') Resolved and Closed
+                            @elseif($statusFilter === 'Dibatalkan') Dibatalkan Oleh Anda
                             @else {{ $statusFilter }}
                             @endif
                         </span>
@@ -275,8 +284,8 @@
                         <div data-value="semua" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Semua Status</div>
                         <div data-value="Open" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Open</div>
                         <div data-value="In Progress" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">In Progress</div>
-                        <div data-value="Resolved" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Resolved</div>
-                        <div data-value="Closed" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Closed</div>
+                        <div data-value="Selesai" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Resolved and Closed</div>
+                        <div data-value="Dibatalkan" class="status-filter-item px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-100 transition">Dibatalkan Oleh Anda</div>
                     </div>
                 </div>
             </div>

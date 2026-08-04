@@ -33,8 +33,23 @@ class TicketController extends Controller
         $query = Ticket::where('user_id', $userId)->with('pelapor');
 
         if ($request->filled('status') && $request->status !== 'semua') {
-            $statusList = explode(',', $request->status);
-            $query->whereIn('status', $statusList);
+            if ($request->status === 'Dibatalkan') {
+                $query->where('status', 'Closed')->where('closed_by', 'user');
+            } elseif ($request->status === 'Selesai') {
+                $query->where(function ($q) {
+                    $q->where('status', 'Resolved')
+                    ->orWhere(function ($sub) {
+                        $sub->where('status', 'Closed')
+                            ->where(function ($c) {
+                                $c->where('closed_by', 'admin')
+                                    ->orWhereNull('closed_by');
+                            });
+                    });
+                });
+            } else {
+                $statusList = explode(',', $request->status);
+                $query->whereIn('status', $statusList);
+            }
         }
 
         $tickets = $query->orderBy('created_at', 'asc')->paginate(10)->withQueryString();
@@ -42,7 +57,8 @@ class TicketController extends Controller
         $counts = Ticket::where('user_id', $userId)->selectRaw("
             COUNT(CASE WHEN status = 'Open' THEN 1 END) as aktif,
             COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as proses,
-            COUNT(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 END) as selesai
+            COUNT(CASE WHEN status = 'Resolved' OR (status = 'Closed' AND (closed_by = 'admin' OR closed_by IS NULL)) THEN 1 END) as selesai,
+            COUNT(CASE WHEN status = 'Closed' AND closed_by = 'user' THEN 1 END) as dibatalkan
         ")->first();
 
         $tiketBelumSurvei = $this->getTiketBelumSurvei($userId);
@@ -52,6 +68,7 @@ class TicketController extends Controller
             'TiketAktif'       => $counts->aktif ?? 0,
             'dalamProses'      => $counts->proses ?? 0,
             'selesai'          => $counts->selesai ?? 0,
+            'dibatalkan'       => $counts->dibatalkan ?? 0,
             'statusFilter'     => $request->input('status', 'semua'),
             'tiketBelumSurvei' => $tiketBelumSurvei,
         ]);
