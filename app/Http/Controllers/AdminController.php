@@ -125,4 +125,24 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' resmi ditutup (Closed).');
     }
+
+    public function show(string $id)
+    {
+        $ticket = Ticket::with('pelapor', 'messages')->findOrFail($id);
+
+        if ($ticket->status === 'Closed'
+            && $ticket->closed_by === 'user'
+            && !$ticket->admin_notif_user_closed_read) {
+            $ticket->admin_notif_user_closed_read = true;
+            $ticket->timestamps = false;
+            $ticket->save();
+        }
+
+        $activePjs = Users::where('role', 'pj')
+            ->where('status', 'active')
+            ->orderBy('nama_lengkap', 'asc')
+            ->get();
+
+        return view('admin.detail', compact('ticket', 'activePjs'));
+    }
 }

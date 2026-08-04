@@ -294,6 +294,14 @@ class TicketController extends Controller
         $ticket->survei_kepuasan = $request->survei_kepuasan;
         $ticket->timestamps = false;
         $ticket->save();
+        $ticket->messages()->create([
+            'sender_type'  => 'user',
+            'sender_nama'  => $ticket->pelapor->nama_lengkap ?? session('nama_lengkap', 'Pelapor'),
+            'pesan'        => 'telah mengisi survei kepuasan: ' . $request->survei_kepuasan,
+            'foto'         => null,
+            'read_by_pj'   => false,
+            'read_by_user' => true,
+        ]);
 
         return back()->with('success', 'Terima kasih atas penilaian Anda!');
     }
@@ -325,6 +333,7 @@ class TicketController extends Controller
         $ticket->status     = 'Closed';
         $ticket->closed_by  = 'user';
         $ticket->pj_notif_closed_read = false;
+        $ticket->admin_notif_user_closed_read = false;
         $ticket->save();
 
         return redirect()->route('user.dashboard')->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil dibatalkan.');

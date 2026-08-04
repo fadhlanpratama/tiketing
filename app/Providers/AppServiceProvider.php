@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
+use App\Models\Users;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -125,7 +126,7 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-        // ================= NOTIFIKASI SISI ADMIN (hanya tiket Resolved) =================
+        // ================= NOTIFIKASI SISI ADMIN (tiket Resolved + pendaftar baru + tiket ditutup pelapor) =================
         View::composer('admin.*', function ($view) {
             $adminId = session('user_id');
             if (!$adminId) return;
@@ -136,9 +137,24 @@ class AppServiceProvider extends ServiceProvider
                 ->take(10)
                 ->get();
 
+            $notifPendingUsers = Users::where('status', 'pending')
+                ->latest('created_at')
+                ->take(10)
+                ->get();
+
+            $notifUserClosedAdmin = Ticket::where('status', 'Closed')
+                ->where('closed_by', 'user')
+                ->where(function($q) { $q->where('admin_notif_user_closed_read', false)->orWhereNull('admin_notif_user_closed_read'); })
+                ->with('pelapor')
+                ->latest('updated_at')
+                ->take(10)
+                ->get();
+
             $view->with([
                 'notifResolvedAdmin' => $notifResolvedAdmin,
-                'notifCountAdmin'    => $notifResolvedAdmin->count(),
+                'notifPendingUsers'  => $notifPendingUsers ?? collect([]),
+                'notifUserClosedAdmin'=> $notifUserClosedAdmin ?? collect([]),
+                'notifCountAdmin'    => $notifResolvedAdmin->count() + ($notifPendingUsers->count() ?? 0) + ($notifUserClosedAdmin->count() ?? 0),
             ]);
         });
     }

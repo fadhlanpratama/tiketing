@@ -64,6 +64,7 @@ Route::prefix('admin')->name('admin.')->middleware(['cek.login:admin', 'no.cache
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::post('/user/{id}/approve', [AdminController::class, 'approveUser'])->name('user.approve');
     Route::post('/user/{id}/reject', [AdminController::class, 'rejectUser'])->name('user.reject');
+    Route::get('/admin/ticket/{id}', [AdminController::class, 'show'])->name('ticket.show');
     Route::post('/ticket/{id}/assign', [AdminController::class, 'assignPJ'])->name('ticket.assign');
     Route::post('/ticket/{id}/close', [AdminController::class, 'closeTicket'])->name('ticket.close');
 });

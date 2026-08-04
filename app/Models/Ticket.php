@@ -33,6 +33,7 @@ class Ticket extends Model
         'hasil_resolved_foto',
         'survei_kepuasan',
         'closed_by',
+        'admin_notif_user_closed_read',
     ];
 
     protected $hidden = [
