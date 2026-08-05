@@ -34,6 +34,7 @@ class Ticket extends Model
         'survei_kepuasan',
         'closed_by',
         'admin_notif_user_closed_read',
+        'admin_notif_new_ticket_read',
     ];
 
     protected $hidden = [
@@ -45,6 +46,7 @@ class Ticket extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'waktu_mulai_dikerjakan' => 'datetime',
+        'admin_notif_new_ticket_read' => 'boolean',
     ];
 
     public function messages(): HasMany

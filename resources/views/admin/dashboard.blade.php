@@ -81,10 +81,27 @@
 
                     <div id="notifMenuAdmin" class="hidden absolute right-0 mt-2 w-80 max-w-[90vw] bg-white border border-slate-200 shadow-2xl rounded-2xl z-50 overflow-hidden">
                         <div class="p-3 border-b border-slate-100 bg-slate-50">
-                            <p class="text-xs font-bold text-slate-700 uppercase tracking-wide">Tiket Siap Diverifikasi</p>
+                            <p class="text-xs font-bold text-slate-700 uppercase tracking-wide">Notifikasi Admin</p>
                         </div>
 
                         <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                            @forelse(($notifNewTicketsAdmin ?? []) as $t)
+                            <a href="{{ route('admin.ticket.show', $t->id) }}"
+                                class="w-full text-left flex gap-2.5 p-3 hover:bg-slate-50 transition cursor-pointer">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }} dibuat oleh {{ $t->pelapor->nama_lengkap ?? '-' }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500 truncate">Kategori: {{ $t->kategori }} · Prioritas: {{ $t->prioritas }}</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->created_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
                             @forelse(($notifResolvedAdmin ?? []) as $t)
                             <a href="{{ route('admin.ticket.show', $t->id) }}"
                                 class="w-full text-left flex gap-2.5 p-3 hover:bg-slate-50 transition cursor-pointer">
@@ -100,10 +117,6 @@
                                 </div>
                             </a>
                             @empty
-                            <div class="p-6 text-center">
-                                <i class="fa-regular fa-bell-slash text-slate-300 text-2xl mb-2"></i>
-                                <p class="text-xs text-slate-400">Belum ada tiket yang perlu ditutup.</p>
-                            </div>
                             @endforelse
                             @forelse(($notifUserClosedAdmin ?? []) as $t)
                             <a href="{{ route('admin.ticket.show', $t->id) }}" class="w-full text-left flex gap-2.5 p-3 hover:bg-slate-50 transition cursor-pointer">

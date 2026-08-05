@@ -193,6 +193,7 @@ class TicketController extends Controller
         }
 
         $ticket->nomor_bmn = $request->filled('nomor_bmn') ? strip_tags($request->nomor_bmn) : 'Non-BMN';
+        $ticket->admin_notif_new_ticket_read = false;
 
         if ($request->hasFile('attachment_foto')) {
             $ticket->attachment_foto = $request->file('attachment_foto')->store('tickets_attachment', 'public');

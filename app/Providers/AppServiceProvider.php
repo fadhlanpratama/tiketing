@@ -142,6 +142,13 @@ class AppServiceProvider extends ServiceProvider
                 ->take(10)
                 ->get();
 
+            $notifNewTicketsAdmin = Ticket::where('status', 'Open')
+                ->where('admin_notif_new_ticket_read', false)
+                ->with('pelapor')
+                ->latest('created_at')
+                ->take(10)
+                ->get();
+
             $notifUserClosedAdmin = Ticket::where('status', 'Closed')
                 ->where('closed_by', 'user')
                 ->where(function($q) { $q->where('admin_notif_user_closed_read', false)->orWhereNull('admin_notif_user_closed_read'); })
@@ -153,8 +160,9 @@ class AppServiceProvider extends ServiceProvider
             $view->with([
                 'notifResolvedAdmin' => $notifResolvedAdmin,
                 'notifPendingUsers'  => $notifPendingUsers ?? collect([]),
+                'notifNewTicketsAdmin' => $notifNewTicketsAdmin ?? collect([]),
                 'notifUserClosedAdmin'=> $notifUserClosedAdmin ?? collect([]),
-                'notifCountAdmin'    => $notifResolvedAdmin->count() + ($notifPendingUsers->count() ?? 0) + ($notifUserClosedAdmin->count() ?? 0),
+                'notifCountAdmin'    => $notifResolvedAdmin->count() + ($notifPendingUsers->count() ?? 0) + ($notifUserClosedAdmin->count() ?? 0) + $notifNewTicketsAdmin->count(),
             ]);
         });
     }

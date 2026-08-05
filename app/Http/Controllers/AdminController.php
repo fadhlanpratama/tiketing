@@ -138,6 +138,12 @@ class AdminController extends Controller
             $ticket->save();
         }
 
+        if (!$ticket->admin_notif_new_ticket_read) {
+            $ticket->admin_notif_new_ticket_read = true;
+            $ticket->timestamps = false;
+            $ticket->save();
+        }
+
         $activePjs = Users::where('role', 'pj')
             ->where('status', 'active')
             ->orderBy('nama_lengkap', 'asc')
