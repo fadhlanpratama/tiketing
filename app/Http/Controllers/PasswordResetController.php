@@ -50,7 +50,11 @@ class PasswordResetController extends Controller
 
         return response()->json([
             'success' => false,
-            'message' => 'Email tidak terdaftar dalam sistem kami.',
+            'message' => match ($status) {
+                Password::RESET_THROTTLED => 'Anda baru saja meminta reset password. Silakan tunggu beberapa saat sebelum mencoba lagi.',
+                Password::INVALID_USER    => 'Email tidak terdaftar dalam sistem kami.',
+                default => 'Gagal mengirim link reset. Silakan coba lagi.',
+            },
         ], 422);
     }
 
