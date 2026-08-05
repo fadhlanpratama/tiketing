@@ -83,6 +83,9 @@ class AuthController extends Controller
 
         $throttleKey = 'login|' . $request->ip();
         $lockKey = 'login_lock:' . $throttleKey;
+        $maxAttempts     = config('auth.login_throttle.max_attempts');
+        $lockEmailTtl    = config('auth.login_throttle.lock_email_seconds');
+        $lockPasswordTtl = config('auth.login_throttle.lock_password_seconds');
 
         // 1. Cek Rate Limiter jika over dari 5 ke blok 1 menit
         if (Cache::has($lockKey)) {
@@ -99,16 +102,16 @@ class AuthController extends Controller
         // 2. Cek email apakah terdaftar
         if (!$user) {
 
-        RateLimiter::hit($throttleKey);
+            RateLimiter::hit($throttleKey);
 
-        if (RateLimiter::attempts($throttleKey) >= 5) {
+            if (RateLimiter::attempts($throttleKey) >= $maxAttempts) {
 
-                Cache::put($lockKey, time() + 180, 180);
+                Cache::put($lockKey, time() + $lockEmailTtl, $lockEmailTtl);
                 RateLimiter::clear($throttleKey);
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Terlalu banyak percobaan login. Silakan tunggu 180 detik lagi.'
+                    'message' => "Terlalu banyak percobaan login. Silakan tunggu {$lockEmailTtl} detik lagi."
                 ], 429);
             }
 
@@ -124,14 +127,14 @@ class AuthController extends Controller
 
             RateLimiter::hit($throttleKey);
 
-            if (RateLimiter::attempts($throttleKey) >= 5) {
+            if (RateLimiter::attempts($throttleKey) >= $maxAttempts) {
 
-                Cache::put($lockKey, time() + 60, 60);
+                Cache::put($lockKey, time() + $lockPasswordTtl, $lockPasswordTtl);
                 RateLimiter::clear($throttleKey);
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Terlalu banyak percobaan login. Silakan tunggu 60 detik lagi.'
+                    'message' => "Terlalu banyak percobaan login. Silakan tunggu {$lockPasswordTtl} detik lagi."
                 ], 429);
             }
 

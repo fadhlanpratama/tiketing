@@ -22,11 +22,7 @@ trait HasSla
 {
     public static function slaTargetMenitMap(): array
     {
-        return [
-            'Tinggi' => 1 * 24 * 60,  // 1440 menit
-            'Sedang' => 3 * 24 * 60,  // 4320 menit
-            'Rendah' => 7 * 24 * 60,  // 10080 menit
-        ];
+        return config('sla.target_menit');
     }
 
     public static function getSlaTargetMenitByPrioritas(?string $prioritas): ?int

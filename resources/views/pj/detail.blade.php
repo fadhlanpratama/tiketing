@@ -264,19 +264,7 @@
                                 </p>
                             </div>
                         </div>
-
-                        {{-- Tanggal Selesai Ditangani --}}
-                        @if($ticket->tanggal_selesai)
-                            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                                <span class="text-slate-500 font-medium">Waktu Selesai:</span>
-                                <span class="font-bold text-slate-800">
-                                    <i class="fa-regular fa-circle-check text-green-500 mr-0.5"></i>
-                                    {{ \Carbon\Carbon::parse($ticket->tanggal_selesai)->format('d M Y, H:i') }} WIB
-                                </span>
-                            </div>
-                        @endif
                     </div>
-
                 </div>
 
                 {{-- Partial Chat/Diskusi --}}

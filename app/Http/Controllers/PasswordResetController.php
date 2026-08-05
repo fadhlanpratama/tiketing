@@ -84,7 +84,7 @@ class PasswordResetController extends Controller
             return false;
         }
 
-        $expireMinutes = config('auth.passwords.users.expire', 60);
+        $expireMinutes = config('auth.passwords.users.expire');
         $createdAt = Carbon::parse($record->created_at);
 
         if ($createdAt->addMinutes($expireMinutes)->isPast()) {
