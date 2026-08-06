@@ -136,7 +136,7 @@
                                     <p class="text-xs font-semibold text-slate-800 truncate">
                                         PJ ditentukan — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
                                     </p>
-                                    <p class="text-[11px] text-slate-500">Tiket Anda sedang ditangani oleh {{ $t->penanggung_jawab }}</p>
+                                    <p class="text-[11px] text-slate-500">Tiket Anda sedang ditangani oleh {{ optional($t->pj)->nama_lengkap ?? $t->penanggung_jawab }}</p>
                                     <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
                                 </div>
                             </a>
@@ -152,7 +152,7 @@
                                     <p class="text-xs font-semibold text-slate-800 truncate">
                                         Sedang dikerjakan — #TKT-{{ str_pad($t->id, 5, '0', STR_PAD_LEFT) }}
                                     </p>
-                                    <p class="text-[11px] text-slate-500">{{ $t->penanggung_jawab }} mulai menangani tiket Anda</p>
+                                    <p class="text-[11px] text-slate-500">{{ optional($t->pj)->nama_lengkap ?? $t->penanggung_jawab }} mulai menangani tiket Anda</p>
                                     <p class="text-[10px] text-slate-400 mt-0.5">{{ $t->updated_at->diffForHumans() }}</p>
                                 </div>
                             </a>

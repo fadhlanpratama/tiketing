@@ -6,6 +6,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\Models\Users;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -29,7 +30,9 @@ class AdminController extends Controller
         // 3. Data Tiket Open tanpa PJ
         $unassignedTickets = Ticket::where('status', 'Open')
             ->where(function($q) {
-                $q->whereNull('penanggung_jawab')->orWhere('penanggung_jawab', '');
+                $q->whereNull('pj_id')
+                    ->orWhereNull('penanggung_jawab')
+                    ->orWhere('penanggung_jawab', '');
             })
             ->with('pelapor')
             ->orderBy('created_at', 'asc')
@@ -97,20 +100,33 @@ class AdminController extends Controller
 
     public function assignPJ(Request $request, string $id)
     {
-        $request->validate([
-            'penanggung_jawab' => 'required|string',
+       $request->validate([
+            'penanggung_jawab' => [
+                'required',
+                'integer',
+                Rule::exists('users', 'id')->where(function ($query) {
+                    $query->where('role', 'pj')->where('status', 'active');
+                }),
+            ],
         ], [
             'penanggung_jawab.required' => 'Pilih PJ/Teknisi terlebih dahulu.',
+            'penanggung_jawab.integer'  => 'Data PJ tidak valid.',
+            'penanggung_jawab.exists'   => 'PJ/Teknisi tidak ditemukan atau tidak aktif.',
         ]);
 
         $ticket = Ticket::where('id', $id)->firstOrFail();
-        $ticket->penanggung_jawab = $request->penanggung_jawab;
+        $pj = Users::where('id', $request->penanggung_jawab)
+            ->where('role', 'pj')
+            ->where('status', 'active')
+            ->firstOrFail();
+        $ticket->pj_id = $pj->id;
+        $ticket->penanggung_jawab = $pj->nama_lengkap;
         $ticket->user_notif_assigned_read = false;
         $ticket->pj_notif_assigned_read = false;
 
         $ticket->save();
 
-        return redirect()->back()->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil ditugaskan ke PJ: ' . $request->penanggung_jawab);
+        return redirect()->back()->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil ditugaskan ke PJ: ' . $pj->nama_lengkap);
     }
 
     public function closeTicket(string $id)

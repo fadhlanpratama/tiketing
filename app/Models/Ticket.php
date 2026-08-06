@@ -29,6 +29,7 @@ class Ticket extends Model
         'prioritas',
         'status',
         'penanggung_jawab',
+        'pj_id',
         'tanggal_selesai',
         'hasil_resolved_foto',
         'survei_kepuasan',
@@ -57,5 +58,10 @@ class Ticket extends Model
     public function pelapor(): BelongsTo
     {
         return $this->belongsTo(Users::class, 'user_id', 'id');
+    }
+
+    public function pj(): BelongsTo
+    {
+        return $this->belongsTo(Users::class, 'pj_id', 'id');
     }
 }

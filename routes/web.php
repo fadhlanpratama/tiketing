@@ -18,7 +18,7 @@ use App\Http\Controllers\PasswordResetController;
 Route::middleware(['guest.redirect', 'no.cache'])->group(function () {
     Route::get('/', [AuthController::class, 'landing'])->name('landing');
     Route::get('/portal', [AuthController::class, 'showAuthForm'])->name('home');
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('register');
     Route::post('/password/email', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
@@ -64,7 +64,7 @@ Route::prefix('admin')->name('admin.')->middleware(['cek.login:admin', 'no.cache
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::post('/user/{id}/approve', [AdminController::class, 'approveUser'])->name('user.approve');
     Route::post('/user/{id}/reject', [AdminController::class, 'rejectUser'])->name('user.reject');
-    Route::get('/admin/ticket/{id}', [AdminController::class, 'show'])->name('ticket.show');
+    Route::get('/ticket/{id}', [AdminController::class, 'show'])->name('ticket.show');
     Route::post('/ticket/{id}/assign', [AdminController::class, 'assignPJ'])->name('ticket.assign');
     Route::post('/ticket/{id}/close', [AdminController::class, 'closeTicket'])->name('ticket.close');
 });

@@ -776,7 +776,7 @@
                 <div class="actor-panel" id="actorPanel1">
                     <div class="alert alert-light border mb-4">
                         <i class="bi bi-info-circle-fill text-primary me-2"></i>
-                        <strong>Informasi:</strong> Pengguna yang belum memiliki akun dapat melakukan registrasi. Akun akan diverifikasi oleh Admin sebelum dapat digunakan untuk login dan membuat tiket layanan.
+                        <strong>Informasi:</strong> Pengguna yang belum memiliki akun dapat melakukan registrasi. Akun akan diverifikasi oleh Admin sebelum dapat digunakan untuk login.
                     </div>
                     <div class="actor-timeline">
 
@@ -881,7 +881,7 @@
                 <div class="actor-panel d-none" id="actorPanel2">
                     <div class="alert alert-light border mb-4">
                         <i class="bi bi-info-circle-fill text-primary me-2"></i>
-                        <strong>Informasi:</strong> Pengguna yang belum memiliki akun dapat melakukan registrasi. Akun akan diverifikasi oleh Admin sebelum dapat digunakan untuk login dan membuat tiket layanan.
+                        <strong>Informasi:</strong> Pengguna yang belum memiliki akun dapat melakukan registrasi. Akun akan diverifikasi oleh Admin sebelum dapat digunakan untuk login.
                     </div>
                     <div class="actor-timeline">
 

@@ -101,7 +101,7 @@
                         </div>
                         <div class="col-span-2 sm:col-span-1 bg-slate-50/80 p-4 rounded-2xl border border-slate-200/70 space-y-1">
                             <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">PJ Teknisi</p>
-                            <p class="text-xs font-semibold text-slate-800">{{ $ticket->penanggung_jawab ?? 'Belum ditunjuk' }}</p>
+                            <p class="text-xs font-semibold text-slate-800">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? 'Belum ditunjuk' }}</p>
                         </div>
                     </div>
                 </div>
@@ -202,14 +202,14 @@
                         <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Aksi Admin</h3>
                     </div>
 
-                    @if($ticket->status === 'Open' && !$ticket->penanggung_jawab)
+                    @if($ticket->status === 'Open' && !$ticket->pj_id)
                         <form action="{{ route('admin.ticket.assign', $ticket->id) }}" method="POST" class="space-y-2">
                             @csrf
                             <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Pilih PJ / Teknisi</label>
                             <select name="penanggung_jawab" required class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs focus:outline-none focus:border-amber-500">
                                 <option value="" disabled selected>-- Pilih PJ --</option>
                                 @foreach($activePjs as $pj)
-                                    <option value="{{ $pj->nama_lengkap }}">{{ $pj->nama_lengkap }} ({{ $pj->divisi }})</option>
+                                    <option value="{{ $pj->id }}">{{ $pj->nama_lengkap }} ({{ $pj->divisi }})</option>
                                 @endforeach
                             </select>
                             <button type="submit" class="w-full bg-[#0a2540] hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-lg transition text-xs">

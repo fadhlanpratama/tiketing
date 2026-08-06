@@ -15,11 +15,16 @@ class PjController extends Controller
         $this->middleware('cek.login:pj');
     }
 
+    private function pjTicketQuery(int $pjId)
+    {
+        return Ticket::where('pj_id', $pjId);
+    }
+
     public function index(Request $request)
     {
-        $namaPj = session('nama_lengkap');
+        $pjId = session('user_id');
 
-        $query = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
+        $query = $this->pjTicketQuery($pjId)
             ->with('pelapor');
 
         if ($request->filled('status') && $request->status !== 'semua') {
@@ -47,7 +52,7 @@ class PjController extends Controller
         }
 
         $tickets = $query->orderBy('created_at', 'asc')->paginate(10)->withQueryString();
-        $countQuery = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)]);
+        $countQuery = $this->pjTicketQuery($pjId);
 
         if ($request->filled('prioritas') && $request->prioritas !== 'semua') {
             $countQuery->whereRaw('LOWER(prioritas) = ?', [strtolower($request->prioritas)]);
@@ -61,7 +66,7 @@ class PjController extends Controller
             ")
             ->first();
 
-        $overdueQuery = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
+        $overdueQuery = $this->pjTicketQuery($pjId)
             ->where(function ($q) {
                 $q->where(function ($subQ) {
                     $subQ->where('closed_by', '!=', 'user')
@@ -172,7 +177,7 @@ class PjController extends Controller
         $user->save();
 
         if ($namaLama !== $namaBaru) {
-            Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaLama)])
+            Ticket::where('pj_id', $userId)
                 ->update(['penanggung_jawab' => $namaBaru]);
         }
 
@@ -183,9 +188,9 @@ class PjController extends Controller
 
    public function terima(string $id)
     {
-        $namaPj = session('nama_lengkap');
-        $ticket = Ticket::where('id', $id)
-            ->whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
+        $pjId = session('user_id');
+        $ticket = $this->pjTicketQuery($pjId)
+            ->where('id', $id)
             ->where('status', 'Open')
             ->firstOrFail();
 
@@ -210,9 +215,9 @@ class PjController extends Controller
             'bukti_foto.required' => 'Foto bukti penyelesaian wajib diunggah sesuai SOP.',
         ]);
 
-        $namaPj = session('nama_lengkap');
-        $ticket = Ticket::where('id', $id)
-            ->whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
+        $pjId = session('user_id');
+        $ticket = $this->pjTicketQuery($pjId)
+            ->where('id', $id)
             ->where('status', 'In Progress')
             ->firstOrFail();
 
@@ -259,9 +264,10 @@ class PjController extends Controller
             'foto.max'   => 'Ukuran foto maksimal 2MB.',
         ]);
 
+        $pjId = session('user_id');
         $namaPj = session('nama_lengkap');
-        $ticket = Ticket::where('id', $id)
-            ->whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
+        $ticket = $this->pjTicketQuery($pjId)
+            ->where('id', $id)
             ->where('status', 'In Progress')
             ->firstOrFail();
 
@@ -284,10 +290,9 @@ class PjController extends Controller
 
     public function show(string $id)
     {
-        $namaPj = session('nama_lengkap');
-
-        $ticket = Ticket::where('id', $id)
-            ->whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
+        $pjId = session('user_id');
+        $ticket = $this->pjTicketQuery($pjId)
+            ->where('id', $id)
             ->with('pelapor')
             ->firstOrFail();
 

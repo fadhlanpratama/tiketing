@@ -26,10 +26,20 @@ class AppServiceProvider extends ServiceProvider
     {
         // ================= NOTIFIKASI SISI PJ =================
         View::composer('pj.*', function ($view) {
+            $pjId = session('user_id');
             $namaPj = session('nama_lengkap');
-            if (!$namaPj) return;
+            if (!$pjId) return;
 
-            $ticketIdsPj = Ticket::whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)])
+            $ticketIdsPj = Ticket::where(function ($query) use ($pjId, $namaPj) {
+                $query->where('pj_id', $pjId);
+
+                if ($namaPj) {
+                    $query->orWhere(function ($sub) use ($namaPj) {
+                        $sub->whereNull('pj_id')
+                            ->whereRaw('LOWER(penanggung_jawab) = ?', [strtolower($namaPj)]);
+                    });
+                }
+            })
                 ->pluck('id');
 
             $notifMessages = TicketMessage::whereIn('ticket_id', $ticketIdsPj)

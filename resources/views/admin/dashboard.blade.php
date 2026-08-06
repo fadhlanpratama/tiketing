@@ -277,7 +277,7 @@
                                         <select name="penanggung_jawab" required class="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs w-full focus:outline-none focus:border-amber-500">
                                             <option value="" disabled selected>-- Pilih PJ --</option>
                                             @foreach($activePjs as $pj)
-                                                <option value="{{ $pj->nama_lengkap }}">{{ $pj->nama_lengkap }} ({{ $pj->divisi }})</option>
+                                                <option value="{{ $pj->id }}">{{ $pj->nama_lengkap }} ({{ $pj->divisi }})</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -325,7 +325,7 @@
                             <tr class="clickable-row cursor-pointer hover:bg-slate-50 transition" data-url="{{ route('admin.ticket.show', $ticket->id) }}">
                                 <td class="p-3.5 font-bold text-slate-800">#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</td>
                                 <td class="p-3.5 font-bold">{{ $ticket->pelapor->nama_lengkap ?? 'User' }}</td>
-                                <td class="p-3.5 text-slate-800 font-semibold">{{ $ticket->penanggung_jawab }}</td>
+                                <td class="p-3.5 text-slate-800 font-semibold">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab }}</td>
                                 <td class="p-3.5 action-buttons">
                                     @if($ticket->hasil_resolved_foto)
                                         <a href="{{ asset('storage/' . $ticket->hasil_resolved_foto) }}" target="_blank" class="text-amber-600 hover:underline font-bold">
@@ -407,7 +407,7 @@
                                 <p class="font-medium text-slate-800">{{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
                                 <span class="text-[11px] text-slate-400">{{ $ticket->pelapor->divisi ?? '-' }}</span>
                             </td>
-                            <td class="p-4 text-slate-600">{{ $ticket->penanggung_jawab ?? '-' }}</td>
+                            <td class="p-4 text-slate-600">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? '-' }}</td>
                             <td class="p-4">
                                 @if(strtolower($ticket->prioritas) == 'tinggi')
                                     <span class="text-red-600 font-bold bg-red-50 px-2 py-1 rounded-lg text-xs border border-red-100"><i class="fa-solid fa-triangle-exclamation mr-1"></i>{{ $ticket->prioritas }}</span>
