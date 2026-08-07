@@ -65,6 +65,12 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
+        .navbar-custom .container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
         .brand-logo-container {
             display: flex;
             align-items: center;
@@ -139,6 +145,18 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 18px rgba(255, 197, 58, 0.35);
             color: var(--primary-color) !important;
+        }
+
+        .btn-login-sm {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .btn-login-sm {
+                padding: 7px 14px;
+                font-size: 0.78rem;
+            }
         }
 
         .hero-banner-card {
@@ -616,7 +634,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container" style="max-width: 1200px;">
-            <a class="navbar-brand m-0" href="{{ route('landing') }}">
+            <a class="navbar-brand m-0 order-1" href="{{ route('landing') }}">
                 <div class="brand-logo-container">
                     <img src="{{ asset('image/esdm.png') }}" alt="Logo ESDM" class="brand-logo-img">
                     <div>
@@ -625,24 +643,25 @@
                     </div>
                 </div>
             </a>
+            <div class="d-flex align-items-center gap-2 order-2 order-lg-3">
+                <a href="{{ route('home') }}" class="btn btn-login btn-login-sm">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span class="d-none d-sm-inline">Masuk Sistem</span>
+                    <span class="d-inline d-sm-none">Masuk</span>
+                </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMainMenu" aria-controls="navMainMenu" aria-expanded="false" aria-label="Buka menu navigasi">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMainMenu" aria-controls="navMainMenu" aria-expanded="false" aria-label="Buka menu navigasi">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
 
-            <div class="collapse navbar-collapse" id="navMainMenu">
+            <div class="collapse navbar-collapse order-3 order-lg-2" id="navMainMenu">
                 <ul class="navbar-nav mx-auto my-2 my-lg-0 gap-1">
                     <li class="nav-item"><a class="nav-link nav-link-custom active-link" href="#beranda">Beranda</a></li>
                     <li class="nav-item"><a class="nav-link nav-link-custom" href="#layanan">Kategori Layanan</a></li>
                     <li class="nav-item"><a class="nav-link nav-link-custom" href="#alur-tiket">Alur Tiket</a></li>
                     <li class="nav-item"><a class="nav-link nav-link-custom" href="#kontak">Kontak</a></li>
                 </ul>
-
-                <div class="d-flex align-items-center gap-3">
-                    <a href="{{ route('home') }}" class="btn btn-login">
-                        <i class="bi bi-box-arrow-in-right"></i> Masuk Sistem
-                    </a>
-                </div>
             </div>
         </div>
     </nav>

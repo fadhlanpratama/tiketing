@@ -181,7 +181,7 @@
                         </div>
                         <div class="min-w-0">
                             <p class="text-xs font-bold text-slate-900 truncate">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}</p>
-                            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Tim Teknisi ESDM</p>
+                            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ optional($ticket->pj)->divisi ?? 'Belum Ditentukan' }}</p>
                         </div>
                     </div>
 

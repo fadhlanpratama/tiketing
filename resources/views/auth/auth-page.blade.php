@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESDM - Tiketing - Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         .transition-custom {
@@ -176,7 +176,7 @@
             
             <div id="modalAlert" class="hidden mb-3 p-3 rounded-xl text-xs font-semibold"></div>
             
-            <input type="email" id="forgot_email" placeholder="contoh@email.com" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm mb-4">
+            <input type="email" id="forgot_email" placeholder="contoh@gmail.com" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition text-sm mb-4">
             
             <div class="flex gap-3 justify-end">
                 <button type="button" id="closeForgotModalBtn" class="px-4 py-2 text-sm font-semibold text-slate-500 hover:text-slate-700 transition">Batal</button>
