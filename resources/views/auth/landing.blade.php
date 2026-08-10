@@ -680,7 +680,7 @@
                     <h1 class="hero-title">Kelola Tiket Layanan Internal dengan Cepat, Transparan, dan Terukur</h1>
 
                     <p class="hero-subtitle">
-                        Sistem Ticketing Layanan Internal membantu proses pelaporan, penugasan, pemantauan, hingga penyelesaian tiket dalam satu platform terintegrasi. Seluruh aktivitas terdokumentasi secara sistematis sehingga meningkatkan efisiensi, transparansi, dan akuntabilitas layanan.
+                        Sistem Tiketing Layanan Internal membantu proses pelaporan, penugasan, pemantauan, hingga penyelesaian tiket dalam satu platform terintegrasi. Seluruh aktivitas terdokumentasi secara sistematis sehingga meningkatkan efisiensi, transparansi, dan akuntabilitas layanan.
                     </p>
 
                     <div class="d-flex flex-wrap gap-3 mt-4 pt-2">

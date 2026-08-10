@@ -100,8 +100,10 @@
                             <p class="text-xs font-bold text-slate-700">{{ $ticket->prioritas ?? '-' }}</p>
                         </div>
                         <div class="col-span-2 sm:col-span-1 bg-slate-50/80 p-4 rounded-2xl border border-slate-200/70 space-y-1">
-                            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">PJ Teknisi</p>
-                            <p class="text-xs font-semibold text-slate-800">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? 'Belum ditunjuk' }}</p>
+                            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Tanggal Selesai</p>
+                            <p class="text-xs font-semibold text-slate-800">
+                                {{ $ticket->tanggal_selesai ? $ticket->tanggal_selesai->format('d/m/Y H:i') : 'Dalam Proses' }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -169,6 +171,24 @@
 
             {{-- KOLOM KANAN --}}
             <div class="space-y-6">
+
+                {{-- Penanggung Jawab --}}
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4 w-full">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                        <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
+                        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Penanggung Jawab</h3>
+                    </div>
+
+                    <div class="flex items-center gap-3.5 p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/60">
+                        <div class="w-11 h-11 rounded-xl bg-[#0a2540] text-amber-400 flex items-center justify-center font-black text-sm shrink-0 shadow-sm">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold text-slate-900 truncate">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}</p>
+                            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ optional($ticket->pj)->divisi ?? 'Belum Ditentukan' }}</p>
+                        </div>
+                    </div>
+                </div>
 
                 {{-- Info Pelapor --}}
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-3 w-full">

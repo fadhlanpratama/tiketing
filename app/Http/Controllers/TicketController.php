@@ -350,6 +350,7 @@ class TicketController extends Controller
         $ticket->deskripsi_masalah = $ticket->deskripsi_masalah . $log;
         $ticket->status     = 'Closed';
         $ticket->closed_by  = 'user';
+        $ticket->tanggal_selesai = now();
         $ticket->pj_notif_closed_read = false;
         $ticket->admin_notif_user_closed_read = false;
         $ticket->save();
