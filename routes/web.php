@@ -6,6 +6,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\PjController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\AdminAnalyticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +63,7 @@ Route::prefix('pj')->name('pj.')->middleware(['cek.login:pj', 'no.cache'])->grou
 // ================= AREA: ADMIN =================
 Route::prefix('admin')->name('admin.')->middleware(['cek.login:admin', 'no.cache'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+    Route::get('/admin/analitik', [AdminAnalyticsController::class, 'index'])->name('analytics');
     Route::post('/user/{id}/approve', [AdminController::class, 'approveUser'])->name('user.approve');
     Route::post('/user/{id}/reject', [AdminController::class, 'rejectUser'])->name('user.reject');
     Route::get('/ticket/{id}', [AdminController::class, 'show'])->name('ticket.show');

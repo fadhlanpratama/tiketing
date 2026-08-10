@@ -43,6 +43,11 @@
                 <span>Semua Tiket</span>
                 <span class="ml-auto bg-slate-700 text-slate-200 text-[10px] px-2 py-0.5 rounded-full font-bold">{{ $allTickets->count() }}</span>
             </button>
+
+             <a href="{{ route('admin.analytics') }}" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-300 hover:bg-slate-800 hover:text-white">
+                <i class="fa-solid fa-chart-line text-sm"></i>
+                <span>Analitik</span>
+            </a>
         </nav>
 
         <div class="p-4 border-t border-slate-700/60 shrink-0">
