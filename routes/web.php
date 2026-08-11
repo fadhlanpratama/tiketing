@@ -7,6 +7,8 @@ use App\Http\Controllers\PjController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\AdminAnalyticsController;
+use App\Http\Controllers\UserManageController;
+use App\Http\Controllers\TicketManageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,12 +63,18 @@ Route::prefix('pj')->name('pj.')->middleware(['cek.login:pj', 'no.cache'])->grou
 
 
 // ================= AREA: ADMIN =================
-Route::prefix('admin')->name('admin.')->middleware(['cek.login:admin', 'no.cache'])->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-    Route::get('/admin/analitik', [AdminAnalyticsController::class, 'index'])->name('analytics');
-    Route::post('/user/{id}/approve', [AdminController::class, 'approveUser'])->name('user.approve');
-    Route::post('/user/{id}/reject', [AdminController::class, 'rejectUser'])->name('user.reject');
-    Route::get('/ticket/{id}', [AdminController::class, 'show'])->name('ticket.show');
-    Route::post('/ticket/{id}/assign', [AdminController::class, 'assignPJ'])->name('ticket.assign');
-    Route::post('/ticket/{id}/close', [AdminController::class, 'closeTicket'])->name('ticket.close');
+Route::middleware('cek.login:admin')->prefix('admin')->name('admin.')->group(function () {
+
+    // Halaman utama = Analitik/Dashboard
+    Route::get('/', [AdminAnalyticsController::class, 'index'])->name('dashboard');
+
+    Route::get('/users', [UserManageController::class, 'index'])->name('users.index');
+    Route::post('/users/{id}/approve', [UserManageController::class, 'approve'])->name('user.approve');
+    Route::post('/users/{id}/reject', [UserManageController::class, 'reject'])->name('user.reject');
+
+    Route::get('/tickets', [TicketManageController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/all', [TicketManageController::class, 'all'])->name('tickets.all');
+    Route::get('/tickets/{id}', [TicketManageController::class, 'show'])->name('ticket.show');
+    Route::post('/tickets/{id}/assign', [TicketManageController::class, 'assignPJ'])->name('ticket.assign');
+    Route::post('/tickets/{id}/close', [TicketManageController::class, 'close'])->name('ticket.close');
 });

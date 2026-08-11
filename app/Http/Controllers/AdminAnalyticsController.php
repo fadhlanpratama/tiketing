@@ -111,7 +111,7 @@ class AdminAnalyticsController extends Controller
         // ===== Data untuk dropdown/filter Kategori =====
         $daftarKategori = Ticket::select('kategori')->distinct()->pluck('kategori');
 
-        return view('admin.analytics', [
+        return view('admin.dashboard', [
             'totalTiket'        => $totalTiket,
             'avgResolutionDays' => $avgResolutionDays,
             'slaCompliance'     => $slaCompliance,
