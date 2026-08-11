@@ -89,11 +89,9 @@ class AdminController extends Controller
     public function rejectUser(string $id)
     {
         $user = Users::where('id', $id)->where('status', 'pending')->firstOrFail();
-        
         $namaUser = $user->nama_lengkap;
-        
-        // Hapus permanen data dari tabel users
-        $user->delete();
+        $user->status = 'rejected';
+        $user->save();
 
         return redirect()->back()->with('error', "Pendaftaran akun {$namaUser} telah ditolak dan dihapus.");
     }

@@ -146,7 +146,17 @@ class AuthController extends Controller
         }
 
         // 4. CEK PEMBATASAN AKSES jika belum di aprov oleh admin belum bisa login
+
+        if ($user->status === 'rejected') {
+            RateLimiter::clear($throttleKey);
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Anda telah ditolak oleh Admin. Silakan hubungi Admin untuk informasi lebih lanjut.'
+            ], 403);
+        }
+
         if ($user->status !== 'active') {
+            RateLimiter::clear($throttleKey);
             return response()->json([
                 'success' => false,
                 'message' => 'Akun Anda belum disetujui oleh Admin. Silakan tunggu hingga proses verifikasi selesai.'
