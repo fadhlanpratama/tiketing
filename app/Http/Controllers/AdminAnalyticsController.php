@@ -50,21 +50,31 @@ class AdminAnalyticsController extends Controller
         $totalTiket = (clone $base)->count();
 
         // ===== 2. KPI: Rata-rata Waktu Penyelesaian (hari) =====
-        // Menggunakan COALESCE agar tiket aktif tetap dihitung durasinya hingga hari ini
+        // PERBAIKAN: Hanya menghitung tiket yang sudah selesai (Resolved/Closed) dan memilki tanggal_selesai
         $avgResolutionHours = (clone $base)
-            ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, COALESCE(tanggal_selesai, NOW()))) as avg_jam')
+            ->whereIn('status', ['Resolved', 'Closed'])
+            ->whereNotNull('tanggal_selesai')
+            ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, tanggal_selesai)) as avg_jam')
             ->value('avg_jam');
+
         $avgResolutionDays = $avgResolutionHours ? round($avgResolutionHours / 24, 1) : 0;
 
         // ===== 3 & 4. KPI: SLA Compliance % dan Persen Overdue =====
-        // Dihitung presisi berdasarkan total tiket pada filter saat ini
+        // PERBAIKAN: Dihitung dari tiket yang sudah dievaluasi (tiket selesai ATAU tiket aktif yang sudah terlambat)
+        $tiketEvaluasiSlaQuery = (clone $base)->where(function ($q) {
+            $q->whereIn('status', ['Resolved', 'Closed'])
+              ->orWhere('sla_status', 'Terlambat');
+        });
+
+        $totalTiketEvaluasiSla = $tiketEvaluasiSlaQuery->count();
         $slaTerlambat = (clone $base)->where('sla_status', 'Terlambat')->count();
 
-        if ($totalTiket > 0) {
-            $persenOverdue = round(($slaTerlambat / $totalTiket) * 100, 1);
-            $slaCompliance = round((($totalTiket - $slaTerlambat) / $totalTiket) * 100, 1);
+        if ($totalTiketEvaluasiSla > 0) {
+            $persenOverdue = round(($slaTerlambat / $totalTiketEvaluasiSla) * 100, 1);
+            $slaCompliance = round((($totalTiketEvaluasiSla - $slaTerlambat) / $totalTiketEvaluasiSla) * 100, 1);
         } else {
-            $slaCompliance = 0;
+            // Jika belum ada tiket selesai/terlambat pada kriteria filter
+            $slaCompliance = 100;
             $persenOverdue = 0;
         }
 
@@ -82,12 +92,18 @@ class AdminAnalyticsController extends Controller
             ->orderBy('bulan')
             ->get();
 
-        // ===== 7. Donut: Status Overdue vs On Time =====
-        $donutOverdue = $slaTerlambat;
-        $donutOnTime  = max($totalTiket - $slaTerlambat, 0);
+       // ===== 7. Donut: Status Overdue vs On Time (Fallback jika filter Open/Dibatalkan) =====
+        if ($totalTiketEvaluasiSla > 0) {
+            $donutOverdue = $slaTerlambat;
+            $donutOnTime  = max($totalTiketEvaluasiSla - $slaTerlambat, 0);
+        } else {
+            // Jika memfilter tiket Open yang belum overdue / Dibatalkan
+            // Tampilkan seluruh total tiket filter saat ini sebagai 'On Time / Dalam Proses'
+            $donutOverdue = 0;
+            $donutOnTime  = $totalTiket; 
+        }
 
         // ===== 8. Tabel Matrix: Bulan x Hari =====
-        // Menggunakan WEEKDAY SQL (0=Monday, 6=Sunday) agar tidak bergantung pada locale sistem database
         $daysMap = [
             0 => 'Monday',
             1 => 'Tuesday',

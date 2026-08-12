@@ -6,6 +6,10 @@
     <title>ESDM - Tiketing - Detail Tiket Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
 <body class="bg-slate-100/70 min-h-screen font-sans text-slate-800 flex flex-col antialiased">
 
@@ -28,8 +32,8 @@
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
         @if(session('success'))
-            <div class="bg-green-100 border border-green-200 text-green-800 p-4 rounded-xl text-xs font-semibold flex items-center gap-2">
-                <i class="fa-solid fa-circle-check text-green-600 text-sm"></i> <span>{{ session('success') }}</span>
+            <div class="bg-emerald-100 border border-emerald-200 text-emerald-800 p-4 rounded-xl text-xs font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i> <span>{{ session('success') }}</span>
             </div>
         @endif
 
@@ -143,7 +147,7 @@
                         <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Riwayat Diskusi (Read-only)</h3>
                     </div>
 
-                    <div class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                    <div class="space-y-3 max-h-96 overflow-y-auto pr-1 no-scrollbar">
                         @forelse($ticket->messages as $m)
                         <div class="flex gap-3 {{ $m->sender_type === 'user' ? '' : 'flex-row-reverse' }}">
                             <div class="w-8 h-8 rounded-full {{ $m->sender_type === 'user' ? 'bg-slate-200 text-slate-600' : 'bg-[#0a2540] text-amber-400' }} flex items-center justify-center text-[10px] font-bold shrink-0">
@@ -172,7 +176,32 @@
             {{-- KOLOM KANAN --}}
             <div class="space-y-6">
 
-                {{-- Penanggung Jawab --}}
+                {{-- 1. Info Pelapor (Atas) --}}
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-3 w-full">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                        <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
+                        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Informasi Pelapor</h3>
+                    </div>
+                    <div class="flex items-center gap-3.5 p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/60">
+                        <div class="w-11 h-11 rounded-xl bg-[#0a2540] text-amber-400 flex items-center justify-center font-black text-sm shrink-0">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold text-slate-900 truncate">{{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
+                            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ $ticket->pelapor->divisi ?? '-' }}</p>
+                            <p class="text-[11px] text-slate-400 mt-0.5"><i class="fa-regular fa-envelope me-1"></i>{{ $ticket->pelapor->email ?? '-' }}</p>
+                        </div>
+                    </div>
+
+                    @if($ticket->status === 'Closed' && $ticket->closed_by === 'user')
+                    <div class="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-2 text-amber-800">
+                        <i class="fa-solid fa-user-slash text-xs text-amber-600"></i>
+                        <p class="text-xs font-semibold">Dibatalkan / Ditutup oleh Pelapor</p>
+                    </div>
+                    @endif
+                </div>
+
+                {{-- 2. Penanggung Jawab (Bawah Pelapor) --}}
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4 w-full">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
                         <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
@@ -186,36 +215,12 @@
                         <div class="min-w-0">
                             <p class="text-xs font-bold text-slate-900 truncate">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}</p>
                             <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ optional($ticket->pj)->divisi ?? 'Belum Ditentukan' }}</p>
+                            <p class="text-[11px] text-slate-400 mt-0.5"><i class="fa-regular fa-envelope me-1"></i>{{ optional($ticket->pj)->email ?? '-' }}</p>
                         </div>
                     </div>
                 </div>
 
-                {{-- Info Pelapor --}}
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-3 w-full">
-                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
-                        <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
-                        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Informasi Pelapor</h3>
-                    </div>
-                    <div class="flex items-center gap-3.5 p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/60">
-                        <div class="w-11 h-11 rounded-xl bg-[#0a2540] text-amber-400 flex items-center justify-center font-black text-sm shrink-0">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <p class="text-xs font-bold text-slate-900 truncate">{{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
-                            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ $ticket->pelapor->divisi ?? '-' }}</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">{{ $ticket->pelapor->email ?? '-' }}</p>
-                        </div>
-                    </div>
-
-                    @if($ticket->status === 'Closed' && $ticket->closed_by === 'user')
-                    <div class="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-2 text-amber-800">
-                        <i class="fa-solid fa-user-slash text-xs text-amber-600"></i>
-                        <p class="text-xs font-semibold">Dibatalkan / Ditutup oleh Pelapor</p>
-                    </div>
-                    @endif
-                </div>
-
-                {{-- Aksi Admin --}}
+                {{-- 3. Aksi Admin --}}
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4 w-full">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
                         <div class="w-2.5 h-5 bg-[#0a2540] rounded-full"></div>
@@ -223,23 +228,55 @@
                     </div>
 
                     @if($ticket->status === 'Open' && !$ticket->pj_id)
-                        <form action="{{ route('admin.ticket.assign', $ticket->id) }}" method="POST" class="space-y-2">
+                        <form action="{{ route('admin.ticket.assign', $ticket->id) }}" method="POST" class="space-y-3">
                             @csrf
-                            <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Pilih PJ / Teknisi</label>
-                            <select name="penanggung_jawab" required class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs focus:outline-none focus:border-amber-500">
-                                <option value="" disabled selected>-- Pilih PJ --</option>
-                                @foreach($activePjs as $pj)
-                                    <option value="{{ $pj->id }}">{{ $pj->nama_lengkap }} ({{ $pj->divisi }})</option>
-                                @endforeach
-                            </select>
-                            <button type="submit" class="w-full bg-[#0a2540] hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-lg transition text-xs">
-                                Tunjuk PJ
+                            <input type="hidden" name="penanggung_jawab" id="inputPjId" required>
+
+                            <!-- Custom Dropdown 1: Pilih Divisi -->
+                            <div class="space-y-1 relative custom-dropdown" id="dropdownDivisi">
+                                <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">1. Pilih Divisi PJ</label>
+                                <button type="button" class="dropdown-btn w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 font-medium flex items-center justify-between transition focus:bg-white focus:ring-2 focus:ring-amber-400 outline-none cursor-pointer">
+                                    <span class="dropdown-label truncate">-- Pilih Divisi --</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200"></i>
+                                </button>
+                                <div class="dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl p-1.5 space-y-0.5 max-h-48 overflow-y-auto no-scrollbar">
+                                    @php
+                                        $daftarDivisiPj = $activePjs->pluck('divisi')->unique()->filter();
+                                    @endphp
+                                    @forelse($daftarDivisiPj as $div)
+                                        <div data-value="{{ $div }}" class="dropdown-item-divisi w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center justify-between">
+                                            <span>{{ $div }}</span>
+                                        </div>
+                                    @empty
+                                        <div class="px-3 py-2 text-xs text-slate-400">Tidak ada divisi tersedia</div>
+                                    @endforelse
+                                </div>
+                            </div>
+
+                            <!-- Custom Dropdown 2: Pilih PJ / Teknisi (Filter Berdasarkan Divisi) -->
+                            <div class="space-y-1 relative custom-dropdown" id="dropdownPj">
+                                <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">2. Pilih PJ / Teknisi</label>
+                                <button type="button" id="btnPj" disabled class="dropdown-btn w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-400 font-medium flex items-center justify-between transition outline-none cursor-not-allowed">
+                                    <span class="dropdown-label truncate">-- Pilih Divisi Dahulu --</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200"></i>
+                                </button>
+                                <div class="dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl p-1.5 space-y-0.5 max-h-48 overflow-y-auto no-scrollbar" id="menuPj">
+                                    @foreach($activePjs as $pj)
+                                        <div data-value="{{ $pj->id }}" data-divisi="{{ $pj->divisi }}" class="dropdown-item-pj hidden w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center justify-between">
+                                            <span>{{ $pj->nama_lengkap }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-[#0a2540] hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl transition text-xs shadow-sm cursor-pointer mt-2">
+                                <i class="fa-solid fa-user-check me-1"></i> Tunjuk PJ
                             </button>
                         </form>
                     @elseif($ticket->status === 'Resolved')
                         <form action="{{ route('admin.ticket.close', $ticket->id) }}" method="POST">
                             @csrf
-                            <button type="submit" onclick="return confirm('Ubah status tiket menjadi Closed?')" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2.5 rounded-lg transition text-xs">
+                            <button type="submit" onclick="return confirm('Ubah status tiket menjadi Closed?')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl transition text-xs shadow-sm cursor-pointer">
                                 <i class="fa-solid fa-lock me-1"></i> Ubah Ke Closed
                             </button>
                         </form>
@@ -250,5 +287,100 @@
             </div>
         </div>
     </main>
+
+    <script>
+        // JS Custom Dropdown Berantai (Divisi -> PJ)
+        const dropdownDivisi = document.getElementById('dropdownDivisi');
+        const dropdownPj = document.getElementById('dropdownPj');
+
+        if (dropdownDivisi && dropdownPj) {
+            const btnDivisi = dropdownDivisi.querySelector('.dropdown-btn');
+            const menuDivisi = dropdownDivisi.querySelector('.dropdown-menu');
+            const labelDivisi = dropdownDivisi.querySelector('.dropdown-label');
+            const arrowDivisi = btnDivisi.querySelector('.fa-chevron-down');
+
+            const btnPj = dropdownPj.querySelector('.dropdown-btn');
+            const menuPj = dropdownPj.querySelector('.dropdown-menu');
+            const labelPj = dropdownPj.querySelector('.dropdown-label');
+            const arrowPj = btnPj.querySelector('.fa-chevron-down');
+
+            const inputPjId = document.getElementById('inputPjId');
+            const itemsPj = dropdownPj.querySelectorAll('.dropdown-item-pj');
+
+            // Toggle Dropdown Divisi
+            btnDivisi.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menuPj.classList.add('hidden');
+                arrowPj.classList.remove('rotate-180');
+
+                menuDivisi.classList.toggle('hidden');
+                arrowDivisi.classList.toggle('rotate-180');
+            });
+
+            // Toggle Dropdown PJ
+            btnPj.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (btnPj.disabled) return;
+
+                menuDivisi.classList.add('hidden');
+                arrowDivisi.classList.remove('rotate-180');
+
+                menuPj.classList.toggle('hidden');
+                arrowPj.classList.toggle('rotate-180');
+            });
+
+            // Event saat Divisi Dipilih
+            dropdownDivisi.querySelectorAll('.dropdown-item-divisi').forEach(item => {
+                item.addEventListener('click', () => {
+                    const selectedDivisi = item.getAttribute('data-value');
+                    labelDivisi.innerText = selectedDivisi;
+
+                    // Close menu divisi
+                    menuDivisi.classList.add('hidden');
+                    arrowDivisi.classList.remove('rotate-180');
+
+                    // Reset PJ selection
+                    inputPjId.value = '';
+                    labelPj.innerText = '-- Pilih PJ / Teknisi --';
+
+                    // Enable Dropdown PJ
+                    btnPj.disabled = false;
+                    btnPj.classList.remove('bg-slate-100', 'cursor-not-allowed', 'text-slate-400');
+                    btnPj.classList.add('bg-slate-50', 'cursor-pointer', 'text-slate-700');
+
+                    // Filter Opsi PJ sesuai Divisi
+                    itemsPj.forEach(pjItem => {
+                        if (pjItem.getAttribute('data-divisi') === selectedDivisi) {
+                            pjItem.classList.remove('hidden');
+                        } else {
+                            pjItem.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            // Event saat PJ Dipilih
+            itemsPj.forEach(item => {
+                item.addEventListener('click', () => {
+                    const pjId = item.getAttribute('data-value');
+                    const pjNama = item.querySelector('span').innerText;
+
+                    inputPjId.value = pjId;
+                    labelPj.innerText = pjNama;
+
+                    menuPj.classList.add('hidden');
+                    arrowPj.classList.remove('rotate-180');
+                });
+            });
+
+            // Close all dropdowns on outside click
+            document.addEventListener('click', () => {
+                menuDivisi.classList.add('hidden');
+                arrowDivisi.classList.remove('rotate-180');
+                menuPj.classList.add('hidden');
+                arrowPj.classList.remove('rotate-180');
+            });
+        }
+    </script>
 </body>
 </html>
