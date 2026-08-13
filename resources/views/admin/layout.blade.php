@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Utility untuk menghilangkan scrollbar abu-abu bawaan di elemen custom scroll */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -19,7 +18,6 @@
 
     <!-- ================= SIDEBAR ================= -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0a2540] text-white flex flex-col shrink-0 h-screen shadow-2xl transition-transform duration-300 transform -translate-x-full md:translate-x-0 md:sticky md:top-0">
-        <!-- Logo Section -->
         <div class="h-20 flex items-center justify-between px-6 border-b border-slate-700/60 shrink-0 bg-[#071d33]">
             <div class="flex items-center gap-3">
                 <img src="{{ asset('image/esdm.png') }}" alt="Logo ESDM" class="w-9 h-9 object-contain drop-shadow">
@@ -92,10 +90,8 @@
     <!-- ================= MAIN CONTENT ================= -->
     <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 overflow-y-auto min-w-0">
 
-        <!-- HEADER UTAMA (Sesuai Aksentuasi Tema Navy Blue + Amber Gold) -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gradient-to-r from-[#0a2540] to-[#12385f] text-white p-5 rounded-2xl shadow-lg border-b-4 border-amber-400">
             <div class="flex items-center gap-3">
-                <!-- Tombol Sidebar Mobile -->
                 <button id="openSidebar" class="md:hidden bg-white/10 hover:bg-white/20 text-amber-400 p-2.5 rounded-xl transition cursor-pointer">
                     <i class="fa-solid fa-bars text-base"></i>
                 </button>
@@ -119,7 +115,6 @@
                         @endif
                     </button>
 
-                    <!-- Dropdown Notifikasi -->
                     <div id="notifMenuAdmin" class="hidden absolute right-0 mt-3 w-80 max-w-[90vw] bg-white border border-slate-200 shadow-2xl rounded-2xl z-50 overflow-hidden text-slate-800">
                         <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
                             <p class="text-xs font-bold text-[#0a2540] uppercase tracking-wide">Notifikasi Admin</p>
@@ -195,14 +190,12 @@
                     </div>
                 </div>
 
-                <!-- Badge Mode -->
                 <span class="bg-amber-400 text-[#0a2540] text-xs font-extrabold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-user-shield"></i> Mode Admin
                 </span>
             </div>
         </div>
 
-        <!-- Flash Session Alerts -->
         @if(session('success'))
             <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-3 shadow-sm">
                 <i class="fa-solid fa-circle-check text-emerald-500 text-base shrink-0"></i>
@@ -221,7 +214,6 @@
     </main>
 
     <script>
-        // Toggle Sidebar Mobile
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const openSidebarBtn = document.getElementById('openSidebar');
@@ -241,7 +233,6 @@
         if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
         if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
 
-        // Clickable Table Rows
         document.querySelectorAll('.clickable-row').forEach(row => {
             row.addEventListener('click', function () {
                 window.location.href = this.getAttribute('data-url');
@@ -251,7 +242,6 @@
             container.addEventListener('click', function (e) { e.stopPropagation(); });
         });
 
-        // Dropdown Notifikasi Admin
         const notifBtnAdmin = document.getElementById('notifBtnAdmin');
         const notifMenuAdmin = document.getElementById('notifMenuAdmin');
         if (notifBtnAdmin && notifMenuAdmin) {

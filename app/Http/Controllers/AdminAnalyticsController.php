@@ -73,7 +73,6 @@ class AdminAnalyticsController extends Controller
             $persenOverdue = round(($slaTerlambat / $totalTiketEvaluasiSla) * 100, 1);
             $slaCompliance = round((($totalTiketEvaluasiSla - $slaTerlambat) / $totalTiketEvaluasiSla) * 100, 1);
         } else {
-            // Jika belum ada tiket selesai/terlambat pada kriteria filter
             $slaCompliance = 100;
             $persenOverdue = 0;
         }
@@ -124,7 +123,6 @@ class AdminAnalyticsController extends Controller
             ->orderBy('bulan')
             ->get();
 
-        // ===== Data untuk dropdown/filter Kategori =====
         $daftarKategori = Ticket::select('kategori')->distinct()->pluck('kategori');
 
         return view('admin.dashboard', [

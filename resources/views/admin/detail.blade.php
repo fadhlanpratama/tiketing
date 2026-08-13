@@ -232,7 +232,7 @@
                             @csrf
                             <input type="hidden" name="penanggung_jawab" id="inputPjId" required>
 
-                            <!-- Custom Dropdown 1: Pilih Divisi -->
+                            <!-- Dropdown 1: Pilih Divisi -->
                             <div class="space-y-1 relative custom-dropdown" id="dropdownDivisi">
                                 <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">1. Pilih Divisi PJ</label>
                                 <button type="button" class="dropdown-btn w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 font-medium flex items-center justify-between transition focus:bg-white focus:ring-2 focus:ring-amber-400 outline-none cursor-pointer">
@@ -289,7 +289,6 @@
     </main>
 
     <script>
-        // JS Custom Dropdown Berantai (Divisi -> PJ)
         const dropdownDivisi = document.getElementById('dropdownDivisi');
         const dropdownPj = document.getElementById('dropdownPj');
 
@@ -307,7 +306,6 @@
             const inputPjId = document.getElementById('inputPjId');
             const itemsPj = dropdownPj.querySelectorAll('.dropdown-item-pj');
 
-            // Toggle Dropdown Divisi
             btnDivisi.addEventListener('click', (e) => {
                 e.stopPropagation();
                 menuPj.classList.add('hidden');
@@ -317,7 +315,6 @@
                 arrowDivisi.classList.toggle('rotate-180');
             });
 
-            // Toggle Dropdown PJ
             btnPj.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (btnPj.disabled) return;
@@ -329,26 +326,21 @@
                 arrowPj.classList.toggle('rotate-180');
             });
 
-            // Event saat Divisi Dipilih
             dropdownDivisi.querySelectorAll('.dropdown-item-divisi').forEach(item => {
                 item.addEventListener('click', () => {
                     const selectedDivisi = item.getAttribute('data-value');
                     labelDivisi.innerText = selectedDivisi;
 
-                    // Close menu divisi
                     menuDivisi.classList.add('hidden');
                     arrowDivisi.classList.remove('rotate-180');
 
-                    // Reset PJ selection
                     inputPjId.value = '';
                     labelPj.innerText = '-- Pilih PJ / Teknisi --';
 
-                    // Enable Dropdown PJ
                     btnPj.disabled = false;
                     btnPj.classList.remove('bg-slate-100', 'cursor-not-allowed', 'text-slate-400');
                     btnPj.classList.add('bg-slate-50', 'cursor-pointer', 'text-slate-700');
 
-                    // Filter Opsi PJ sesuai Divisi
                     itemsPj.forEach(pjItem => {
                         if (pjItem.getAttribute('data-divisi') === selectedDivisi) {
                             pjItem.classList.remove('hidden');
@@ -359,7 +351,6 @@
                 });
             });
 
-            // Event saat PJ Dipilih
             itemsPj.forEach(item => {
                 item.addEventListener('click', () => {
                     const pjId = item.getAttribute('data-value');
@@ -373,7 +364,6 @@
                 });
             });
 
-            // Close all dropdowns on outside click
             document.addEventListener('click', () => {
                 menuDivisi.classList.add('hidden');
                 arrowDivisi.classList.remove('rotate-180');

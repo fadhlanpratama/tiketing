@@ -274,7 +274,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // ===== Toggle Show/Hide Password =====
             document.querySelectorAll('.toggle-password-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -292,7 +291,6 @@
                 });
             });
 
-            // ===== Logic Custom Dropdown =====
             document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
                 const btn = dropdown.querySelector('.dropdown-btn');
                 const menu = dropdown.querySelector('.dropdown-menu');
@@ -328,7 +326,6 @@
                         labelSpan.classList.remove('text-slate-400');
                         labelSpan.classList.add('text-slate-800');
 
-                        // Reset styling aktif di item dropdown
                         dropdown.querySelectorAll('.dropdown-item').forEach(i => {
                             i.classList.remove('bg-amber-50', 'text-amber-900', 'font-bold');
                             const checkIcon = i.querySelector('.fa-check');
@@ -344,13 +341,11 @@
                 });
             });
 
-            // Tutup dropdown jika klik di luar
             document.addEventListener('click', () => {
                 document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
                 document.querySelectorAll('.fa-chevron-down').forEach(a => a.classList.remove('rotate-180'));
             });
 
-            // ===== Helper Error Form =====
             function showError(fieldId, message) {
                 const input = document.getElementById(fieldId);
                 const errSpan = document.getElementById('err-' + fieldId);
@@ -386,7 +381,6 @@
                 }
             }
 
-            // ===== Validasi Form =====
             const form = document.getElementById('editUserForm');
 
             function validateForm() {
@@ -492,7 +486,6 @@
                 }
             });
 
-            // ===== Live Password Checklist =====
             function updateRuleUI(elementId, conditionMet) {
                 const el = document.getElementById(elementId);
                 if (!el) return;

@@ -68,9 +68,6 @@ class UserManageController extends Controller
             ->with('error', "Pendaftaran akun {$namaUser} telah ditolak dan dihapus.");
     }
 
-    /**
-     * Halaman CRUD manajemen seluruh pengguna (bukan yang pending).
-     */
     public function manage(Request $request)
     {
         $query = Users::where('status', '!=', 'pending');
@@ -91,9 +88,6 @@ class UserManageController extends Controller
         ]);
     }
 
-    /**
-     * Admin menambahkan pengguna baru secara langsung (langsung aktif).
-     */
     public function store(Request $request)
     {
         try {
@@ -137,10 +131,6 @@ class UserManageController extends Controller
         return redirect()->route('admin.users.manage')
             ->with('success', 'Pengguna baru berhasil ditambahkan.');
     }
-
-    /**
-     * Admin mengedit data pengguna (termasuk role, divisi, status).
-     */
 
     public function create()
     {
@@ -210,7 +200,6 @@ class UserManageController extends Controller
 
         $user->save();
 
-        // Sinkronkan nama PJ pada tiket bila nama berubah
         if ($namaLama !== $user->nama_lengkap) {
             Ticket::where('pj_id', $id)->update(['penanggung_jawab' => $user->nama_lengkap]);
         }
@@ -219,9 +208,6 @@ class UserManageController extends Controller
             ->with('success', "Data {$user->nama_lengkap} berhasil diperbarui.");
     }
 
-    /**
-     * Hapus pengguna.
-     */
     public function destroy(string $id)
     {
         $user = Users::findOrFail($id);

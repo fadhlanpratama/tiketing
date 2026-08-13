@@ -67,7 +67,6 @@
                                 </div>
                             </div>
 
-                            <!-- Teks Notifikasi Error Langsung di Bawah Dropdown Divisi -->
                             <p class="error-msg-divisi hidden text-[10px] font-bold text-rose-500 mt-1.5 flex items-center gap-1">
                                 <i class="fa-solid fa-circle-exclamation text-[9px]"></i> Divisi wajib dipilih!
                             </p>
@@ -255,7 +254,6 @@
 
     (function initCustomDropdowns() {
         const setupDropdowns = () => {
-            // Event memilih item dropdown
             document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
                 const btn = dropdown.querySelector('.dropdown-btn');
                 const menu = dropdown.querySelector('.dropdown-menu');
@@ -292,7 +290,6 @@
                             label.classList.add('text-slate-800', 'font-bold');
                         }
 
-                        // Sembunyikan error dan hapus border merah saat divisi dipilih
                         const errorMsg = dropdown.parentElement.querySelector('.error-msg-divisi') || dropdown.querySelector('.error-msg-divisi');
                         if (errorMsg) errorMsg.classList.add('hidden');
                         btn.classList.remove('border-rose-500', 'bg-rose-50');
@@ -303,20 +300,16 @@
                 });
             });
 
-            // Handler Validasi Form Approve
             document.querySelectorAll('form[action*="approve"]').forEach(form => {
                 form.addEventListener('submit', function(e) {
                     const divisiInput = form.querySelector('input[name="divisi"]');
-                    
-                    // Cari elemen error & button dropdown yang terhubung dengan form ini
                     const cellTd = form.closest('td') || form;
                     const errorMsg = cellTd.querySelector('.error-msg-divisi');
                     const dropdownBtn = cellTd.querySelector('.dropdown-btn');
 
                     if (!divisiInput || !divisiInput.value || divisiInput.value.trim() === '') {
-                        e.preventDefault(); // Hentikan submit form
+                        e.preventDefault();
                         
-                        // Tampilkan pesan error merah tepat di bawah dropdown
                         if (errorMsg) errorMsg.classList.remove('hidden');
                         if (dropdownBtn) {
                             dropdownBtn.classList.add('border-rose-500', 'bg-rose-50');
@@ -328,7 +321,6 @@
                 });
             });
 
-            // Tutup dropdown jika klik di tempat lain
             document.addEventListener('click', () => {
                 document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.add('hidden'));
                 document.querySelectorAll('.fa-chevron-down').forEach(arrow => arrow.classList.remove('rotate-180'));

@@ -7,7 +7,6 @@
 @section('content')
 <div class="space-y-8">
 
-    <!-- Banner Petunjuk Penggunaan -->
     <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-4 flex items-center gap-3 text-amber-900 shadow-sm">
         <div class="w-9 h-9 rounded-xl bg-amber-400 text-[#0a2540] flex items-center justify-center shrink-0 font-bold">
             <i class="fa-solid fa-hand-pointer"></i>
@@ -212,7 +211,7 @@
 
 @push('scripts')
 <script>
-    const limit = 10; // 10 Data per halaman untuk masing-masing section
+    const limit = 10;
 
     function getTicketId(el) {
         const text = el.querySelector('.font-bold')?.innerText || '';
@@ -220,7 +219,6 @@
         return match ? parseInt(match[0], 10) : 0;
     }
 
-    // Generic Pagination Handler
     function setupSectionPagination(desktopClass, mobileClass, desktopParentId, mobileParentId, infoId, pagerId) {
         let currentPage = 1;
 
@@ -287,7 +285,6 @@
         render();
     }
 
-    // Jalankan Pagination terpisah untuk Section 1 dan Section 2
     setupSectionPagination('desktop-row-open', 'mobile-row-open', 'tbodyOpen', 'containerOpenMobile', 'infoOpen', 'pagerOpen');
     setupSectionPagination('desktop-row-resolved', 'mobile-row-resolved', 'tbodyResolved', 'containerResolvedMobile', 'infoResolved', 'pagerResolved');
 </script>

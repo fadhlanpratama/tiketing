@@ -5,7 +5,6 @@
 @section('page-desc', 'Rekap semua tiket dari seluruh status penanganan')
 
 @section('content')
-<!-- Ubah overflow-hidden menjadi overflow-visible agar dropdown melayang bebas -->
 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-visible">
 
     <!-- Header & Filter (Status & Prioritas) -->
@@ -15,10 +14,8 @@
             <p class="text-xs text-slate-400">Klik baris untuk melihat detail lengkap tiket.</p>
         </div>
 
-        <!-- Filter Dropdown Container -->
         <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
             
-            <!-- Custom Dropdown Filter Status -->
             <div class="relative w-full sm:w-52 custom-dropdown" id="statusFilterWrapperAdmin">
                 <button type="button" class="dropdown-btn w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-semibold text-slate-600 flex justify-between items-center cursor-pointer hover:bg-slate-100/80 transition focus:ring-2 focus:ring-amber-400 outline-none">
                     <span class="dropdown-label truncate"><i class="fa-solid fa-signal mr-1.5 text-slate-400"></i>Semua Status</span>
@@ -46,7 +43,6 @@
                 </div>
             </div>
 
-            <!-- Custom Dropdown Filter Prioritas -->
             <div class="relative w-full sm:w-52 custom-dropdown" id="prioFilterWrapperAdmin">
                 <button type="button" class="dropdown-btn w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-xs font-semibold text-slate-600 flex justify-between items-center cursor-pointer hover:bg-slate-100/80 transition focus:ring-2 focus:ring-amber-400 outline-none">
                     <span class="dropdown-label truncate"><i class="fa-solid fa-layer-group mr-1.5 text-slate-400"></i>Semua Prioritas</span>
@@ -162,11 +158,9 @@
         @endforelse
     </div>
 
-    <!-- Pager Controls -->
     <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-semibold rounded-b-2xl">
         <span id="pageInfo">Menampilkan 0 - 0 dari 0 data</span>
         <div class="flex items-center gap-1.5" id="paginationControls">
-            <!-- Render via JS -->
         </div>
     </div>
 
@@ -180,7 +174,6 @@
     let selectedStatusFilter = 'semua';
     let selectedPrioFilter = 'semua';
 
-    // Handler Dropdowns Toggle
     document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
         const btn = dropdown.querySelector('.dropdown-btn');
         const menu = dropdown.querySelector('.dropdown-menu');
@@ -201,7 +194,6 @@
         document.querySelectorAll('.fa-chevron-down').forEach(a => a.classList.remove('rotate-180'));
     });
 
-    // Event Handler untuk Clickable Row (Membuka detail tiket)
     document.querySelectorAll('.clickable-row').forEach(row => {
         row.addEventListener('click', (e) => {
             if (!e.target.closest('button') && !e.target.closest('a')) {
@@ -211,7 +203,6 @@
         });
     });
 
-    // Helper ID Tiket
     function getTicketId(el) {
         const text = el.querySelector('.font-bold')?.innerText || '';
         const match = text.match(/\d+/);

@@ -21,6 +21,8 @@ use App\Http\Controllers\TicketManageController;
 Route::middleware(['guest.redirect', 'no.cache'])->group(function () {
     Route::get('/', [AuthController::class, 'landing'])->name('landing');
     Route::get('/portal', [AuthController::class, 'showAuthForm'])->name('home');
+
+    // ===== AUTENTIKASI: Login, Register, Reset Password =====
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:30,1')->name('login');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('register');
     Route::post('/password/email', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
@@ -35,6 +37,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // ================= AREA: USER =================
 Route::prefix('user')->name('user.')->middleware(['cek.login:user', 'no.cache'])->group(function () {
     Route::get('/dashboard', [TicketController::class, 'index'])->name('dashboard');
+
+    // Aksi user terhadap profil
     Route::get('/profile/edit', [TicketController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile/update', [TicketController::class, 'updateProfile'])->name('profile.update');
 
@@ -43,6 +47,8 @@ Route::prefix('user')->name('user.')->middleware(['cek.login:user', 'no.cache'])
     Route::post('/ticket/store', [TicketController::class, 'store'])->middleware('throttle:10,1')->name('ticket.store'); 
     Route::get('/ticket/{id}', [TicketController::class, 'show'])->name('ticket.show');
     Route::delete('/ticket/{id}', [TicketController::class, 'destroy'])->name('ticket.destroy'); 
+
+    // Aksi user terhadap tiket: chat dan survei
     Route::post('/ticket/{id}/chat', [TicketController::class, 'storeMessage'])->name('ticket.chat');
     Route::post('/ticket/{id}/survei', [TicketController::class, 'storeSurvey'])->name('ticket.survei');
 });
@@ -51,6 +57,8 @@ Route::prefix('user')->name('user.')->middleware(['cek.login:user', 'no.cache'])
 // ================= AREA: PENANGGUNG JAWAB =================
 Route::prefix('pj')->name('pj.')->middleware(['cek.login:pj', 'no.cache'])->group(function () {
     Route::get('/dashboard', [PjController::class, 'index'])->name('dashboard');
+
+    // Aksi PJ terhadap profil
     Route::get('/profile/edit', [PjController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile/update', [PjController::class, 'updateProfile'])->name('profile.update');
 
@@ -64,14 +72,12 @@ Route::prefix('pj')->name('pj.')->middleware(['cek.login:pj', 'no.cache'])->grou
 
 // ================= AREA: ADMIN =================
 Route::middleware('cek.login:admin')->prefix('admin')->name('admin.')->group(function () {
-
-    // Halaman utama = Analitik/Dashboard
     Route::get('/', [AdminAnalyticsController::class, 'index'])->name('dashboard');
 
+    // Aksi admin terhadap pengguna
     Route::get('/users', [UserManageController::class, 'index'])->name('users.index');
     Route::post('/users/{id}/approve', [UserManageController::class, 'approve'])->name('user.approve');
     Route::post('/users/{id}/reject', [UserManageController::class, 'reject'])->name('user.reject');
-
     Route::get('/users/manage', [UserManageController::class, 'manage'])->name('users.manage');
     Route::get('/users/create', [UserManageController::class, 'create'])->name('users.create');
     Route::post('/users', [UserManageController::class, 'store'])->name('users.store');
@@ -79,6 +85,7 @@ Route::middleware('cek.login:admin')->prefix('admin')->name('admin.')->group(fun
     Route::put('/users/{id}', [UserManageController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserManageController::class, 'destroy'])->name('users.destroy');
 
+    // Aksi admin terhadap tiket
     Route::get('/tickets', [TicketManageController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/all', [TicketManageController::class, 'all'])->name('tickets.all');
     Route::get('/tickets/{id}', [TicketManageController::class, 'show'])->name('ticket.show');

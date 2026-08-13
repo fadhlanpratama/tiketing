@@ -111,7 +111,6 @@
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        // Toggle Password
         document.querySelectorAll('.toggle-password-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -159,7 +158,6 @@
             document.getElementById(id).addEventListener('input', () => clearError(id));
         });
 
-        // Password Requirements Checklist
         let passwordStatus = { length: false, letters: false, number: false, uppercase: false };
 
         function updateRuleUI(elementId, conditionMet) {

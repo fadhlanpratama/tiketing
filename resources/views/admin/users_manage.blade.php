@@ -7,7 +7,6 @@
 @section('content')
 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-visible">
 
-    <!-- Alert Sukses / Error -->
     @if(session('success'))
         <div class="m-5 p-4 bg-emerald-900/90 text-white rounded-2xl shadow-md flex items-center gap-3">
             <div class="w-8 h-8 bg-emerald-500 text-white rounded-xl flex items-center justify-center text-sm shrink-0">
@@ -69,7 +68,6 @@
                 </div>
             </div>
 
-            <!-- Tombol Tambah ke Halaman Terpisah -->
             <a href="{{ route('admin.users.create') }}"
                 class="w-full sm:w-auto bg-[#0a2540] text-amber-400 font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-[#0a2540]/90 transition flex items-center justify-center gap-2 whitespace-nowrap">
                 <i class="fa-solid fa-plus"></i> Tambah Pengguna
@@ -208,7 +206,6 @@
     let selectedStatusFilter = 'semua';
     let searchKeyword = '';
 
-    // ===== Modal Hapus Helper =====
     function openDeleteModal(userId, userName) {
         const modal = document.getElementById('deleteConfirmModal');
         const nameSpan = document.getElementById('deleteUserName');
@@ -227,7 +224,6 @@
         modal.classList.remove('flex');
     }
 
-    // Dropdown Filter Toggle
     document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
         const btn = dropdown.querySelector('.dropdown-btn');
         const menu = dropdown.querySelector('.dropdown-menu');

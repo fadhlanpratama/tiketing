@@ -6,11 +6,9 @@
 
 @section('content')
 
-    <!-- ===== FILTER BAR (CUSTOM DROPDOWN ROUNDED TANPA SCROLLBAR ABU-ABU) ===== -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 mb-6 w-full max-w-full">
         <form id="filterForm" method="GET" action="{{ route('admin.dashboard') }}" class="space-y-4">
             
-            <!-- Grid Filter Input -->
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
                 
                 <!-- Tanggal Dari -->
@@ -31,7 +29,7 @@
                         class="w-full max-w-full min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 font-medium focus:bg-white focus:ring-2 focus:ring-amber-400 focus:border-transparent transition outline-none">
                 </div>
 
-                <!-- Custom Dropdown Status Tiket -->
+                <!-- Dropdown Status Tiket -->
                 @php 
                     $statusOpts = ['All' => 'Semua Status', 'Open' => 'Open', 'In Progress' => 'In Progress', 'Resolved' => 'Resolved', 'Closed' => 'Closed', 'Dibatalkan' => 'Dibatalkan Pelapor']; 
                     $currentStatus = $filters['status'] ?? 'All';
@@ -61,7 +59,7 @@
                     </div>
                 </div>
 
-                <!-- Custom Dropdown Prioritas -->
+                <!-- Dropdown Prioritas -->
                 @php 
                     $prioOpts = ['All' => 'Semua Prioritas', 'Rendah' => 'Rendah', 'Sedang' => 'Sedang', 'Tinggi' => 'Tinggi']; 
                     $currentPrio = $filters['prioritas'] ?? 'All';
@@ -218,7 +216,6 @@
 
     <!-- ===== ROW 2: Donut + Tabel ===== -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Donut Chart -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 lg:p-6 flex flex-col justify-between min-w-0">
             <div class="flex items-center justify-between mb-2">
                 <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -272,7 +269,6 @@
         </div>
     </div>
 
-    <!-- Passing Data Aman Ke JS -->
     <div id="chartData"
         data-kategori-labels='@json($tiketByKategori->pluck("kategori"))'
         data-kategori-total='@json($tiketByKategori->pluck("total"))'
@@ -286,7 +282,6 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script>
-    // Custom Dropdown JS
     document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
         const btn = dropdown.querySelector('.dropdown-btn');
         const menu = dropdown.querySelector('.dropdown-menu');
@@ -335,7 +330,6 @@
         document.querySelectorAll('.fa-chevron-down').forEach(a => a.classList.remove('rotate-180'));
     });
 
-    // Chart JS
     const el = document.getElementById('chartData');
     const kategoriLabels = JSON.parse(el.dataset.kategoriLabels || '[]');
     const kategoriTotal  = JSON.parse(el.dataset.kategoriTotal || '[]');

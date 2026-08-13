@@ -1,5 +1,4 @@
 @php
-    // Syarat menampilkan history komentar: In Progress, Resolved, atau Closed (bukan di-close user)
     $tampilKomentar = in_array($ticket->status, ['In Progress', 'Resolved']) 
         || ($ticket->status === 'Closed' && $ticket->closed_by !== 'user');
 
@@ -7,7 +6,6 @@
     $bisaSurvei = $ticket->status === 'Resolved'
         || ($ticket->status === 'Closed' && $ticket->closed_by !== 'user');
 
-    // Pemetaan angka ke teks ENUM database
     $starMap = [
         1 => 'Tidak Puas',
         2 => 'Kurang puas',
@@ -20,7 +18,6 @@
         ? array_search($ticket->survei_kepuasan, $starMap)
         : false;
 
-    // Pop-up survei aktif untuk user jika tiket bisa disurvei dan belum diisi
     $perluSurveiPopUp = !$isPj && $bisaSurvei && !$ticket->survei_kepuasan;
 @endphp
 
@@ -284,14 +281,12 @@
         }, 300);
     }
 
-    // Modal langsung terbuka otomatis saat halaman di-load jika tiket Resolved/Closed
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             openSurveiModal();
         }, 400);
     });
 
-    // Interaksi Pemilihan Bintang Rating
     document.addEventListener('change', function (e) {
         if (!e.target.classList.contains('js-star-input')) return;
 

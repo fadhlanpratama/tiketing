@@ -15,7 +15,6 @@ class TicketManageController extends Controller
         $this->middleware('cek.login:admin');
     }
 
-    // Halaman: Penugasan PJ + Verifikasi Resolved
     public function index()
     {
         $unassignedTickets = Ticket::where('status', 'Open')
@@ -41,7 +40,6 @@ class TicketManageController extends Controller
         return view('admin.tickets', compact('unassignedTickets', 'resolvedTickets', 'activePjs'));
     }
 
-    // Halaman: Semua Tiket
     public function all()
     {
         $allTickets = Ticket::with('pelapor')
