@@ -55,6 +55,11 @@
                 @endif
             </a>
 
+            <a href="{{ route('admin.users.manage') }}" class="{{ request()->routeIs('admin.users.manage') ? $navActive : $navInactive }}">
+                <i class="fa-solid fa-users-gear text-sm w-5 text-center"></i>
+                <span>Manajemen Pengguna</span>
+            </a>
+
             <a href="{{ route('admin.tickets.index') }}" class="{{ request()->routeIs('admin.tickets.index') ? $navActive : $navInactive }}">
                 <i class="fa-solid fa-ticket text-sm w-5 text-center"></i>
                 <span>Manajemen Tiket</span>

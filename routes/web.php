@@ -72,6 +72,13 @@ Route::middleware('cek.login:admin')->prefix('admin')->name('admin.')->group(fun
     Route::post('/users/{id}/approve', [UserManageController::class, 'approve'])->name('user.approve');
     Route::post('/users/{id}/reject', [UserManageController::class, 'reject'])->name('user.reject');
 
+    Route::get('/users/manage', [UserManageController::class, 'manage'])->name('users.manage');
+    Route::get('/users/create', [UserManageController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserManageController::class, 'store'])->name('users.store');
+    Route::get('/users/{id}/edit', [UserManageController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{id}', [UserManageController::class, 'update'])->name('users.update');
+    Route::delete('/users/{id}', [UserManageController::class, 'destroy'])->name('users.destroy');
+
     Route::get('/tickets', [TicketManageController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/all', [TicketManageController::class, 'all'])->name('tickets.all');
     Route::get('/tickets/{id}', [TicketManageController::class, 'show'])->name('ticket.show');
