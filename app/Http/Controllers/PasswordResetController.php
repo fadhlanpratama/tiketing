@@ -32,10 +32,17 @@ class PasswordResetController extends Controller
 
         $user = Users::where('email', $request->email)->first();
 
-        if ($user && $user->status !== 'active') {
+        if ($user && $user->status == 'pending') {
             return response()->json([
                 'success' => false,
                 'message' => 'Akun Anda belum disetujui oleh Admin. Fitur lupa password belum bisa digunakan.',
+            ], 403);
+        }
+
+         if ($user && $user->status == 'rejected') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Anda telah ditolak oleh Admin.',
             ], 403);
         }
 
