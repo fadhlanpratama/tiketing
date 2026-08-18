@@ -513,9 +513,18 @@
                                 <i class="fa-solid fa-chevron-left text-xs"></i>
                             </a>
                         @endif
+                        
+                        @php
+                            $maxVisible = 5;
+                            $current = $tickets->currentPage();
+                            $last = $tickets->lastPage();
+                            
+                            $startPage = (floor(($current - 1) / $maxVisible) * $maxVisible) + 1;
+                            $endPage = min($startPage + $maxVisible - 1, $last);
+                        @endphp
 
-                        @for ($i = 1; $i <= $tickets->lastPage(); $i++)
-                            @if ($i == $tickets->currentPage())
+                        @for ($i = $startPage; $i <= $endPage; $i++)
+                            @if ($i == $current)
                                 <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-400 text-[#0a2540] text-xs font-bold shadow-sm">{{ $i }}</span>
                             @else
                                 <a href="{{ $tickets->url($i) }}" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 text-xs font-semibold hover:bg-slate-50 hover:border-slate-300 transition">{{ $i }}</a>

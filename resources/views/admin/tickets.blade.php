@@ -263,7 +263,11 @@
                     prev.onclick = () => { if (currentPage > 1) { currentPage--; render(); } };
                     pagerEl.appendChild(prev);
 
-                    for (let i = 1; i <= pages; i++) {
+                    const maxVisible = 5;
+                    const startPage = Math.floor((currentPage - 1) / maxVisible) * maxVisible + 1;
+                    const endPage = Math.min(startPage + maxVisible - 1, pages);
+
+                    for (let i = startPage; i <= endPage; i++) {
                         const btn = document.createElement('button');
                         btn.className = `px-3 py-1.5 rounded-lg font-bold transition cursor-pointer ${i === currentPage ? 'bg-[#0a2540] text-amber-400' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}`;
                         btn.innerText = i;

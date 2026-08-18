@@ -118,9 +118,9 @@
     </div>
 
     <!-- Tampilan Mobile -->
-    <div class="md:hidden space-y-4">
+    <div class="md:hidden space-y-4" id="userMobileContainer">
         @forelse($pendingUsers as $user)
-        <div class="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 space-y-3">
+        <div class="mobile-user-card bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 space-y-3">
             <div>
                 <h4 class="font-bold text-slate-800 text-sm">{{ $user->nama_lengkap }}</h4>
                 <p class="text-[11px] text-slate-500"><i class="fa-regular fa-envelope me-1"></i>{{ $user->email }}</p>
@@ -185,6 +185,12 @@
         @empty
         <p class="text-center text-slate-400 text-xs py-6">Tidak ada permohonan pendaftaran akun.</p>
         @endforelse
+    </div>
+
+    <!-- Controls Pagination -->
+    <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-semibold rounded-b-2xl">
+        <span id="pageInfoUsers">Menampilkan 0 - 0 dari 0 data</span>
+        <div class="flex items-center gap-1.5" id="paginationControlsUsers"></div>
     </div>
 </div>
 
@@ -251,6 +257,71 @@
             if (form) form.submit();
         }
     });
+
+    // ===== LOGIKA PAGINATION CLIENT-SIDE (MAX 5 TOMBOL) =====
+    const limit = 15;
+    let currentPageUsers = 1;
+
+    function renderUserPage() {
+        const isMobile = window.innerWidth < 768;
+        const desktopRows = Array.from(document.querySelectorAll('tbody tr')).filter(tr => tr.querySelectorAll('td').length > 1);
+        const mobileCards = Array.from(document.querySelectorAll('#userMobileContainer .mobile-user-card'));
+
+        const activeItems = isMobile ? mobileCards : desktopRows;
+        const totalItems = activeItems.length;
+        const totalPages = Math.ceil(totalItems / limit) || 1;
+
+        if (currentPageUsers > totalPages) currentPageUsers = totalPages;
+
+        const startIdx = (currentPageUsers - 1) * limit;
+        const endIdx = startIdx + limit;
+
+        desktopRows.forEach(row => row.classList.add('hidden'));
+        mobileCards.forEach(card => card.classList.add('hidden'));
+
+        activeItems.slice(startIdx, endIdx).forEach(item => item.classList.remove('hidden'));
+
+        const infoEl = document.getElementById('pageInfoUsers');
+        if (infoEl) {
+            infoEl.innerText = totalItems > 0 
+                ? `Menampilkan ${startIdx + 1} - ${Math.min(endIdx, totalItems)} dari ${totalItems} data`
+                : `Menampilkan 0 data`;
+        }
+
+        const pagerEl = document.getElementById('paginationControlsUsers');
+        if (pagerEl) {
+            pagerEl.innerHTML = '';
+            if (totalPages > 1) {
+                const prevBtn = document.createElement('button');
+                prevBtn.className = `px-3 py-1.5 rounded-lg border border-slate-200 transition ${currentPageUsers === 1 ? 'opacity-40 cursor-not-allowed bg-slate-100' : 'bg-white hover:bg-slate-100 cursor-pointer'}`;
+                prevBtn.innerHTML = `<i class="fa-solid fa-chevron-left"></i>`;
+                prevBtn.disabled = currentPageUsers === 1;
+                prevBtn.onclick = () => { if (currentPageUsers > 1) { currentPageUsers--; renderUserPage(); } };
+                pagerEl.appendChild(prevBtn);
+
+                const maxVisible = 5;
+                const startPage = Math.floor((currentPageUsers - 1) / maxVisible) * maxVisible + 1;
+                const endPage = Math.min(startPage + maxVisible - 1, totalPages);
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = `px-3 py-1.5 rounded-lg font-bold transition cursor-pointer ${i === currentPageUsers ? 'bg-[#0a2540] text-amber-400' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}`;
+                    btn.innerText = i;
+                    btn.onclick = () => { currentPageUsers = i; renderUserPage(); };
+                    pagerEl.appendChild(btn);
+                }
+
+                const nextBtn = document.createElement('button');
+                nextBtn.className = `px-3 py-1.5 rounded-lg border border-slate-200 transition ${currentPageUsers === totalPages ? 'opacity-40 cursor-not-allowed bg-slate-100' : 'bg-white hover:bg-slate-100 cursor-pointer'}`;
+                nextBtn.innerHTML = `<i class="fa-solid fa-chevron-right"></i>`;
+                nextBtn.disabled = currentPageUsers === totalPages;
+                nextBtn.onclick = () => { if (currentPageUsers < totalPages) { currentPageUsers++; renderUserPage(); } };
+                pagerEl.appendChild(nextBtn);
+            }
+        }
+    }
+
+    window.addEventListener('resize', renderUserPage);
 
     (function initCustomDropdowns() {
         const setupDropdowns = () => {
@@ -332,6 +403,8 @@
                     document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.add('hidden'));
                 }
             });
+
+            renderUserPage();
         };
 
         if (document.readyState === 'loading') {

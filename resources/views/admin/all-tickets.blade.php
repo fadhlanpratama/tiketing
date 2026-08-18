@@ -171,7 +171,7 @@
 
 @push('scripts')
 <script>
-    const itemsPerPage = 8;
+    const itemsPerPage = 15;
     let currentPage = 1;
 
     let selectedStatusFilter = 'semua';
@@ -275,7 +275,11 @@
             prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderPage(); } };
             paginationControls.appendChild(prevBtn);
 
-            for (let i = 1; i <= totalPages; i++) {
+            const maxVisible = 5;
+            const startPage = Math.floor((currentPage - 1) / maxVisible) * maxVisible + 1;
+            const endPage = Math.min(startPage + maxVisible - 1, totalPages);
+
+            for (let i = startPage; i <= endPage; i++) {
                 const pBtn = document.createElement('button');
                 pBtn.className = `px-3 py-1.5 rounded-lg font-bold transition cursor-pointer ${i === currentPage ? 'bg-[#0a2540] text-amber-400' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}`;
                 pBtn.innerText = i;
