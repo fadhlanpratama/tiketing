@@ -238,23 +238,19 @@
                                     <i class="fa-solid fa-ban"></i> Dibatalkan
                                 </span>
                             @elseif(!$ticket->pj_id)
-                                {{-- Belum ditunjuk PJ oleh Admin --}}
                                 <span class="inline-flex items-center gap-1.5 text-amber-700 font-bold bg-amber-50 px-2.5 py-1 rounded-lg text-[10px] border border-amber-200/60">
                                     <i class="fa-solid fa-user-clock"></i> Belum Ada PJ
                                 </span>
                             @elseif(!$ticket->waktu_mulai_dikerjakan)
-                                {{-- Sudah ada PJ, tapi belum dikerjakan --}}
                                 <span class="inline-flex items-center gap-1.5 text-slate-500 font-bold bg-slate-100 px-2.5 py-1 rounded-lg text-[10px] border border-slate-200">
                                     <i class="fa-solid fa-hourglass-half"></i> Belum Diproses PJ
                                 </span>
                             @elseif($slaBadge && $slaBadge['terlambat'])
-                                {{-- Sudah lewat target SLA --}}
                                 <span class="inline-flex items-center gap-1.5 text-red-700 font-bold bg-red-50 px-2.5 py-1 rounded-lg text-[10px] border border-red-100">
                                     <i class="fa-solid fa-triangle-exclamation"></i>
                                     {{ $slaBadge['sedang_proses'] ? 'Lewat SLA ' : 'Terlambat ' }}{{ $slaBadge['label'] }}
                                 </span>
                             @else
-                                {{-- Dalam SLA / Tepat Waktu --}}
                                 <span class="inline-flex items-center gap-1.5 text-green-700 font-bold bg-green-50 px-2.5 py-1 rounded-lg text-[10px] border border-green-100">
                                     <i class="fa-solid fa-circle-check"></i>
                                     {{ ($slaBadge && $slaBadge['sedang_proses']) ? 'Dalam SLA' : 'Tepat Waktu' }}
@@ -284,12 +280,10 @@
                                         {{ \Carbon\Carbon::parse($ticket->waktu_mulai_dikerjakan)->format('d M Y, H:i') }} WIB
                                     </p>
                                 @elseif(!$ticket->pj_id)
-                                    {{-- Opsi 1: Jika PJ belum ditunjuk Admin --}}
                                     <p class="text-amber-600 font-medium italic text-xs mt-0.5 flex items-center gap-1.5">
                                         <i class="fa-solid fa-user-plus"></i> Menunggu Penunjukan PJ
                                     </p>
                                 @else
-                                    {{-- Opsi 2: Jika PJ sudah ditunjuk, tinggal tunggu PJ mulai --}}
                                     <p class="text-sky-600 font-medium italic text-xs mt-0.5 flex items-center gap-1.5">
                                         <i class="fa-solid fa-hourglass-start"></i> Menunggu Dikerjakan PJ
                                     </p>
@@ -385,10 +379,11 @@
                             </button>
                         </form>
                     @elseif($ticket->status === 'Resolved')
-                        <form action="{{ route('admin.ticket.close', $ticket->id) }}" method="POST">
+                        {{-- Form Close Tiket yang memicu Modal Custom --}}
+                        <form id="formCloseTicket" action="{{ route('admin.ticket.close', $ticket->id) }}" method="POST">
                             @csrf
-                            <button type="submit" onclick="return confirm('Ubah status tiket menjadi Closed?')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl transition text-xs shadow-sm cursor-pointer">
-                                <i class="fa-solid fa-lock me-1"></i> Ubah Ke Closed
+                            <button type="button" onclick="openCloseModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl transition text-xs shadow-sm cursor-pointer flex items-center justify-center gap-1.5 active:scale-95">
+                                <i class="fa-solid fa-lock"></i> Ubah Ke Closed
                             </button>
                         </form>
                     @else
@@ -399,7 +394,72 @@
         </div>
     </main>
 
+    {{-- MODAL KONFIRMASI CLOSE TIKET --}}
+    <div id="closeTicketModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all duration-300">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm sm:max-w-md w-full shadow-2xl border border-slate-100 text-center space-y-6 transform scale-95 transition-transform duration-200" id="modalCard">
+            
+            {{-- Icon Peringatan / Konfirmasi --}}
+            <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto text-2xl border border-emerald-100/60 shadow-inner">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+
+            {{-- Teks Informasi Modal --}}
+            <div class="space-y-2">
+                <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Apakah Anda Yakin?</h3>
+                <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                    Tiket <span class="font-bold text-slate-800">#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</span> akan diubah statusnya menjadi <span class="font-bold text-emerald-600">Closed</span>. Tindakan ini menandakan penanganan tiket telah selesai sepenuhnya.
+                </p>
+            </div>
+
+            {{-- Tombol Aksi --}}
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button type="button" onclick="closeCloseModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-2xl text-xs transition cursor-pointer active:scale-95">
+                    Batal
+                </button>
+                <button type="button" onclick="confirmCloseTicket()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl text-xs transition shadow-md shadow-emerald-600/20 cursor-pointer active:scale-95">
+                    Ya, Tutup Tiket
+                </button>
+            </div>
+
+        </div>
+    </div>
+
     <script>
+        // --- JS Modal Konfirmasi Close Tiket ---
+        const modal = document.getElementById('closeTicketModal');
+        const modalCard = document.getElementById('modalCard');
+        const formCloseTicket = document.getElementById('formCloseTicket');
+
+        function openCloseModal() {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalCard.classList.remove('scale-95');
+                modalCard.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeCloseModal() {
+            modalCard.classList.remove('scale-100');
+            modalCard.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 150);
+        }
+
+        function confirmCloseTicket() {
+            if (formCloseTicket) {
+                formCloseTicket.submit();
+            }
+        }
+
+        // Close modal jika klik di luar modal (backdrop)
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeCloseModal();
+            }
+        });
+
+        // --- JS Dropdown Divisi & PJ ---
         const dropdownDivisi = document.getElementById('dropdownDivisi');
         const dropdownPj = document.getElementById('dropdownPj');
 
