@@ -176,7 +176,7 @@
             {{-- KOLOM KANAN --}}
             <div class="space-y-6">
 
-                {{-- 1. Info Pelapor (Atas) --}}
+                {{-- 1. Info Pelapor --}}
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-3 w-full">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
                         <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
@@ -201,7 +201,7 @@
                     @endif
                 </div>
 
-                {{-- 2. Penanggung Jawab (Bawah Pelapor) --}}
+                {{-- 2. Penanggung Jawab --}}
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4 w-full">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
                         <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
@@ -253,17 +253,38 @@
                                 </div>
                             </div>
 
-                            <!-- Custom Dropdown 2: Pilih PJ / Teknisi (Filter Berdasarkan Divisi) -->
+                            <!-- Dropdown 2: Pilih PJ / Teknisi dengan Indikator Jarum -->
                             <div class="space-y-1 relative custom-dropdown" id="dropdownPj">
                                 <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">2. Pilih PJ / Teknisi</label>
                                 <button type="button" id="btnPj" disabled class="dropdown-btn w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-400 font-medium flex items-center justify-between transition outline-none cursor-not-allowed">
                                     <span class="dropdown-label truncate">-- Pilih Divisi Dahulu --</span>
                                     <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200"></i>
                                 </button>
-                                <div class="dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl p-1.5 space-y-0.5 max-h-48 overflow-y-auto no-scrollbar" id="menuPj">
+                                <div class="dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl p-1.5 space-y-0.5 max-h-56 overflow-y-auto no-scrollbar" id="menuPj">
                                     @foreach($activePjs as $pj)
-                                        <div data-value="{{ $pj->id }}" data-divisi="{{ $pj->divisi }}" class="dropdown-item-pj hidden w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center justify-between">
-                                            <span>{{ $pj->nama_lengkap }}</span>
+                                        @php
+                                            $stats = $pj->sla_stats;
+                                            $needleDeg = $stats['sla_needle_deg'] ?? 0;
+                                        @endphp
+                                        <div data-value="{{ $pj->id }}"
+                                             data-divisi="{{ $pj->divisi }}"
+                                             data-nama="{{ $pj->nama_lengkap }}"
+                                             class="dropdown-item-pj hidden w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center justify-between gap-2">
+                                            <span class="truncate">{{ $pj->nama_lengkap }}</span>
+                                            
+                                            {{-- Indikator Speedometer Mini (Jarum) --}}
+                                            <div class="shrink-0 flex items-center gap-1.5 bg-rose-50 border border-rose-100 px-2 py-1 rounded-lg">
+                                                <svg width="22" height="14" viewBox="0 0 64 40" class="shrink-0">
+                                                    <path d="M4,32 A28,28 0 0 1 18,7.75" fill="none" stroke="#22c55e" stroke-width="7" stroke-linecap="round"/>
+                                                    <path d="M18,7.75 A28,28 0 0 1 46,7.75" fill="none" stroke="#eab308" stroke-width="7" stroke-linecap="round"/>
+                                                    <path d="M46,7.75 A28,28 0 0 1 60,32" fill="none" stroke="#ef4444" stroke-width="7" stroke-linecap="round"/>
+                                                    <line x1="32" y1="32" x2="32" y2="10" stroke="#1e293b" stroke-width="4.5" stroke-linecap="round" transform="rotate({{ $needleDeg }}, 32, 32)"/>
+                                                    <circle cx="32" cy="32" r="4.5" fill="#1e293b"/>
+                                                </svg>
+                                                <span class="text-[10px] font-bold text-rose-600 leading-none">
+                                                    {{ $stats['sla_terlambat'] }} SLA
+                                                </span>
+                                            </div>
                                         </div>
                                     @endforeach
                                 </div>
@@ -354,7 +375,7 @@
             itemsPj.forEach(item => {
                 item.addEventListener('click', () => {
                     const pjId = item.getAttribute('data-value');
-                    const pjNama = item.querySelector('span').innerText;
+                    const pjNama = item.getAttribute('data-nama');
 
                     inputPjId.value = pjId;
                     labelPj.innerText = pjNama;
