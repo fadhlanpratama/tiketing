@@ -92,7 +92,10 @@
                         <p class="font-bold text-slate-800">{{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
                         <span class="text-[11px] text-slate-400">{{ $ticket->pelapor->divisi ?? '-' }}</span>
                     </td>
-                    <td class="p-4 font-semibold text-slate-700">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? '-' }}</td>
+                    <td class="p-4"> 
+                        <p class="font-semibold text-slate-700">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? '-' }}</p>
+                        <span class="text-[11px] text-slate-400">{{ optional($ticket->pj)->divisi ?? '-' }}</span>
+                    </td>
                     <td class="p-4">
                         @if(strtolower($ticket->prioritas) == 'tinggi')
                             <span class="text-rose-600 font-bold bg-rose-50 px-2.5 py-1 rounded-lg text-xs border border-rose-100"><i class="fa-solid fa-triangle-exclamation mr-1"></i>{{ $ticket->prioritas }}</span>

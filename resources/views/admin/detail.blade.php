@@ -201,23 +201,116 @@
                     @endif
                 </div>
 
-                {{-- 2. Penanggung Jawab --}}
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4 w-full">
-                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
-                        <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
-                        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Penanggung Jawab</h3>
+                {{-- 2. KARTU GABUNGAN: PENANGGUNG JAWAB & INFORMASI SLA --}}
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-5 w-full">
+                    
+                    {{-- Sub-bagian A: Penanggung Jawab --}}
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                            <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
+                            <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Penanggung Jawab</h3>
+                        </div>
+
+                        <div class="flex items-center gap-3.5 p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/60">
+                            <div class="w-11 h-11 rounded-xl bg-[#0a2540] text-amber-400 flex items-center justify-center font-black text-sm shrink-0 shadow-sm">
+                                <i class="fa-solid fa-user-shield"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold text-slate-900 truncate">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}</p>
+                                <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ optional($ticket->pj)->divisi ?? 'Belum Ditentukan' }}</p>
+                                <p class="text-[11px] text-slate-400 mt-0.5"><i class="fa-regular fa-envelope me-1"></i>{{ optional($ticket->pj)->email ?? '-' }}</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex items-center gap-3.5 p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/60">
-                        <div class="w-11 h-11 rounded-xl bg-[#0a2540] text-amber-400 flex items-center justify-center font-black text-sm shrink-0 shadow-sm">
-                            <i class="fa-solid fa-user-shield"></i>
+                    {{-- Sub-bagian B: Informasi SLA --}}
+                    <div class="space-y-3 pt-2 border-t border-slate-100">
+                        <div class="flex items-center justify-between pb-1">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2.5 h-5 bg-[#0a2540] rounded-full"></div>
+                                <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Informasi SLA</h3>
+                            </div>
+                            
+                            {{-- Status Badge SLA Dinamis --}}
+                            @php $slaBadge = $ticket->sla_badge; @endphp
+                            @if($ticket->status === 'Closed' && $ticket->closed_by === 'user')
+                                <span class="inline-flex items-center gap-1.5 text-slate-600 font-bold bg-slate-100 px-2.5 py-1 rounded-lg text-[10px] border border-slate-200">
+                                    <i class="fa-solid fa-ban"></i> Dibatalkan
+                                </span>
+                            @elseif(!$ticket->pj_id)
+                                {{-- Belum ditunjuk PJ oleh Admin --}}
+                                <span class="inline-flex items-center gap-1.5 text-amber-700 font-bold bg-amber-50 px-2.5 py-1 rounded-lg text-[10px] border border-amber-200/60">
+                                    <i class="fa-solid fa-user-clock"></i> Belum Ada PJ
+                                </span>
+                            @elseif(!$ticket->waktu_mulai_dikerjakan)
+                                {{-- Sudah ada PJ, tapi belum dikerjakan --}}
+                                <span class="inline-flex items-center gap-1.5 text-slate-500 font-bold bg-slate-100 px-2.5 py-1 rounded-lg text-[10px] border border-slate-200">
+                                    <i class="fa-solid fa-hourglass-half"></i> Belum Diproses PJ
+                                </span>
+                            @elseif($slaBadge && $slaBadge['terlambat'])
+                                {{-- Sudah lewat target SLA --}}
+                                <span class="inline-flex items-center gap-1.5 text-red-700 font-bold bg-red-50 px-2.5 py-1 rounded-lg text-[10px] border border-red-100">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                    {{ $slaBadge['sedang_proses'] ? 'Lewat SLA ' : 'Terlambat ' }}{{ $slaBadge['label'] }}
+                                </span>
+                            @else
+                                {{-- Dalam SLA / Tepat Waktu --}}
+                                <span class="inline-flex items-center gap-1.5 text-green-700 font-bold bg-green-50 px-2.5 py-1 rounded-lg text-[10px] border border-green-100">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    {{ ($slaBadge && $slaBadge['sedang_proses']) ? 'Dalam SLA' : 'Tepat Waktu' }}
+                                </span>
+                            @endif
                         </div>
-                        <div class="min-w-0">
-                            <p class="text-xs font-bold text-slate-900 truncate">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}</p>
-                            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ optional($ticket->pj)->divisi ?? 'Belum Ditentukan' }}</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5"><i class="fa-regular fa-envelope me-1"></i>{{ optional($ticket->pj)->email ?? '-' }}</p>
+
+                        <div class="space-y-2.5 text-xs">
+                            {{-- Waktu Mulai Dikerjakan --}}
+                            <div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl">
+                                <p class="text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">Waktu Mulai Dikerjakan</p>
+                                @if($ticket->status === 'Closed' && $ticket->closed_by === 'user')
+                                    @if($ticket->waktu_mulai_dikerjakan)
+                                        <p class="text-slate-500 font-semibold text-xs mt-0.5 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-ban text-slate-400"></i>
+                                            {{ \Carbon\Carbon::parse($ticket->waktu_mulai_dikerjakan)->format('d M Y, H:i') }} WIB
+                                            <span class="italic text-slate-400">(Dibatalkan)</span>
+                                        </p>
+                                    @else
+                                        <p class="text-slate-400 italic text-xs mt-0.5 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-ban"></i> Dibatalkan sebelum dikerjakan
+                                        </p>
+                                    @endif
+                                @elseif($ticket->waktu_mulai_dikerjakan)
+                                    <p class="text-slate-800 font-bold text-xs mt-0.5 flex items-center gap-1.5">
+                                        <i class="fa-regular fa-calendar-check text-blue-500"></i>
+                                        {{ \Carbon\Carbon::parse($ticket->waktu_mulai_dikerjakan)->format('d M Y, H:i') }} WIB
+                                    </p>
+                                @elseif(!$ticket->pj_id)
+                                    {{-- Opsi 1: Jika PJ belum ditunjuk Admin --}}
+                                    <p class="text-amber-600 font-medium italic text-xs mt-0.5 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-user-plus"></i> Menunggu Penunjukan PJ
+                                    </p>
+                                @else
+                                    {{-- Opsi 2: Jika PJ sudah ditunjuk, tinggal tunggu PJ mulai --}}
+                                    <p class="text-sky-600 font-medium italic text-xs mt-0.5 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-hourglass-start"></i> Menunggu Dikerjakan PJ
+                                    </p>
+                                @endif
+                            </div>
+
+                            {{-- Target SLA Berdasarkan Prioritas --}}
+                            <div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl">
+                                <p class="text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">Target SLA ({{ ucfirst($ticket->prioritas ?? 'Rendah') }})</p>
+                                <p class="text-slate-800 font-bold text-xs mt-0.5 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-stopwatch text-amber-500"></i>
+                                    @if($ticket->status === 'Closed' && $ticket->closed_by === 'user')
+                                        <span class="text-slate-400 italic font-normal">Tidak Dihitung (Dibatalkan)</span>
+                                    @else
+                                        {{ $targetSlaText ?? '7 Hari Kerja' }}
+                                    @endif
+                                </p>
+                            </div>
                         </div>
                     </div>
+
                 </div>
 
                 {{-- 3. Aksi Admin --}}
@@ -281,9 +374,6 @@
                                                     <line x1="32" y1="32" x2="32" y2="10" stroke="#1e293b" stroke-width="4.5" stroke-linecap="round" transform="rotate({{ $needleDeg }}, 32, 32)"/>
                                                     <circle cx="32" cy="32" r="4.5" fill="#1e293b"/>
                                                 </svg>
-                                                <span class="text-[10px] font-bold text-rose-600 leading-none">
-                                                    {{ $stats['sla_terlambat'] }} SLA
-                                                </span>
                                             </div>
                                         </div>
                                     @endforeach
