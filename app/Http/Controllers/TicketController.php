@@ -273,7 +273,7 @@ class TicketController extends Controller
             $path = $request->file('foto')->store('ticket_messages', 'public');
         }
 
-        $ticket->messages()->create([
+        $message = $ticket->messages()->create([
             'sender_type'  => 'user',
             'sender_nama'  => $ticket->pelapor->nama_lengkap ?? session('nama_lengkap', 'Pelapor'),
             'pesan'        => $request->filled('pesan') ? strip_tags($request->pesan) : null,
@@ -281,6 +281,18 @@ class TicketController extends Controller
             'read_by_pj'   => false,
             'read_by_user' => true,
         ]);
+
+        $recipientIds = collect([$ticket->pj_id])
+            ->merge($ticket->collaborators()->pluck('pj_id'))
+            ->filter()
+            ->unique();
+
+        $message->recipients()->createMany(
+            $recipientIds->map(fn ($userId) => [
+                'user_id' => $userId,
+                'read' => false,
+            ])->values()->all()
+        );
 
         return back()->with('success', 'Pesan terkirim.');
     }
@@ -354,6 +366,8 @@ class TicketController extends Controller
         $ticket->pj_notif_closed_read = false;
         $ticket->admin_notif_user_closed_read = false;
         $ticket->save();
+
+        $ticket->collaborators()->update(['closed_notif_read' => false]);
 
         return redirect()->route('user.dashboard')->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil dibatalkan.');
     }

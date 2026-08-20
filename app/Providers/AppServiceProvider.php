@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
+use App\Models\TicketCollaborator;
 use App\Models\Users;
 
 
@@ -42,18 +43,47 @@ class AppServiceProvider extends ServiceProvider
             })
                 ->pluck('id');
 
-            $notifMessages = TicketMessage::whereIn('ticket_id', $ticketIdsPj)
+            $collaboratorTicketIds = TicketCollaborator::where('pj_id', $pjId)->pluck('ticket_id');
+
+            $notifMessagesOwner = TicketMessage::whereIn('ticket_id', $ticketIdsPj)
                 ->where('sender_type', '!=', 'pj')
                 ->where('read_by_pj', false)
-                ->latest()
-                ->take(10)
                 ->get();
+
+            $notifMessagesCollaborator = TicketMessage::whereHas('recipients', function ($query) use ($pjId) {
+                $query->where('user_id', $pjId)->where('read', false);
+            })->get();
+
+            $notifMessages = $notifMessagesOwner
+                ->merge($notifMessagesCollaborator)
+                ->sortByDesc('created_at')
+                ->take(10)
+                ->values();
 
             $notifClosed = Ticket::whereIn('id', $ticketIdsPj)
                 ->where('status', 'Closed')
                 ->where('closed_by', 'user')
                 ->where('pj_notif_closed_read', false)
                 ->latest('updated_at')
+                ->take(10)
+                ->get();
+
+            $notifClosedCollaborator = Ticket::whereIn('id', $collaboratorTicketIds)
+                ->where('status', 'Closed')
+                ->where('closed_by', 'user')
+                ->whereHas('collaborators', function ($query) use ($pjId) {
+                    $query->where('pj_id', $pjId)->where('closed_notif_read', false);
+                })
+                ->latest('updated_at')
+                ->take(10)
+                ->get();
+
+            $notifClosed = $notifClosed->merge($notifClosedCollaborator)->sortByDesc('updated_at')->take(10)->values();
+
+            $notifInvitations = TicketCollaborator::where('pj_id', $pjId)
+                ->where('invitation_read', false)
+                ->with(['ticket', 'inviter'])
+                ->latest('created_at')
                 ->take(10)
                 ->get();
 
@@ -74,9 +104,10 @@ class AppServiceProvider extends ServiceProvider
             $view->with([
                 'notifMessages'      => $notifMessages,
                 'notifClosed'        => $notifClosed,
+                'notifInvitations'  => $notifInvitations,
                 'notifAssignedPj'    => $notifAssignedPj,
                 'notifAdminClosedPj' => $notifAdminClosedPj,
-                'notifCount'         => $notifMessages->count() + $notifClosed->count() + $notifAssignedPj->count() + $notifAdminClosedPj->count(),
+                'notifCount'         => $notifMessages->count() + $notifClosed->count() + $notifInvitations->count() + $notifAssignedPj->count() + $notifAdminClosedPj->count(),
             ]);
         });
 

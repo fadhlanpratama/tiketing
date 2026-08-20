@@ -63,6 +63,24 @@
                             @empty
                             @endforelse
 
+                            @forelse(($notifInvitations ?? []) as $invitation)
+                            <a href="{{ route('pj.ticket.show', $invitation->ticket_id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-user-plus text-xs"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-semibold text-slate-800 truncate">
+                                        Anda diundang sebagai kolaborator — #TKT-{{ str_pad($invitation->ticket_id, 5, '0', STR_PAD_LEFT) }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500 truncate">
+                                        Oleh PJ {{ $invitation->inviter->nama_lengkap ?? 'utama' }}
+                                    </p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $invitation->created_at->diffForHumans() }}</p>
+                                </div>
+                            </a>
+                            @empty
+                            @endforelse
+
                             @forelse(($notifClosed ?? []) as $t)
                             <a href="{{ route('pj.ticket.show', $t->id) }}" class="flex gap-2.5 p-3 hover:bg-slate-50 transition">
                                 <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">

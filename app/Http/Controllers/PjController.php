@@ -289,14 +289,29 @@ class PjController extends Controller
             $path = $request->file('foto')->store('ticket_messages', 'public');
         }
 
-        $ticket->messages()->create([
+        $message = $ticket->messages()->create([
             'sender_type'  => 'pj',
             'sender_nama'  => $namaPj,
             'pesan'        => $request->filled('pesan') ? strip_tags($request->pesan) : null,
             'foto'         => $path,
-            'read_by_pj'   => true,
+            'read_by_pj'   => $ticket->pj_id == $pjId,
             'read_by_user' => false,
         ]);
+
+        $recipientIds = $ticket->collaborators()
+            ->where('pj_id', '!=', $pjId)
+            ->pluck('pj_id');
+
+        if ($ticket->pj_id != $pjId) {
+            $recipientIds->push($ticket->pj_id);
+        }
+
+        $message->recipients()->createMany(
+            $recipientIds->unique()->map(fn ($userId) => [
+                'user_id' => $userId,
+                'read' => false,
+            ])->values()->all()
+        );
 
         return back()->with('success', 'Pesan terkirim.');
     }
@@ -310,10 +325,22 @@ class PjController extends Controller
             ->firstOrFail();
 
         $isOwner = $ticket->pj_id == $pjId;
+        if ($isOwner) {
+            $ticket->messages()
+                ->where('sender_type', '!=', 'pj')
+                ->where('read_by_pj', false)
+                ->update(['read_by_pj' => true]);
+        }
+
         $ticket->messages()
-            ->where('sender_type', '!=', 'pj')
-            ->where('read_by_pj', false)
-            ->update(['read_by_pj' => true]);
+            ->whereHas('recipients', fn ($query) => $query->where('user_id', $pjId)->where('read', false))
+            ->with('recipients')
+            ->get()
+            ->each(function ($message) use ($pjId) {
+                $message->recipients()
+                    ->where('user_id', $pjId)
+                    ->update(['read' => true]);
+            });
 
         $needsSave = false;
 
@@ -331,6 +358,15 @@ class PjController extends Controller
             if (!$ticket->pj_notif_assigned_read) {
                 $ticket->pj_notif_assigned_read = true;
                 $needsSave = true;
+            }
+        } else {
+            $collaborator = $ticket->collaborators()->where('pj_id', $pjId)->first();
+            if ($collaborator && (!$collaborator->invitation_read || !$collaborator->closed_notif_read)) {
+                $collaborator->invitation_read = true;
+                if ($ticket->status === 'Closed' && $ticket->closed_by === 'user') {
+                    $collaborator->closed_notif_read = true;
+                }
+                $collaborator->save();
             }
         }
 
@@ -402,7 +438,6 @@ class PjController extends Controller
             'ticket_id'  => $ticket->id,
             'pj_id'      => $targetId,
             'invited_by' => $pjId,
-            'created_at' => now(),
         ]);
 
         return back()->with('success', $target->nama_lengkap . ' berhasil ditambahkan sebagai kolaborator.');

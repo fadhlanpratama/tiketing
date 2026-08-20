@@ -28,4 +28,9 @@ class TicketMessage extends Model
     {
         return $this->belongsTo(Ticket::class, 'ticket_id');
     }
+
+    public function recipients()
+    {
+        return $this->hasMany(TicketMessageRecipient::class, 'ticket_message_id');
+    }
 } 
