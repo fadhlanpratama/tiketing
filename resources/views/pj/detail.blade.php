@@ -6,6 +6,10 @@
     <title>ESDM - Tiketing - Detail Tiket PJ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
 <body class="bg-slate-100/70 min-h-screen font-sans text-slate-800 flex flex-col antialiased">
 
@@ -19,7 +23,7 @@
                         <h1 class="text-white font-black tracking-wider text-base sm:text-lg leading-tight">SISTEM TIKETING</h1>
                         <span class="text-[9px] sm:text-[10px] text-amber-400 uppercase font-bold tracking-widest block">Portal Penanggung Jawab</span>
                     </div>
-               </div>
+                </div>
             </div>
             
             <div class="flex items-center gap-3">
@@ -89,7 +93,7 @@
                         <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-[#0a2540] uppercase tracking-wider bg-slate-100 px-3 py-1 rounded-lg border border-slate-200/60">
                             <i class="fa-solid fa-layer-group text-amber-500"></i> {{ $ticket->kategori }}
                         </span>
-                       <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                        <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
                             {{ $ticket->sub_kategori }}
                         </h2>
                     </div>
@@ -273,24 +277,44 @@
                     </div>
                 </div>
 
-                {{-- ===== KARTU KOLABORATOR ===== --}}
+                {{-- ===== KARTU TIMWORK / KOLABORATOR ===== --}}
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4 w-full">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
-                        <div class="w-2.5 h-5 bg-indigo-400 rounded-full"></div>
-                        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Kolaborator</h3>
+                        <div class="w-2.5 h-5 bg-indigo-500 rounded-full"></div>
+                        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Tim Penanganan Tiket</h3>
                     </div>
 
                     @if(session('success'))
-                        <div class="p-3 rounded-xl text-xs font-semibold bg-green-100 text-green-800">{{ session('success') }}</div>
+                        <div class="p-3 rounded-xl text-xs font-semibold bg-emerald-100 text-emerald-800">{{ session('success') }}</div>
                     @endif
                     @if(session('error'))
-                        <div class="p-3 rounded-xl text-xs font-semibold bg-red-100 text-red-800">{{ session('error') }}</div>
+                        <div class="p-3 rounded-xl text-xs font-semibold bg-rose-100 text-rose-800">{{ session('error') }}</div>
                     @endif
 
-                    @if($isOwner)
-                        @php $bisaKelolaKolaborator = in_array($ticket->status, ['Open', 'In Progress']); @endphp
+                    {{-- Daftar Anggota Tim (PJ Utama & Kolaborator) --}}
+                    <div class="space-y-2">
+                        
+                        {{-- 1. PJ Utama --}}
+                        <div class="space-y-1">
+                            <span class="text-[9px] font-black uppercase text-amber-600 tracking-wider">PJ Utama (Penanggung Jawab)</span>
+                            <div class="flex items-center justify-between gap-2 p-3 bg-amber-500/5 rounded-2xl border border-amber-500/20">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-8 h-8 rounded-lg bg-[#0a2540] text-amber-400 flex items-center justify-center text-xs font-bold shrink-0">
+                                        <i class="fa-solid fa-user-shield"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-bold text-slate-900 truncate">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? '-' }}</p>
+                                        <p class="text-[10px] text-slate-500">{{ optional($ticket->pj)->divisi ?? '-' }}</p>
+                                    </div>
+                                </div>
+                                <span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-2 py-0.5 rounded-md border border-amber-200 shrink-0">PJ Utama</span>
+                            </div>
+                        </div>
 
-                        <div class="space-y-2">
+                        {{-- 2. Daftar Kolaborator --}}
+                        <div class="space-y-1 pt-2">
+                            <span class="text-[9px] font-black uppercase text-indigo-600 tracking-wider">Kolaborator Tambahan</span>
+                            
                             @forelse($ticket->collaborators as $c)
                                 <div class="flex items-center justify-between gap-2 p-3 bg-slate-50/80 rounded-2xl border border-slate-200/60">
                                     <div class="flex items-center gap-2.5 min-w-0">
@@ -302,65 +326,117 @@
                                             <p class="text-[10px] text-slate-400">{{ $c->pj->divisi ?? '-' }}</p>
                                         </div>
                                     </div>
-                                    @if($bisaKelolaKolaborator)
-                                    <form action="{{ route('pj.ticket.collaborator.remove', [$ticket->id, $c->id]) }}" method="POST" onsubmit="return confirm('Hapus kolaborator ini dari tiket?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-400 hover:text-red-600 transition w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50">
+
+                                    @if($isOwner && in_array($ticket->status, ['Open', 'In Progress']))
+                                        {{-- Hidden Form Hapus Kolaborator --}}
+                                        <form id="formRemoveCollab-{{ $c->id }}" action="{{ route('pj.ticket.collaborator.remove', [$ticket->id, $c->id]) }}" method="POST" class="hidden">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <button type="button" 
+                                                onclick="openRemoveCollabModal({{ $c->id }}, '{{ addslashes($c->pj->nama_lengkap ?? 'Kolaborator') }}')" 
+                                                class="text-rose-400 hover:text-rose-600 transition w-7 h-7 flex items-center justify-center rounded-lg hover:bg-rose-50 active:scale-95">
                                             <i class="fa-solid fa-xmark text-xs"></i>
                                         </button>
-                                    </form>
                                     @endif
                                 </div>
                             @empty
-                                <p class="text-xs text-slate-400 italic text-center py-2">Belum ada kolaborator diundang.</p>
+                                <p class="text-xs text-slate-400 italic text-center py-2 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                                    Belum ada kolaborator tambahan.
+                                </p>
                             @endforelse
                         </div>
+                    </div>
+
+                    {{-- Form Tambah Kolaborator 2-Step (Divisi -> Pilih PJ + Indikator SLA) --}}
+                    @if($isOwner)
+                        @php $bisaKelolaKolaborator = in_array($ticket->status, ['Open', 'In Progress']); @endphp
 
                         @if($bisaKelolaKolaborator)
                             @if($availablePjs->count() > 0)
-                            <form action="{{ route('pj.ticket.invite', $ticket->id) }}" method="POST" class="pt-3 border-t border-slate-100 flex gap-2">
+                            <form action="{{ route('pj.ticket.invite', $ticket->id) }}" method="POST" class="pt-3 border-t border-slate-100 space-y-3">
                                 @csrf
-                                <select name="collaborator_id" required
-                                    class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-slate-600 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition">
-                                    <option value="">Pilih PJ untuk diundang...</option>
-                                    @foreach($availablePjs as $pj)
-                                        <option value="{{ $pj->id }}">{{ $pj->nama_lengkap }} — {{ $pj->divisi ?? '-' }}</option>
-                                    @endforeach
-                                </select>
-                                <button type="submit" class="bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-xs px-4 rounded-xl transition shrink-0">
-                                    <i class="fa-solid fa-user-plus"></i> Undang
+                                <input type="hidden" name="collaborator_id" id="inputCollabPjId" required>
+
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Undang Kolaborator</span>
+
+                                <!-- Step 1: Dropdown Pilih Divisi -->
+                                <div class="space-y-1 relative custom-dropdown" id="dropdownDivisi">
+                                    <label class="text-[9px] font-bold text-slate-400 uppercase">1. Pilih Divisi</label>
+                                    <button type="button" class="dropdown-btn w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 font-medium flex items-center justify-between transition focus:bg-white focus:ring-2 focus:ring-indigo-400 outline-none cursor-pointer">
+                                        <span class="dropdown-label truncate">-- Pilih Divisi --</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200"></i>
+                                    </button>
+                                    <div class="dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl p-1.5 space-y-0.5 max-h-48 overflow-y-auto no-scrollbar">
+                                        @php
+                                            $daftarDivisiPj = $availablePjs->pluck('divisi')->unique()->filter();
+                                        @endphp
+                                        @forelse($daftarDivisiPj as $div)
+                                            <div data-value="{{ $div }}" class="dropdown-item-divisi w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center justify-between">
+                                                <span>{{ $div }}</span>
+                                            </div>
+                                        @empty
+                                            <div class="px-3 py-2 text-xs text-slate-400">Tidak ada divisi tersedia</div>
+                                        @endforelse
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: Dropdown Pilih PJ dengan Indikator Speedometer SLA -->
+                                <div class="space-y-1 relative custom-dropdown" id="dropdownPj">
+                                    <label class="text-[9px] font-bold text-slate-400 uppercase">2. Pilih PJ / Teknisi</label>
+                                    <button type="button" id="btnPj" disabled class="dropdown-btn w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-400 font-medium flex items-center justify-between transition outline-none cursor-not-allowed">
+                                        <span class="dropdown-label truncate">-- Pilih Divisi Dahulu --</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200"></i>
+                                    </button>
+                                    <div class="dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 bg-white border border-slate-100 rounded-2xl shadow-xl p-1.5 space-y-0.5 max-h-56 overflow-y-auto no-scrollbar" id="menuPj">
+                                        @foreach($availablePjs as $pj)
+                                            @php
+                                                $stats = $pj->sla_stats;
+                                                $needleDeg = $stats['sla_needle_deg'] ?? 0;
+                                            @endphp
+                                            <div data-value="{{ $pj->id }}"
+                                                 data-divisi="{{ $pj->divisi }}"
+                                                 data-nama="{{ $pj->nama_lengkap }}"
+                                                 class="dropdown-item-pj hidden w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center justify-between gap-2">
+                                                <span class="truncate">{{ $pj->nama_lengkap }}</span>
+                                                
+                                                {{-- Indikator Speedometer Mini (Jarum SLA) --}}
+                                                <div class="shrink-0 flex items-center gap-1.5 bg-rose-50 border border-rose-100 px-2 py-1 rounded-lg">
+                                                    <svg width="22" height="14" viewBox="0 0 64 40" class="shrink-0">
+                                                        <path d="M4,32 A28,28 0 0 1 18,7.75" fill="none" stroke="#22c55e" stroke-width="7" stroke-linecap="round"/>
+                                                        <path d="M18,7.75 A28,28 0 0 1 46,7.75" fill="none" stroke="#eab308" stroke-width="7" stroke-linecap="round"/>
+                                                        <path d="M46,7.75 A28,28 0 0 1 60,32" fill="none" stroke="#ef4444" stroke-width="7" stroke-linecap="round"/>
+                                                        <line x1="32" y1="32" x2="32" y2="10" stroke="#1e293b" stroke-width="4.5" stroke-linecap="round" transform="rotate({{ $needleDeg }}, 32, 32)"/>
+                                                        <circle cx="32" cy="32" r="4.5" fill="#1e293b"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition active:scale-95 shadow-sm mt-1">
+                                    <i class="fa-solid fa-user-plus me-1"></i> Undang Kolaborator
                                 </button>
                             </form>
                             @else
-                            <p class="text-[11px] text-slate-400 italic pt-3 border-t border-slate-100">Semua PJ yang tersedia sudah menjadi kolaborator.</p>
+                                <p class="text-[11px] text-slate-400 italic pt-3 border-t border-slate-100">Semua PJ yang tersedia sudah menjadi kolaborator.</p>
                             @endif
 
                             <p class="text-[10px] text-slate-400 leading-relaxed pt-1">
-                                <i class="fa-solid fa-circle-info"></i> Kolaborator hanya dapat melihat detail tiket ini dan ikut berdiskusi. Tanggung jawab SLA tetap sepenuhnya berada pada Anda sebagai PJ utama.
+                                <i class="fa-solid fa-circle-info"></i> Kolaborator dapat melihat detail tiket dan berdiskusi. Tanggung jawab SLA tetap berada pada PJ Utama.
                             </p>
                         @else
                             <p class="text-[11px] text-slate-400 italic pt-3 border-t border-slate-100">
-                                <i class="fa-solid fa-lock"></i> Tiket sudah {{ strtolower($ticket->status) }}. Kolaborator tidak dapat lagi ditambah atau dihapus.
+                                <i class="fa-solid fa-lock"></i> Tiket sudah {{ strtolower($ticket->status) }}. Kolaborator tidak dapat diubah.
                             </p>
                         @endif
-
                     @else
-                        <div class="p-3.5 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-start gap-2.5">
-                            <i class="fa-solid fa-eye text-indigo-500 text-sm mt-0.5"></i>
-                            <p class="text-xs text-indigo-700 leading-relaxed">
-                                Anda diundang sebagai <span class="font-bold">kolaborator</span> pada tiket ini. Anda dapat melihat detail dan ikut berdiskusi, namun tidak dapat mengubah status atau menyelesaikan tiket.
+                        <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-start gap-2">
+                            <i class="fa-solid fa-eye text-indigo-500 text-xs mt-0.5"></i>
+                            <p class="text-[11px] text-indigo-700 leading-relaxed">
+                                Anda bergabung dalam tim penanganan tiket ini sebagai <span class="font-bold">Kolaborator</span>.
                             </p>
-                        </div>
-
-                        <div class="space-y-1.5 pt-1">
-                            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">PJ Utama (Pemilik SLA)</p>
-                            <div class="flex items-center gap-2.5 p-3 bg-slate-50/80 rounded-2xl border border-slate-200/60">
-                                <div class="w-8 h-8 rounded-lg bg-[#0a2540] text-amber-400 flex items-center justify-center text-xs font-bold shrink-0">
-                                    <i class="fa-solid fa-user-shield"></i>
-                                </div>
-                                <p class="text-xs font-bold text-slate-800">{{ $ticket->penanggung_jawab ?? '-' }}</p>
-                            </div>
                         </div>
                     @endif
                 </div>
@@ -375,5 +451,158 @@
 
     </main>
 
+    {{-- MODAL POP-UP KONFIRMASI HAPUS KOLABORATOR --}}
+    <div id="removeCollabModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all duration-300">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm sm:max-w-md w-full shadow-2xl border border-slate-100 text-center space-y-6 transform scale-95 transition-transform duration-200" id="collabModalCard">
+            
+            {{-- Icon Peringatan Merah (Sesuai Gambar) --}}
+            <div class="w-16 h-16 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto text-2xl border border-rose-100 shadow-inner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+
+            {{-- Teks Informasi Modal --}}
+            <div class="space-y-2">
+                <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Apakah Anda Yakin?</h3>
+                <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                    Kolaborator <span id="collabNameText" class="font-bold text-slate-800"></span> akan dihapus dari tim penanganan tiket ini.
+                </p>
+            </div>
+
+            {{-- Tombol Aksi --}}
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button type="button" onclick="closeRemoveCollabModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-2xl text-xs transition cursor-pointer active:scale-95">
+                    Batal
+                </button>
+                <button type="button" onclick="confirmRemoveCollab()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-2xl text-xs transition shadow-md shadow-rose-600/20 cursor-pointer active:scale-95">
+                    Ya, Hapus
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- JS 2-Step Dropdown Divisi & PJ (Dengan Indikator SLA) ---
+        const dropdownDivisi = document.getElementById('dropdownDivisi');
+        const dropdownPj = document.getElementById('dropdownPj');
+
+        if (dropdownDivisi && dropdownPj) {
+            const btnDivisi = dropdownDivisi.querySelector('.dropdown-btn');
+            const menuDivisi = dropdownDivisi.querySelector('.dropdown-menu');
+            const labelDivisi = dropdownDivisi.querySelector('.dropdown-label');
+            const arrowDivisi = btnDivisi.querySelector('.fa-chevron-down');
+
+            const btnPj = dropdownPj.querySelector('.dropdown-btn');
+            const menuPj = dropdownPj.querySelector('.dropdown-menu');
+            const labelPj = dropdownPj.querySelector('.dropdown-label');
+            const arrowPj = btnPj.querySelector('.fa-chevron-down');
+
+            const inputCollabPjId = document.getElementById('inputCollabPjId');
+            const itemsPj = dropdownPj.querySelectorAll('.dropdown-item-pj');
+
+            btnDivisi.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menuPj.classList.add('hidden');
+                arrowPj.classList.remove('rotate-180');
+
+                menuDivisi.classList.toggle('hidden');
+                arrowDivisi.classList.toggle('rotate-180');
+            });
+
+            btnPj.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (btnPj.disabled) return;
+
+                menuDivisi.classList.add('hidden');
+                arrowDivisi.classList.remove('rotate-180');
+
+                menuPj.classList.toggle('hidden');
+                arrowPj.classList.toggle('rotate-180');
+            });
+
+            dropdownDivisi.querySelectorAll('.dropdown-item-divisi').forEach(item => {
+                item.addEventListener('click', () => {
+                    const selectedDivisi = item.getAttribute('data-value');
+                    labelDivisi.innerText = selectedDivisi;
+
+                    menuDivisi.classList.add('hidden');
+                    arrowDivisi.classList.remove('rotate-180');
+
+                    inputCollabPjId.value = '';
+                    labelPj.innerText = '-- Pilih PJ / Teknisi --';
+
+                    btnPj.disabled = false;
+                    btnPj.classList.remove('bg-slate-100', 'cursor-not-allowed', 'text-slate-400');
+                    btnPj.classList.add('bg-slate-50', 'cursor-pointer', 'text-slate-700');
+
+                    itemsPj.forEach(pjItem => {
+                        if (pjItem.getAttribute('data-divisi') === selectedDivisi) {
+                            pjItem.classList.remove('hidden');
+                        } else {
+                            pjItem.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            itemsPj.forEach(item => {
+                item.addEventListener('click', () => {
+                    const pjId = item.getAttribute('data-value');
+                    const pjNama = item.getAttribute('data-nama');
+
+                    inputCollabPjId.value = pjId;
+                    labelPj.innerText = pjNama;
+
+                    menuPj.classList.add('hidden');
+                    arrowPj.classList.remove('rotate-180');
+                });
+            });
+
+            document.addEventListener('click', () => {
+                menuDivisi.classList.add('hidden');
+                arrowDivisi.classList.remove('rotate-180');
+                menuPj.classList.add('hidden');
+                arrowPj.classList.remove('rotate-180');
+            });
+        }
+
+        // --- JS Modal Konfirmasi Hapus Kolaborator ---
+        const collabModal = document.getElementById('removeCollabModal');
+        const collabModalCard = document.getElementById('collabModalCard');
+        let selectedCollabFormId = null;
+
+        function openRemoveCollabModal(collabId, name) {
+            selectedCollabFormId = 'formRemoveCollab-' + collabId;
+            document.getElementById('collabNameText').innerText = name;
+            
+            collabModal.classList.remove('hidden');
+            setTimeout(() => {
+                collabModalCard.classList.remove('scale-95');
+                collabModalCard.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeRemoveCollabModal() {
+            collabModalCard.classList.remove('scale-100');
+            collabModalCard.classList.add('scale-95');
+            setTimeout(() => {
+                collabModal.classList.add('hidden');
+            }, 150);
+        }
+
+        function confirmRemoveCollab() {
+            if (selectedCollabFormId) {
+                const targetForm = document.getElementById(selectedCollabFormId);
+                if (targetForm) targetForm.submit();
+            }
+        }
+
+        // Close modal jika klik backdrop
+        collabModal.addEventListener('click', (e) => {
+            if (e.target === collabModal) {
+                closeRemoveCollabModal();
+            }
+        });
+    </script>
 </body>
 </html>
