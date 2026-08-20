@@ -56,6 +56,12 @@
                             <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Closed
                         </span>
                     @endif
+
+                    @if(!$isOwner)
+                        <span class="inline-flex items-center gap-1.5 bg-indigo-500/10 text-indigo-700 border border-indigo-500/20 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+                            <i class="fa-solid fa-people-arrows"></i> Kolaborator
+                        </span>
+                    @endif
                 </div>
 
                 <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -265,6 +271,98 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {{-- ===== KARTU KOLABORATOR ===== --}}
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4 w-full">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                        <div class="w-2.5 h-5 bg-indigo-400 rounded-full"></div>
+                        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Kolaborator</h3>
+                    </div>
+
+                    @if(session('success'))
+                        <div class="p-3 rounded-xl text-xs font-semibold bg-green-100 text-green-800">{{ session('success') }}</div>
+                    @endif
+                    @if(session('error'))
+                        <div class="p-3 rounded-xl text-xs font-semibold bg-red-100 text-red-800">{{ session('error') }}</div>
+                    @endif
+
+                    @if($isOwner)
+                        @php $bisaKelolaKolaborator = in_array($ticket->status, ['Open', 'In Progress']); @endphp
+
+                        <div class="space-y-2">
+                            @forelse($ticket->collaborators as $c)
+                                <div class="flex items-center justify-between gap-2 p-3 bg-slate-50/80 rounded-2xl border border-slate-200/60">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold shrink-0">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-bold text-slate-800 truncate">{{ $c->pj->nama_lengkap ?? '-' }}</p>
+                                            <p class="text-[10px] text-slate-400">{{ $c->pj->divisi ?? '-' }}</p>
+                                        </div>
+                                    </div>
+                                    @if($bisaKelolaKolaborator)
+                                    <form action="{{ route('pj.ticket.collaborator.remove', [$ticket->id, $c->id]) }}" method="POST" onsubmit="return confirm('Hapus kolaborator ini dari tiket?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-400 hover:text-red-600 transition w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50">
+                                            <i class="fa-solid fa-xmark text-xs"></i>
+                                        </button>
+                                    </form>
+                                    @endif
+                                </div>
+                            @empty
+                                <p class="text-xs text-slate-400 italic text-center py-2">Belum ada kolaborator diundang.</p>
+                            @endforelse
+                        </div>
+
+                        @if($bisaKelolaKolaborator)
+                            @if($availablePjs->count() > 0)
+                            <form action="{{ route('pj.ticket.invite', $ticket->id) }}" method="POST" class="pt-3 border-t border-slate-100 flex gap-2">
+                                @csrf
+                                <select name="collaborator_id" required
+                                    class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-slate-600 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition">
+                                    <option value="">Pilih PJ untuk diundang...</option>
+                                    @foreach($availablePjs as $pj)
+                                        <option value="{{ $pj->id }}">{{ $pj->nama_lengkap }} — {{ $pj->divisi ?? '-' }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-xs px-4 rounded-xl transition shrink-0">
+                                    <i class="fa-solid fa-user-plus"></i> Undang
+                                </button>
+                            </form>
+                            @else
+                            <p class="text-[11px] text-slate-400 italic pt-3 border-t border-slate-100">Semua PJ yang tersedia sudah menjadi kolaborator.</p>
+                            @endif
+
+                            <p class="text-[10px] text-slate-400 leading-relaxed pt-1">
+                                <i class="fa-solid fa-circle-info"></i> Kolaborator hanya dapat melihat detail tiket ini dan ikut berdiskusi. Tanggung jawab SLA tetap sepenuhnya berada pada Anda sebagai PJ utama.
+                            </p>
+                        @else
+                            <p class="text-[11px] text-slate-400 italic pt-3 border-t border-slate-100">
+                                <i class="fa-solid fa-lock"></i> Tiket sudah {{ strtolower($ticket->status) }}. Kolaborator tidak dapat lagi ditambah atau dihapus.
+                            </p>
+                        @endif
+
+                    @else
+                        <div class="p-3.5 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-start gap-2.5">
+                            <i class="fa-solid fa-eye text-indigo-500 text-sm mt-0.5"></i>
+                            <p class="text-xs text-indigo-700 leading-relaxed">
+                                Anda diundang sebagai <span class="font-bold">kolaborator</span> pada tiket ini. Anda dapat melihat detail dan ikut berdiskusi, namun tidak dapat mengubah status atau menyelesaikan tiket.
+                            </p>
+                        </div>
+
+                        <div class="space-y-1.5 pt-1">
+                            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">PJ Utama (Pemilik SLA)</p>
+                            <div class="flex items-center gap-2.5 p-3 bg-slate-50/80 rounded-2xl border border-slate-200/60">
+                                <div class="w-8 h-8 rounded-lg bg-[#0a2540] text-amber-400 flex items-center justify-center text-xs font-bold shrink-0">
+                                    <i class="fa-solid fa-user-shield"></i>
+                                </div>
+                                <p class="text-xs font-bold text-slate-800">{{ $ticket->penanggung_jawab ?? '-' }}</p>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- Partial Chat/Diskusi --}}

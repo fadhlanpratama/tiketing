@@ -64,4 +64,14 @@ class Ticket extends Model
     {
         return $this->belongsTo(Users::class, 'pj_id', 'id');
     }
+
+    public function collaborators()
+    {
+        return $this->hasMany(TicketCollaborator::class, 'ticket_id');
+    }
+
+    public function isCollaborator(int $pjId): bool
+    {
+        return $this->collaborators()->where('pj_id', $pjId)->exists();
+    }
 }

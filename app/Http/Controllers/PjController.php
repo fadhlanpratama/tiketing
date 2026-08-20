@@ -6,6 +6,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\Models\Users;
+use App\Models\TicketCollaborator;
 use Illuminate\Validation\Rules\Password;
 
 class PjController extends Controller
@@ -15,9 +16,16 @@ class PjController extends Controller
         $this->middleware('cek.login:pj');
     }
 
-    private function pjTicketQuery(int $pjId)
+   private function pjTicketQuery(int $pjId, bool $includeCollab = true)
     {
+        if (!$includeCollab) {
         return Ticket::where('pj_id', $pjId);
+        }
+
+        return Ticket::where(function ($q) use ($pjId) {
+            $q->where('pj_id', $pjId)
+            ->orWhereHas('collaborators', fn ($qq) => $qq->where('pj_id', $pjId));
+        });
     }
 
     public function index(Request $request)
@@ -52,7 +60,12 @@ class PjController extends Controller
         }
 
         $tickets = $query->orderBy('created_at', 'asc')->paginate(10)->withQueryString();
-        $countQuery = $this->pjTicketQuery($pjId);
+        $tickets->getCollection()->transform(function ($ticket) use ($pjId) {
+            $ticket->is_collaborator = $ticket->pj_id != $pjId;
+            return $ticket;
+        });
+
+        $countQuery = $this->pjTicketQuery($pjId, false);
 
         if ($request->filled('prioritas') && $request->prioritas !== 'semua') {
             $countQuery->whereRaw('LOWER(prioritas) = ?', [strtolower($request->prioritas)]);
@@ -66,7 +79,7 @@ class PjController extends Controller
             ")
             ->first();
 
-        $overdueQuery = $this->pjTicketQuery($pjId)
+        $overdueQuery = $this->pjTicketQuery($pjId, false)
             ->where(function ($q) {
                 $q->where(function ($subQ) {
                     $subQ->where('closed_by', '!=', 'user')
@@ -186,11 +199,11 @@ class PjController extends Controller
         return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
     }
 
-   public function terima(string $id)
+    public function terima(string $id)
     {
         $pjId = session('user_id');
-        $ticket = $this->pjTicketQuery($pjId)
-            ->where('id', $id)
+        $ticket = Ticket::where('id', $id)
+            ->where('pj_id', $pjId)
             ->where('status', 'Open')
             ->firstOrFail();
 
@@ -216,8 +229,8 @@ class PjController extends Controller
         ]);
 
         $pjId = session('user_id');
-        $ticket = $this->pjTicketQuery($pjId)
-            ->where('id', $id)
+        $ticket = Ticket::where('id', $id)
+            ->where('pj_id', $pjId)
             ->where('status', 'In Progress')
             ->firstOrFail();
 
@@ -293,10 +306,10 @@ class PjController extends Controller
         $pjId = session('user_id');
         $ticket = $this->pjTicketQuery($pjId)
             ->where('id', $id)
-            ->with('pelapor')
+            ->with(['pelapor', 'collaborators.pj'])
             ->firstOrFail();
 
-        // Tandai pesan dari pelapor sebagai sudah dibaca oleh PJ
+        $isOwner = $ticket->pj_id == $pjId;
         $ticket->messages()
             ->where('sender_type', '!=', 'pj')
             ->where('read_by_pj', false)
@@ -304,22 +317,21 @@ class PjController extends Controller
 
         $needsSave = false;
 
-        // Notif: tiket dibatalkan pelapor
-        if ($ticket->status === 'Closed' && $ticket->closed_by === 'user' && !$ticket->pj_notif_closed_read) {
-            $ticket->pj_notif_closed_read = true;
-            $needsSave = true;
-        }
+        if ($isOwner) {
+            if ($ticket->status === 'Closed' && $ticket->closed_by === 'user' && !$ticket->pj_notif_closed_read) {
+                $ticket->pj_notif_closed_read = true;
+                $needsSave = true;
+            }
 
-        // Notif: tiket ditutup admin
-        if ($ticket->status === 'Closed' && $ticket->closed_by === 'admin' && !$ticket->pj_notif_admin_closed_read) {
-            $ticket->pj_notif_admin_closed_read = true;
-            $needsSave = true;
-        }
+            if ($ticket->status === 'Closed' && $ticket->closed_by === 'admin' && !$ticket->pj_notif_admin_closed_read) {
+                $ticket->pj_notif_admin_closed_read = true;
+                $needsSave = true;
+            }
 
-        // Notif: penugasan baru dari admin
-        if (!$ticket->pj_notif_assigned_read) {
-            $ticket->pj_notif_assigned_read = true;
-            $needsSave = true;
+            if (!$ticket->pj_notif_assigned_read) {
+                $ticket->pj_notif_assigned_read = true;
+                $needsSave = true;
+            }
         }
 
         if ($needsSave) {
@@ -327,7 +339,6 @@ class PjController extends Controller
             $ticket->save();
         }
 
-        // Tentukan teks target SLA berdasarkan prioritas
         $prioritas = strtolower($ticket->prioritas);
         $targetSlaText = match($prioritas) {
             'tinggi' => '1 Hari Kerja',
@@ -335,6 +346,88 @@ class PjController extends Controller
             default  => '7 Hari Kerja',
         };
 
-        return view('pj.detail', compact('ticket', 'targetSlaText'));
+        $availablePjs = [];
+        if ($isOwner) {
+            $sudahDiundang = $ticket->collaborators->pluck('pj_id')->toArray();
+
+            $availablePjs = Users::where('role', 'pj')
+                ->where('id', '!=', $pjId)
+                ->whereNotIn('id', $sudahDiundang)
+                ->orderBy('nama_lengkap')
+                ->get(['id', 'nama_lengkap', 'divisi']);
+        }
+
+        return view('pj.detail', compact('ticket', 'targetSlaText', 'isOwner', 'availablePjs'));
+    }
+
+    public function inviteCollaborator(Request $request, string $id)
+    {
+        $pjId = session('user_id');
+
+        $ticket = Ticket::where('id', $id)
+            ->where('pj_id', $pjId)
+            ->firstOrFail();
+
+        if (!in_array($ticket->status, ['Open', 'In Progress'])) {
+            return back()->with('error', 'Kolaborator hanya dapat ditambahkan selama tiket berstatus Open atau In Progress.');
+        }
+
+        $request->validate([
+            'collaborator_id' => 'required|exists:users,id',
+        ], [
+            'collaborator_id.required' => 'Pilih PJ yang ingin diundang.',
+            'collaborator_id.exists'   => 'PJ yang dipilih tidak valid.',
+        ]);
+
+        $targetId = (int) $request->collaborator_id;
+
+        if ($targetId === (int) $pjId) {
+            return back()->with('error', 'Tidak bisa mengundang diri sendiri sebagai kolaborator.');
+        }
+
+        $target = Users::where('id', $targetId)->where('role', 'pj')->first();
+        if (!$target) {
+            return back()->with('error', 'PJ yang dipilih tidak valid.');
+        }
+
+        $sudahAda = TicketCollaborator::where('ticket_id', $ticket->id)
+            ->where('pj_id', $targetId)
+            ->exists();
+
+        if ($sudahAda) {
+            return back()->with('error', 'PJ tersebut sudah menjadi kolaborator tiket ini.');
+        }
+
+        TicketCollaborator::create([
+            'ticket_id'  => $ticket->id,
+            'pj_id'      => $targetId,
+            'invited_by' => $pjId,
+            'created_at' => now(),
+        ]);
+
+        return back()->with('success', $target->nama_lengkap . ' berhasil ditambahkan sebagai kolaborator.');
+    }
+
+    public function removeCollaborator(string $id, string $collabId)
+    {
+        $pjId = session('user_id');
+
+        $ticket = Ticket::where('id', $id)
+            ->where('pj_id', $pjId)
+            ->firstOrFail();
+
+        if (!in_array($ticket->status, ['Open', 'In Progress'])) {
+            return back()->with('error', 'Kolaborator hanya dapat diubah selama tiket berstatus Open atau In Progress.');
+        }
+
+        $deleted = TicketCollaborator::where('id', $collabId)
+            ->where('ticket_id', $ticket->id)
+            ->delete();
+
+        if (!$deleted) {
+            return back()->with('error', 'Kolaborator tidak ditemukan.');
+        }
+
+        return back()->with('success', 'Kolaborator berhasil dihapus dari tiket ini.');
     }
 }

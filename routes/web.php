@@ -67,6 +67,10 @@ Route::prefix('pj')->name('pj.')->middleware(['cek.login:pj', 'no.cache'])->grou
     Route::post('/ticket/{id}/selesaikan', [PjController::class, 'selesaikan'])->name('ticket.selesaikan');
     Route::get('/ticket/{id}', [PjController::class, 'show'])->name('ticket.show');
     Route::post('/ticket/{id}/chat', [PjController::class, 'storeMessage'])->name('ticket.chat');
+
+    // Aksi PJ terhadap tiket: kolaborator
+    Route::post('/ticket/{id}/invite-collaborator', [PjController::class, 'inviteCollaborator'])->name('ticket.invite');
+    Route::delete('/ticket/{id}/collaborator/{collabId}', [PjController::class, 'removeCollaborator'])->name('ticket.collaborator.remove');
 });
 
 

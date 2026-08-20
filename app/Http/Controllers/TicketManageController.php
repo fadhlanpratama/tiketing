@@ -101,7 +101,7 @@ class TicketManageController extends Controller
 
     public function show(string $id)
     {
-        $ticket = Ticket::with('pelapor', 'messages')->findOrFail($id);
+        $ticket = Ticket::with('pelapor', 'messages', 'collaborators.pj')->findOrFail($id);
 
         if ($ticket->status === 'Closed'
             && $ticket->closed_by === 'user'

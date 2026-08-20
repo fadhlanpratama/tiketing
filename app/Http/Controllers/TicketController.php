@@ -207,7 +207,7 @@ class TicketController extends Controller
     public function show(string $id)
     {
         $userId = session('user_id');
-        $ticket = Ticket::where('id', $id)->where('user_id', $userId)->firstOrFail();
+        $ticket = Ticket::where('id', $id)->where('user_id', $userId)->with(['pj', 'collaborators.pj'])->firstOrFail();
 
         // Tandai pesan dari PJ sebagai sudah dibaca oleh user
         $ticket->messages()

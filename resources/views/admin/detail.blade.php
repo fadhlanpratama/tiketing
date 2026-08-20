@@ -144,7 +144,7 @@
                 <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-4 w-full">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
                         <div class="w-2.5 h-5 bg-amber-400 rounded-full"></div>
-                        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Riwayat Diskusi (Read-only)</h3>
+                        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Riwayat Komentar</h3>
                     </div>
 
                     <div class="space-y-3 max-h-96 overflow-y-auto pr-1 no-scrollbar">
@@ -167,7 +167,7 @@
                             </div>
                         </div>
                         @empty
-                        <p class="text-xs text-slate-400 text-center py-6">Belum ada diskusi pada tiket ini.</p>
+                        <p class="text-xs text-slate-400 text-center py-6">Belum ada komentar pada tiket ini.</p>
                         @endforelse
                     </div>
                 </div>
@@ -307,7 +307,35 @@
 
                 </div>
 
-                {{-- 3. Aksi Admin --}}
+                {{-- 3. KARTU DAFTAR KOLABORATOR (READ-ONLY) --}}
+                @if($ticket->collaborators->count() > 0)
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-3 w-full">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                        <div class="w-2.5 h-5 bg-indigo-400 rounded-full"></div>
+                        <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Kolaborator Penanganan</h3>
+                    </div>
+
+                    <p class="text-[11px] text-slate-400 leading-relaxed">
+                        <i class="fa-solid fa-circle-info"></i> Petugas tambahan yang diundang oleh PJ utama untuk membantu menangani tiket ini. Tanggung jawab SLA tetap berada pada PJ utama.
+                    </p>
+
+                    <div class="space-y-2">
+                        @foreach($ticket->collaborators as $c)
+                            <div class="flex items-center gap-2.5 p-3 bg-slate-50/80 rounded-2xl border border-slate-200/60">
+                                <div class="w-9 h-9 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold shrink-0">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-bold text-slate-800 truncate">{{ $c->pj->nama_lengkap ?? '-' }}</p>
+                                    <p class="text-[10px] text-slate-400">{{ $c->pj->divisi ?? '-' }}</p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                {{-- 4. Aksi Admin --}}
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4 w-full">
                     <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
                         <div class="w-2.5 h-5 bg-[#0a2540] rounded-full"></div>

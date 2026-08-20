@@ -363,6 +363,11 @@
                                 @endif
                             </td>
                             <td class="p-4">
+                                @if($ticket->is_collaborator)
+                                    <span class="inline-flex items-center gap-1.5 text-indigo-700 font-bold bg-indigo-50 px-2 py-1 rounded-lg text-[11px] border border-indigo-100">
+                                        <i class="fa-solid fa-people-arrows"></i> Kolaborator
+                                    </span>
+                                @else
                                 @php $slaBadge = $ticket->sla_badge; @endphp
                                 @if(!$slaBadge)
                                     <span class="text-slate-300 text-xs italic">-</span>
@@ -377,11 +382,14 @@
                                         {{ $slaBadge['sedang_proses'] ? 'Dalam SLA' : 'Tepat Waktu' }}
                                     </span>
                                 @endif
+                                @endif
                             </td>
                             <td class="p-4 pr-6" onclick="event.stopPropagation()">
                                 {{-- Tombol Aksi --}}
                                 <div class="flex items-center justify-center gap-2 action-buttons">
-                                    @if($ticket->status == 'Open')
+                                    @if($ticket->is_collaborator)
+                                        <span class="text-indigo-400 text-xs italic"><i class="fa-solid fa-eye"></i> Hanya Lihat</span>
+                                    @elseif($ticket->status == 'Open')
                                         <button type="button" class="btn-mulai bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-xs px-3 py-2 rounded-lg transition"
                                             data-id="{{ $ticket->id }}"
                                             data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"
@@ -432,6 +440,13 @@
                     @endif
 
                     {{-- Badge SLA Mobile --}}
+                    @if($ticket->is_collaborator)
+                        <div>
+                            <span class="inline-flex items-center gap-1.5 text-indigo-700 font-bold bg-indigo-50 px-2 py-1 rounded-lg text-[11px] border border-indigo-100">
+                                <i class="fa-solid fa-people-arrows"></i> Kolaborator
+                            </span>
+                        </div>
+                    @else
                     @php $slaBadgeMobile = $ticket->sla_badge; @endphp
                     @if($slaBadgeMobile)
                         <div>
@@ -447,6 +462,7 @@
                                 </span>
                             @endif
                         </div>
+                        @endif
                     @endif
 
                     {{-- Detail Informasi Tiket + Prioritas di Bawah --}}
@@ -471,7 +487,9 @@
 
                     {{-- Tombol Aksi --}}
                     <div class="grid grid-cols-1 gap-1.5 pt-2 border-t border-slate-200/60 action-buttons">
-                        @if($ticket->status == 'Open')
+                        @if($ticket->is_collaborator)
+                            <span class="text-indigo-400 text-xs italic text-center py-2 block"><i class="fa-solid fa-eye"></i> Hanya Lihat</span>
+                        @elseif($ticket->status == 'Open')
                             <button type="button" class="btn-mulai w-full bg-amber-400 hover:bg-amber-300 text-[#0a2540] font-bold text-xs py-2 rounded-xl transition"
                                 data-id="{{ $ticket->id }}"
                                 data-code="#TKT-{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}"
