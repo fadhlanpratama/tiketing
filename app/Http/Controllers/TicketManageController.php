@@ -69,34 +69,45 @@ class TicketManageController extends Controller
             'penanggung_jawab.exists'   => 'PJ/Teknisi tidak ditemukan atau tidak aktif.',
         ]);
 
-        $ticket = Ticket::where('id', $id)->firstOrFail();
         $pj = Users::where('id', $request->penanggung_jawab)
             ->where('role', 'pj')
             ->where('status', 'active')
             ->firstOrFail();
 
-        $ticket->pj_id = $pj->id;
-        $ticket->penanggung_jawab = $pj->nama_lengkap;
-        $ticket->user_notif_assigned_read = false;
-        $ticket->pj_notif_assigned_read = false;
-        $ticket->save();
+        $updated = Ticket::where('id', $id)
+            ->where('status', 'Open')
+            ->update([
+                'pj_id' => $pj->id,
+                'penanggung_jawab' => $pj->nama_lengkap,
+                'user_notif_assigned_read' => false,
+                'pj_notif_assigned_read' => false,
+            ]);
+
+        if (!$updated) {
+            return back()->with('error', 'Tiket sudah diproses atau tidak lagi berstatus Open.');
+        }
 
         return redirect()->route('admin.tickets.index')
-            ->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil ditugaskan ke PJ: ' . $pj->nama_lengkap);
+            ->with('success', 'Tiket #' . str_pad($id, 5, '0', STR_PAD_LEFT) . ' berhasil ditugaskan ke PJ: ' . $pj->nama_lengkap);
     }
 
     public function close(string $id)
     {
-        $ticket = Ticket::where('id', $id)->where('status', 'Resolved')->firstOrFail();
+        $updated = Ticket::where('id', $id)
+            ->where('status', 'Resolved')
+            ->update([
+                'status' => 'Closed',
+                'closed_by' => 'admin',
+                'user_notif_admin_closed_read' => false,
+                'pj_notif_admin_closed_read' => false,
+            ]);
 
-        $ticket->status = 'Closed';
-        $ticket->closed_by = 'admin';
-        $ticket->user_notif_admin_closed_read = false;
-        $ticket->pj_notif_admin_closed_read = false;
-        $ticket->save();
+        if (!$updated) {
+            return back()->with('error', 'Tiket sudah ditutup atau tidak lagi berstatus Resolved.');
+        }
 
         return redirect()->route('admin.tickets.index')
-            ->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' resmi ditutup (Closed).');
+            ->with('success', 'Tiket #' . str_pad($id, 5, '0', STR_PAD_LEFT) . ' resmi ditutup (Closed).');
     }
 
     public function show(string $id)

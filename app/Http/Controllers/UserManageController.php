@@ -8,6 +8,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use App\Models\Users;
 use App\Models\Ticket;
+use Illuminate\Validation\Rule;
 
 class UserManageController extends Controller
 {
@@ -40,7 +41,7 @@ class UserManageController extends Controller
     public function approve(Request $request, string $id)
     {
         $request->validate([
-            'divisi' => 'required|string',
+            'divisi' => ['required', Rule::in($this->daftarDivisi())],
             'role'   => 'required|in:user,pj',
         ], [
             'divisi.required' => 'Divisi wajib dipilih.',
@@ -96,7 +97,7 @@ class UserManageController extends Controller
                 'email'        => ['required', 'email:rfc,dns', 'max:254', 'unique:users,email'],
                 'no_telp'      => ['required', 'regex:/^[0-9+\-\s()]{8,20}$/'],
                 'password'     => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()->mixedCase()],
-                'divisi'       => ['required', 'string'],
+                'divisi'       => ['required', Rule::in($this->daftarDivisi())],
                 'role'         => ['required', 'in:user,pj,admin'],
             ], [
                 'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
@@ -158,7 +159,7 @@ class UserManageController extends Controller
             'nama_lengkap' => ['required', 'string', 'min:3', 'max:150'],
             'email'        => ['required', 'max:254', 'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/', 'unique:users,email,' . $id],
             'no_telp'      => ['required', 'regex:/^[0-9+\-\s()]{8,20}$/'],
-            'divisi'       => ['required', 'string'],
+            'divisi'       => ['required', Rule::in($this->daftarDivisi())],
             'role'         => ['required', 'in:user,pj,admin'],
             'status'       => ['required', 'in:active,rejected'],
         ];

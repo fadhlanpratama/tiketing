@@ -5,26 +5,33 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Users;
 
 class CekLogin
 {
     public function handle(Request $request, Closure $next, $role = null): Response
     {
-        if (!session()->has('user_logged')) {
+        $userId = session('user_id');
+        $user = $userId ? Users::find($userId) : null;
+
+        if (!$user || $user->status !== 'active') {
+            session()->invalidate();
+            session()->regenerateToken();
+
             return redirect()->route('home')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        if ($role && session('user_role') !== $role) {
+        if ($role && $user->role !== $role) {
 
-            if (session('user_role') === 'user') {
+            if ($user->role === 'user') {
                 return redirect()->route('user.dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman ini.');
             }
 
-            if (session('user_role') === 'admin') {
+            if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard')->with('error', 'Admin tidak diizinkan mengakses halaman ini.');
             }
 
-            if (session('user_role') === 'pj') {
+            if ($user->role === 'pj') {
                 return redirect()->route('pj.dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman ini.');
             }
 

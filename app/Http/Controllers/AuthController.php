@@ -151,7 +151,7 @@ class AuthController extends Controller
             RateLimiter::clear($throttleKey);
             return response()->json([
                 'success' => false,
-                'message' => 'Akun Anda telah ditolak oleh Admin. Silakan hubungi Admin untuk informasi lebih lanjut.'
+                'message' => 'Akun Anda telah ditolak/dinonaktifkan oleh Admin. Silakan hubungi Admin untuk informasi lebih lanjut.'
             ], 403);
         }
 

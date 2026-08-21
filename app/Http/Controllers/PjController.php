@@ -8,6 +8,8 @@ use App\Models\Ticket;
 use App\Models\Users;
 use App\Models\TicketCollaborator;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
 class PjController extends Controller
 {
@@ -207,13 +209,20 @@ class PjController extends Controller
             ->where('status', 'Open')
             ->firstOrFail();
 
-        $ticket->status = 'In Progress';
-        $ticket->waktu_mulai_dikerjakan = now();
-        $ticket->sla_target_menit = Ticket::getSlaTargetMenitByPrioritas($ticket->prioritas);
-        $ticket->sla_status = 'Berjalan';
-        $ticket->user_notif_inprogress_read = false;
-        $ticket->timestamps = false;
-        $ticket->save();
+        $waktuMulai = now();
+        $updated = Ticket::where('id', $ticket->id)
+            ->where('status', 'Open')
+            ->update([
+                'status' => 'In Progress',
+                'waktu_mulai_dikerjakan' => $waktuMulai,
+                'sla_target_menit' => Ticket::getSlaTargetMenitByPrioritas($ticket->prioritas),
+                'sla_status' => 'Berjalan',
+                'user_notif_inprogress_read' => false,
+            ]);
+
+        if (!$updated) {
+            return back()->with('error', 'Tiket sudah diproses oleh pengguna lain.');
+        }
 
         return redirect()->route('pj.dashboard')
             ->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' mulai dikerjakan.');
@@ -236,30 +245,40 @@ class PjController extends Controller
 
         $path = $request->file('bukti_foto')->store('tickets_resolved', 'public');
 
-        $ticket->status = 'Resolved';
-        $ticket->tanggal_selesai = now();
-        $ticket->hasil_resolved_foto = $path;
-        $ticket->user_notif_resolved_read = false;
+        $tanggalSelesai = now();
+        $updates = [
+            'status' => 'Resolved',
+            'tanggal_selesai' => $tanggalSelesai,
+            'hasil_resolved_foto' => $path,
+            'user_notif_resolved_read' => false,
+        ];
 
         if ($ticket->waktu_mulai_dikerjakan && $ticket->sla_target_menit) {
             $deadline = $ticket->waktu_mulai_dikerjakan->copy()->addMinutes($ticket->sla_target_menit);
 
-            if ($ticket->tanggal_selesai->greaterThan($deadline)) {
-                $ticket->sla_lebih_menit = $deadline->diffInMinutes($ticket->tanggal_selesai);
-                $ticket->sla_status = 'Terlambat';
+            if ($tanggalSelesai->greaterThan($deadline)) {
+                $updates['sla_lebih_menit'] = $deadline->diffInMinutes($tanggalSelesai);
+                $updates['sla_status'] = 'Terlambat';
             } else {
-                $ticket->sla_lebih_menit = 0;
-                $ticket->sla_status = 'Tepat Waktu';
+                $updates['sla_lebih_menit'] = 0;
+                $updates['sla_status'] = 'Tepat Waktu';
             }
         }
 
         if ($request->filled('catatan_penyelesaian')) {
-            $ticket->deskripsi_masalah .= "\n\n[Catatan PJ - " . now()->format('Y-m-d H:i') . "]: "
+            $updates['deskripsi_masalah'] = $ticket->deskripsi_masalah . "\n\n[Catatan PJ - " . $tanggalSelesai->format('Y-m-d H:i') . "]: "
                 . strip_tags($request->catatan_penyelesaian);
         }
 
-        $ticket->timestamps = false;
-        $ticket->save();
+        $updated = Ticket::where('id', $ticket->id)
+            ->where('status', 'In Progress')
+            ->update($updates);
+
+        if (!$updated) {
+            Storage::disk('public')->delete($path);
+
+            return back()->with('error', 'Tiket sudah diselesaikan oleh pengguna lain.');
+        }
 
         return redirect()->route('pj.dashboard')
             ->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil diselesaikan.');
@@ -387,6 +406,7 @@ class PjController extends Controller
             $sudahDiundang = $ticket->collaborators->pluck('pj_id')->toArray();
 
             $availablePjs = Users::where('role', 'pj')
+                ->where('status', 'active')
                 ->where('id', '!=', $pjId)
                 ->whereNotIn('id', $sudahDiundang)
                 ->orderBy('nama_lengkap')
@@ -409,10 +429,15 @@ class PjController extends Controller
         }
 
         $request->validate([
-            'collaborator_id' => 'required|exists:users,id',
+            'collaborator_id' => [
+                'required',
+                Rule::exists('users', 'id')->where(function ($query) {
+                    $query->where('role', 'pj')->where('status', 'active');
+                }),
+            ],
         ], [
             'collaborator_id.required' => 'Pilih PJ yang ingin diundang.',
-            'collaborator_id.exists'   => 'PJ yang dipilih tidak valid.',
+            'collaborator_id.exists'   => 'PJ yang dipilih tidak valid atau tidak aktif.',
         ]);
 
         $targetId = (int) $request->collaborator_id;
@@ -421,7 +446,10 @@ class PjController extends Controller
             return back()->with('error', 'Tidak bisa mengundang diri sendiri sebagai kolaborator.');
         }
 
-        $target = Users::where('id', $targetId)->where('role', 'pj')->first();
+        $target = Users::where('id', $targetId)
+            ->where('role', 'pj')
+            ->where('status', 'active')
+            ->first();
         if (!$target) {
             return back()->with('error', 'PJ yang dipilih tidak valid.');
         }
