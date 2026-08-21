@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-100/70 min-h-screen font-sans text-slate-800 flex flex-col antialiased">
 
-    {{-- 1. Header Utama ESDM (Disamakan dengan Halaman Profil & PJ) --}}
+    {{-- 1. Header Utama ESDM --}}
     <header class="bg-[#0a2540] text-white sticky top-0 z-30 shadow-lg border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3.5">
@@ -163,9 +163,13 @@
                 </div>
                 @endif
 
+                {{-- Riwayat Komentar & Survei — dipindah ke kolom kiri, konsisten dengan halaman Admin --}}
+                <div class="bg-white rounded-3xl p-2 shadow-sm border border-slate-200/80 overflow-hidden w-full">
+                    @include('partials.ticket-chat-survey', ['chatRoute' => 'user.ticket.chat', 'isPj' => false])
+                </div>
             </div>
 
-            {{-- KOLOM KANAN (1/3): Sidebar Penanggung Jawab & Diskusi --}}
+            {{-- KOLOM KANAN (1/3): Sidebar Penanggung Jawab --}}
             <div class="space-y-6">
 
                 {{-- Status PJ & Informasi Petugas --}}
@@ -220,11 +224,6 @@
                     </div>
                 </div>
                 @endif
-
-                {{-- Include Partial Komentar & Pop-up Survei untuk User --}}
-                <div class="bg-white rounded-3xl p-2 shadow-sm border border-slate-200/80 overflow-hidden w-full">
-                    @include('partials.ticket-chat-survey', ['chatRoute' => 'user.ticket.chat', 'isPj' => false])
-                </div>
 
             </div>
         </div>

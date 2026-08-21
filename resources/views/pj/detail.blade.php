@@ -171,9 +171,14 @@
                 </div>
                 @endif
 
+                {{-- Riwayat Komentar & Survei — dipindah ke kolom kiri, konsisten dengan halaman Admin --}}
+                <div class="bg-white rounded-3xl p-2 shadow-sm border border-slate-200/80 overflow-hidden w-full">
+                    @include('partials.ticket-chat-survey', ['chatRoute' => 'pj.ticket.chat', 'isPj' => true])
+                </div>
+
             </div>
 
-            {{-- KOLOM KANAN (1/3): Sidebar Gabungan & Diskusi --}}
+            {{-- KOLOM KANAN (1/3): Sidebar Gabungan --}}
             <div class="space-y-6">
 
                 {{-- ===== KARTU GABUNGAN INFORMASI PELAPOR & SLA ===== --}}
@@ -439,11 +444,6 @@
                             </p>
                         </div>
                     @endif
-                </div>
-
-                {{-- Partial Chat/Diskusi --}}
-                <div class="bg-white rounded-3xl p-2 shadow-sm border border-slate-200/80 overflow-hidden w-full">
-                    @include('partials.ticket-chat-survey', ['chatRoute' => 'pj.ticket.chat', 'isPj' => true])
                 </div>
 
             </div>
