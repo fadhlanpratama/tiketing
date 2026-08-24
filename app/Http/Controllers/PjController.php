@@ -411,6 +411,10 @@ class PjController extends Controller
                 ->whereNotIn('id', $sudahDiundang)
                 ->orderBy('nama_lengkap')
                 ->get(['id', 'nama_lengkap', 'divisi']);
+
+            foreach ($availablePjs as $pj) {
+                $pj->sla_stats = $this->calculatePjSlaStats($pj->id);
+            }
         }
 
         return view('pj.detail', compact('ticket', 'targetSlaText', 'isOwner', 'availablePjs'));
@@ -492,5 +496,46 @@ class PjController extends Controller
         }
 
         return back()->with('success', 'Kolaborator berhasil dihapus dari tiket ini.');
+    }
+
+        private function calculatePjSlaStats(int $pjId): array
+    {
+        $baseQuery = fn () => Ticket::where('pj_id', $pjId);
+
+        $counts = $baseQuery()->selectRaw("
+                COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as diproses,
+                COUNT(CASE WHEN status = 'Resolved' OR (status = 'Closed' AND (closed_by = 'admin' OR closed_by IS NULL)) THEN 1 END) as selesai
+            ")
+            ->first();
+
+        $slaTerlambat = $baseQuery()
+            ->where(function ($q) {
+                $q->where(function ($subQ) {
+                    $subQ->where('closed_by', '!=', 'user')
+                        ->orWhereNull('closed_by');
+                });
+            })
+            ->where(function ($q) {
+                $q->where(function ($qq) {
+                    $qq->where('status', 'In Progress')
+                        ->whereNotNull('waktu_mulai_dikerjakan')
+                        ->whereNotNull('sla_target_menit')
+                        ->whereRaw('TIMESTAMPADD(MINUTE, sla_target_menit, waktu_mulai_dikerjakan) < NOW()');
+                })->orWhere('sla_status', 'Terlambat');
+            })
+            ->count();
+
+        $diproses = $counts->diproses ?? 0;
+        $selesai  = $counts->selesai ?? 0;
+        $total    = $diproses + $selesai;
+        $pct      = $total > 0 ? min(100, round(($slaTerlambat / $total) * 100)) : 0;
+
+        return [
+            'diproses'        => $diproses,
+            'selesai'         => $selesai,
+            'sla_terlambat'   => $slaTerlambat,
+            'sla_percentage'  => $pct,
+            'sla_needle_deg'  => -90 + ($pct / 100) * 180,
+        ];
     }
 }
