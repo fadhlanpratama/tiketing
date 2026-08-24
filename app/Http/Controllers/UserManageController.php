@@ -77,15 +77,26 @@ class UserManageController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
         $users = $query->orderBy('nama_lengkap', 'asc')->get();
 
+        $activeTicketUserIds = Ticket::whereIn('status', ['Open', 'In Progress', 'Resolved'])
+            ->pluck('pj_id')
+            ->merge(
+                Ticket::whereIn('status', ['Open', 'In Progress', 'Resolved'])->pluck('user_id')
+            )
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
         return view('admin.users_manage', [
-            'users'        => $users,
-            'daftarDivisi' => $this->daftarDivisi(),
+            'users'               => $users,
+            'daftarDivisi'        => $this->daftarDivisi(),
+            'activeTicketUserIds' => $activeTicketUserIds,
         ]);
     }
 
@@ -215,6 +226,18 @@ class UserManageController extends Controller
 
         if ((string) $user->id === (string) session('user_id')) {
             return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        $hasActiveTicket = Ticket::where(function ($q) use ($id) {
+                $q->where('pj_id', $id)
+                ->orWhere('user_id', $id);
+            })
+            ->whereIn('status', ['Open', 'In Progress', 'Resolved'])
+            ->exists();
+
+        if ($hasActiveTicket) {
+            return redirect()->back()
+                ->with('error', "Akun {$user->nama_lengkap} tidak dapat dihapus karena masih memiliki tiket dengan status Open, In Progress atau Resolved.");
         }
 
         $namaUser = $user->nama_lengkap;

@@ -120,10 +120,18 @@
                     </td>
                     <td class="p-4 pr-6" onclick="event.stopPropagation()">
                         <div class="flex items-center justify-end">
-                            <button type="button" onclick="openDeleteModal('{{ $user->id }}', '{{ addslashes($user->nama_lengkap) }}')"
-                                class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition flex items-center justify-center cursor-pointer" title="Hapus Pengguna">
-                                <i class="fa-solid fa-trash text-xs"></i>
-                            </button>
+                            @if(in_array($user->id, $activeTicketUserIds))
+                                <button type="button" disabled
+                                    title="Tidak dapat dihapus: masih memiliki tiket Open, In Progress atau Resolved"
+                                    class="w-8 h-8 rounded-lg bg-slate-100 text-slate-300 cursor-not-allowed flex items-center justify-center">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            @else
+                                <button type="button" onclick="openDeleteModal('{{ $user->id }}', '{{ addslashes($user->nama_lengkap) }}')"
+                                    class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition flex items-center justify-center cursor-pointer" title="Hapus Pengguna">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -158,10 +166,16 @@
                 <p><i class="fa-solid fa-user-tag me-1 text-slate-400"></i>{{ ucfirst($user->role) }}</p>
             </div>
             <div class="flex items-center justify-end pt-1" onclick="event.stopPropagation()">
-                <button type="button" onclick="openDeleteModal('{{ $user->id }}', '{{ addslashes($user->nama_lengkap) }}')"
-                    class="w-full bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 transition">
-                    <i class="fa-solid fa-trash"></i> Hapus Pengguna
-                </button>
+                @if(in_array($user->id, $activeTicketUserIds))
+                    <span class="w-full bg-slate-100 text-slate-400 font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed" title="Masih memiliki tiket aktif">
+                        <i class="fa-solid fa-lock"></i> Tidak Dapat Dihapus
+                    </span>
+                @else
+                    <button type="button" onclick="openDeleteModal('{{ $user->id }}', '{{ addslashes($user->nama_lengkap) }}')"
+                        class="w-full bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-trash"></i> Hapus Pengguna
+                    </button>
+                @endif
             </div>
         </div>
         @empty
