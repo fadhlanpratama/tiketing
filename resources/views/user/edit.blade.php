@@ -234,7 +234,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // Toggle Password
             document.querySelectorAll('.toggle-password-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -252,7 +251,6 @@
                 });
             });
 
-            // Helper Fungsi Tampilkan & Sembunyikan Error
             function showError(fieldId, message) {
                 const input = document.getElementById(fieldId);
                 const errSpan = document.getElementById('err-' + fieldId);
@@ -272,7 +270,6 @@
                 }
             }
 
-            // Validasi Real-time / On-Submit
             const form = document.getElementById('editProfileForm');
 
             function validateForm() {
@@ -352,7 +349,6 @@
                 return isValid;
             }
 
-            // Bersihkan error saat pengguna mengetik kembali
             ['nama_lengkap', 'email', 'no_telp', 'password', 'password_confirmation'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
@@ -360,14 +356,12 @@
                 }
             });
 
-            // Handle Submit Form
             form.addEventListener('submit', (e) => {
                 if (!validateForm()) {
                     e.preventDefault();
                 }
             });
 
-            // Password Requirements Checklist Box
             let passwordStatus = { length: false, letters: false, number: false, uppercase: false };
 
             function updateRuleUI(elementId, conditionMet) {

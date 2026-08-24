@@ -41,7 +41,6 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Simpan data registrasi baru
         Users::create([
             'nama_lengkap' => $request->nama_lengkap,
             'email'        => $request->email,
@@ -146,7 +145,6 @@ class AuthController extends Controller
         }
 
         // 4. CEK PEMBATASAN AKSES jika belum di aprov oleh admin belum bisa login
-
         if ($user->status === 'rejected') {
             RateLimiter::clear($throttleKey);
             return response()->json([

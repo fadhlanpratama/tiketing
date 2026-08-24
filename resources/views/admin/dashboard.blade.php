@@ -110,7 +110,6 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-2">
                 <a href="{{ route('admin.dashboard') }}" class="w-full sm:w-auto text-center bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs px-5 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-rotate-right"></i> Reset

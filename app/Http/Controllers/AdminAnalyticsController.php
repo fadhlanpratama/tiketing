@@ -50,7 +50,6 @@ class AdminAnalyticsController extends Controller
         $totalTiket = (clone $base)->count();
 
         // ===== 2. KPI: Rata-rata Waktu Penyelesaian (hari) =====
-        // PERBAIKAN: Hanya menghitung tiket yang sudah selesai (Resolved/Closed) dan memilki tanggal_selesai
         $avgResolutionHours = (clone $base)
             ->whereIn('status', ['Resolved', 'Closed'])
             ->whereNotNull('tanggal_selesai')
@@ -60,7 +59,6 @@ class AdminAnalyticsController extends Controller
         $avgResolutionDays = $avgResolutionHours ? round($avgResolutionHours / 24, 1) : 0;
 
         // ===== 3 & 4. KPI: SLA Compliance % dan Persen Overdue =====
-        // PERBAIKAN: Dihitung dari tiket yang sudah dievaluasi (tiket selesai ATAU tiket aktif yang sudah terlambat)
         $tiketEvaluasiSlaQuery = (clone $base)->where(function ($q) {
             $q->whereIn('status', ['Resolved', 'Closed'])
               ->orWhere('sla_status', 'Terlambat');
@@ -96,8 +94,6 @@ class AdminAnalyticsController extends Controller
             $donutOverdue = $slaTerlambat;
             $donutOnTime  = max($totalTiketEvaluasiSla - $slaTerlambat, 0);
         } else {
-            // Jika memfilter tiket Open yang belum overdue / Dibatalkan
-            // Tampilkan seluruh total tiket filter saat ini sebagai 'On Time / Dalam Proses'
             $donutOverdue = 0;
             $donutOnTime  = $totalTiket; 
         }

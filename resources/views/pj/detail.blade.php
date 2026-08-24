@@ -455,7 +455,7 @@
     <div id="removeCollabModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 transition-all duration-300">
         <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm sm:max-w-md w-full shadow-2xl border border-slate-100 text-center space-y-6 transform scale-95 transition-transform duration-200" id="collabModalCard">
             
-            {{-- Icon Peringatan Merah (Sesuai Gambar) --}}
+            {{-- Icon Peringatan Merah --}}
             <div class="w-16 h-16 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto text-2xl border border-rose-100 shadow-inner">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
@@ -566,7 +566,6 @@
             });
         }
 
-        // --- JS Modal Konfirmasi Hapus Kolaborator ---
         const collabModal = document.getElementById('removeCollabModal');
         const collabModalCard = document.getElementById('collabModalCard');
         let selectedCollabFormId = null;
@@ -597,7 +596,6 @@
             }
         }
 
-        // Close modal jika klik backdrop
         collabModal.addEventListener('click', (e) => {
             if (e.target === collabModal) {
                 closeRemoveCollabModal();

@@ -234,7 +234,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // Toggle Password
             document.querySelectorAll('.toggle-password-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -252,7 +251,6 @@
                 });
             });
 
-            // Helper Fungsi Tampilkan & Sembunyikan Error
             function showError(fieldId, message) {
                 const input = document.getElementById(fieldId);
                 const errSpan = document.getElementById('err-' + fieldId);
@@ -290,7 +288,7 @@
                     clearError('nama_lengkap');
                 }
 
-                // 2. Email (Notif ala Gmail)
+                // 2. Email 
                 const email = document.getElementById('email').value.trim();
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (email === '') {
@@ -316,7 +314,7 @@
                     clearError('no_telp');
                 }
 
-                // 4. Password Baru (Jika diisi)
+                // 4. Password Baru 
                 const pass = document.getElementById('password').value;
                 const passConfirm = document.getElementById('password_confirmation').value;
 
@@ -352,7 +350,6 @@
                 return isValid;
             }
 
-            // Bersihkan error saat pengguna mengetik kembali
             ['nama_lengkap', 'email', 'no_telp', 'password', 'password_confirmation'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
@@ -360,14 +357,12 @@
                 }
             });
 
-            // Handle Submit Form
             form.addEventListener('submit', (e) => {
                 if (!validateForm()) {
                     e.preventDefault();
                 }
             });
 
-            // Password Requirements Checklist Box
             let passwordStatus = { length: false, letters: false, number: false, uppercase: false };
 
             function updateRuleUI(elementId, conditionMet) {

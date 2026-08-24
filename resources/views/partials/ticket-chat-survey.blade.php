@@ -2,7 +2,6 @@
     $tampilKomentar = in_array($ticket->status, ['In Progress', 'Resolved']) 
         || ($ticket->status === 'Closed' && $ticket->closed_by !== 'user');
 
-    // Syarat survei: Resolved atau Closed (bukan di-close user)
     $bisaSurvei = $ticket->status === 'Resolved'
         || ($ticket->status === 'Closed' && $ticket->closed_by !== 'user');
 
@@ -28,7 +27,6 @@
     <div>
         @if(!$isPj)
             @if(!$ticket->survei_kepuasan)
-            {{-- Banner pemicu untuk membuka ulang Modal jika user sempat menutupnya --}}
             <div class="bg-gradient-to-r from-amber-500/10 via-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3">
                 <div class="space-y-0.5">
                     <p class="text-[10px] font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
@@ -153,7 +151,7 @@
             @endforelse
         </div>
 
-        {{-- Form Tambah Komentar (Hanya Aktif jika Status 'In Progress') --}}
+        {{-- Form Tambah Komentar --}}
         @if($ticket->status === 'In Progress')
         <form action="{{ route($chatRoute, $ticket->id) }}" method="POST" enctype="multipart/form-data" class="mt-4 pt-4 border-t border-slate-100">
             @csrf
@@ -316,7 +314,6 @@
 </script>
 @endif
 
-{{-- Script Preview Foto Komentar & Toggle Teks Panjang --}}
 <script>
     function previewFotoKomentar(input) {
         const wrap = document.getElementById('fotoPreviewWrap');

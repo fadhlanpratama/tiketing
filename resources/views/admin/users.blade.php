@@ -46,7 +46,6 @@
                     <td class="p-3.5 text-slate-500">{{ $user->email }}</td>
                     <td class="p-3.5 font-mono text-slate-600">{{ $user->no_telp }}</td>
                     
-                    <!-- Custom Dropdown Divisi + Form Hidden Input -->
                     <td class="p-3.5">
                         <form action="{{ route('admin.user.approve', $user->id) }}" method="POST" id="form-approve-{{ $user->id }}">
                             @csrf
@@ -72,7 +71,6 @@
                             </p>
                     </td>
 
-                    <!-- Custom Dropdown Role -->
                     <td class="p-3.5">
                         <div class="relative custom-dropdown" data-id="{{ $user->id }}-role">
                             <button type="button" class="dropdown-btn w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-200/90 rounded-xl p-2.5 text-xs text-slate-700 font-medium flex items-center justify-between transition outline-none cursor-pointer">
@@ -90,7 +88,6 @@
                         </div>
                     </td>
 
-                    <!-- Tombol Aksi -->
                     <td class="p-3.5 text-center pr-4">
                         <div class="flex items-center justify-center gap-1.5">
                             <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl transition text-xs shadow-sm flex items-center gap-1 cursor-pointer">
@@ -258,7 +255,6 @@
         }
     });
 
-    // ===== LOGIKA PAGINATION CLIENT-SIDE (MAX 5 TOMBOL) =====
     const limit = 15;
     let currentPageUsers = 1;
 

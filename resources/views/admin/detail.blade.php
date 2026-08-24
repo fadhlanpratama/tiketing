@@ -480,7 +480,6 @@
             }
         }
 
-        // Close modal jika klik di luar modal (backdrop)
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 closeCloseModal();

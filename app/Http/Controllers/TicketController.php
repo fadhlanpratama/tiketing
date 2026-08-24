@@ -209,7 +209,6 @@ class TicketController extends Controller
         $userId = session('user_id');
         $ticket = Ticket::where('id', $id)->where('user_id', $userId)->with(['pj', 'collaborators.pj'])->firstOrFail();
 
-        // Tandai pesan dari PJ sebagai sudah dibaca oleh user
         $ticket->messages()
             ->where('sender_type', 'pj')
             ->where('read_by_user', false)
