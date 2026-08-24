@@ -343,8 +343,13 @@
                                     <i class="fa-solid fa-user"></i>
                                 </div>
                                 <div class="min-w-0">
-                                    <p class="text-xs font-bold text-slate-800 truncate">{{ $c->pj->nama_lengkap ?? '-' }}</p>
-                                    <p class="text-[10px] text-slate-400">{{ $c->pj->divisi ?? '-' }}</p>
+                                    @if($c->pj)
+                                        <p class="text-xs font-bold text-slate-800 truncate">{{ $c->pj->nama_lengkap }}</p>
+                                        <p class="text-[10px] text-slate-400 truncate">{{ $c->pj->divisi ?? '-' }}</p>
+                                    @else
+                                        <p class="text-xs font-bold text-slate-400 italic truncate"><i class="fa-solid fa-user-slash me-1"></i>Akun PJ Telah Dihapus</p>
+                                        <p class="text-[10px] text-slate-400 truncate">Data kolaborator tidak tersedia</p>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
