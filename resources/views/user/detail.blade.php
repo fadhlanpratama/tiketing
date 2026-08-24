@@ -184,8 +184,16 @@
                             <i class="fa-solid fa-user-shield"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-xs font-bold text-slate-900 truncate">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}</p>
-                            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ optional($ticket->pj)->divisi ?? 'Belum Ditentukan' }}</p>
+                            @if($ticket->pj)
+                                <p class="text-xs font-bold text-slate-900 truncate">{{ $ticket->pj->nama_lengkap }}</p>
+                                <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ $ticket->pj->divisi ?? '-' }}</p>
+                            @elseif($ticket->pj_id)
+                                <p class="text-xs font-bold text-slate-400 italic truncate"><i class="fa-solid fa-user-slash me-1"></i>Akun PJ Telah Dihapus</p>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Data penanggung jawab tidak lagi tersedia</p>
+                            @else
+                                <p class="text-xs font-bold text-slate-900 truncate">Belum Ditentukan</p>
+                                <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Belum Ditentukan</p>
+                            @endif
                         </div>
                     </div>
 

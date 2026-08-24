@@ -353,9 +353,13 @@
                                 <p class="font-medium text-slate-800">{{ $ticket->kategori }} — {{ $ticket->sub_kategori }}</p>
                                 <span class="text-[11px] text-slate-400">Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
                             </td>
-                            <td class="p-4">
-                                <p class="font-medium text-slate-800">{{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
-                                <span class="text-[11px] text-slate-400">{{ $ticket->pelapor->divisi ?? '-' }}</span>
+                             <td class="p-4">
+                                @if($ticket->pelapor)
+                                    <p class="font-bold text-slate-800">{{ $ticket->pelapor->nama_lengkap }}</p>
+                                    <span class="text-[10px] text-slate-400">{{ $ticket->pelapor->divisi ?? '-' }}</span>
+                                @else
+                                    <p class="font-bold text-slate-400 italic text-xs"><i class="fa-solid fa-user-slash me-1"></i>Akun Dihapus</p>
+                                @endif
                             </td>
                             <td class="p-4">
                                 @if(strtolower($ticket->prioritas) == 'tinggi')
@@ -487,7 +491,7 @@
                     <div>
                         <h4 class="font-bold text-slate-800 text-sm">{{ $ticket->kategori }}</h4>
                         <p class="text-xs text-slate-600 mt-0.5">{{ $ticket->sub_kategori }}</p>
-                        <p class="text-[11px] text-slate-400 mt-2"><i class="fa-solid fa-user"></i> Pelapor: {{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
+                        <p class="text-[11px] text-slate-400 mt-2"><i class="fa-solid fa-user"></i> Pelapor: {{ $ticket->pelapor->nama_lengkap ?? 'Akun Dihapus' }}</p>
                         <p class="text-[10px] text-slate-400 mt-0.5"><i class="fa-regular fa-clock"></i> Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</p>
                         
                         {{-- POSISI PRIORITAS DI BAWAH (SESUAI GAMBAR USER) --}}

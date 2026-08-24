@@ -187,9 +187,14 @@
                             <i class="fa-solid fa-user"></i>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-xs font-bold text-slate-900 truncate">{{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
-                            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ $ticket->pelapor->divisi ?? '-' }}</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5"><i class="fa-regular fa-envelope me-1"></i>{{ $ticket->pelapor->email ?? '-' }}</p>
+                            @if($ticket->pelapor)
+                                <p class="text-xs font-bold text-slate-900 truncate">{{ $ticket->pelapor->nama_lengkap }}</p>
+                                <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ $ticket->pelapor->divisi ?? '-' }}</p>
+                                <p class="text-[11px] text-slate-400 mt-0.5"><i class="fa-regular fa-envelope me-1"></i>{{ $ticket->pelapor->email ?? '-' }}</p>
+                            @else
+                                <p class="text-xs font-bold text-slate-400 italic truncate"><i class="fa-solid fa-user-slash me-1"></i>Akun Pelapor Telah Dihapus</p>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Data pelapor tidak lagi tersedia</p>
+                            @endif
                         </div>
                     </div>
 
@@ -216,9 +221,17 @@
                                 <i class="fa-solid fa-user-shield"></i>
                             </div>
                             <div class="min-w-0">
-                                <p class="text-xs font-bold text-slate-900 truncate">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? 'Belum Ditentukan' }}</p>
-                                <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ optional($ticket->pj)->divisi ?? 'Belum Ditentukan' }}</p>
-                                <p class="text-[11px] text-slate-400 mt-0.5"><i class="fa-regular fa-envelope me-1"></i>{{ optional($ticket->pj)->email ?? '-' }}</p>
+                                @if($ticket->pj)
+                                    <p class="text-xs font-bold text-slate-900 truncate">{{ $ticket->pj->nama_lengkap }}</p>
+                                    <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ $ticket->pj->divisi ?? '-' }}</p>
+                                    <p class="text-[11px] text-slate-400 mt-0.5"><i class="fa-regular fa-envelope me-1"></i>{{ $ticket->pj->email ?? '-' }}</p>
+                                @elseif($ticket->pj_id)
+                                    <p class="text-xs font-bold text-slate-400 italic truncate"><i class="fa-solid fa-user-slash me-1"></i>Akun PJ Telah Dihapus</p>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Data penanggung jawab tidak lagi tersedia</p>
+                                @else
+                                    <p class="text-xs font-bold text-slate-900 truncate">Belum Ditentukan</p>
+                                    <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Belum Ditentukan</p>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -240,6 +253,10 @@
                             @elseif(!$ticket->pj_id)
                                 <span class="inline-flex items-center gap-1.5 text-amber-700 font-bold bg-amber-50 px-2.5 py-1 rounded-lg text-[10px] border border-amber-200/60">
                                     <i class="fa-solid fa-user-clock"></i> Belum Ada PJ
+                                </span>
+                            @elseif(!$ticket->pj)
+                                <span class="inline-flex items-center gap-1.5 text-slate-500 font-bold bg-slate-100 px-2.5 py-1 rounded-lg text-[10px] border border-slate-200">
+                                    <i class="fa-solid fa-user-slash"></i> PJ Dihapus
                                 </span>
                             @elseif(!$ticket->waktu_mulai_dikerjakan)
                                 <span class="inline-flex items-center gap-1.5 text-slate-500 font-bold bg-slate-100 px-2.5 py-1 rounded-lg text-[10px] border border-slate-200">

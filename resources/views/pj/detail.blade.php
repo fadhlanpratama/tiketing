@@ -196,8 +196,12 @@
                                 <i class="fa-solid fa-user"></i>
                             </div>
                             <div class="min-w-0">
-                                <p class="text-xs font-bold text-slate-900 truncate">{{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
-                                <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ $ticket->pelapor->divisi ?? '-' }}</p>
+                                @if($ticket->pelapor)
+                                    <p class="text-xs font-bold text-slate-900 truncate">{{ $ticket->pelapor->nama_lengkap }}</p>
+                                    <p class="text-[11px] text-slate-500 font-semibold mt-0.5">{{ $ticket->pelapor->divisi ?? '-' }}</p>
+                                @else
+                                    <p class="text-xs font-bold text-slate-400 italic truncate"><i class="fa-solid fa-user-slash me-1"></i>Akun Pelapor Telah Dihapus</p>
+                                @endif
                             </div>
                         </div>
 
@@ -308,8 +312,14 @@
                                         <i class="fa-solid fa-user-shield"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="text-xs font-bold text-slate-900 truncate">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? '-' }}</p>
-                                        <p class="text-[10px] text-slate-500">{{ optional($ticket->pj)->divisi ?? '-' }}</p>
+                                        @if($ticket->pj)
+                                            <p class="text-xs font-bold text-slate-900 truncate">{{ $ticket->pj->nama_lengkap }}</p>
+                                            <p class="text-[10px] text-slate-500">{{ $ticket->pj->divisi ?? '-' }}</p>
+                                        @elseif($ticket->pj_id)
+                                            <p class="text-xs font-bold text-slate-400 italic truncate"><i class="fa-solid fa-user-slash me-1"></i>Akun Dihapus</p>
+                                        @else
+                                            <p class="text-xs font-bold text-slate-900 truncate">-</p>
+                                        @endif
                                     </div>
                                 </div>
                                 <span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-2 py-0.5 rounded-md border border-amber-200 shrink-0">PJ Utama</span>

@@ -46,7 +46,7 @@ class TicketManageController extends Controller
 
     public function all()
     {
-        $allTickets = Ticket::with('pelapor')
+        $allTickets = Ticket::with(['pelapor', 'pj'])
             ->orderBy('created_at', 'desc')
             ->get();
 

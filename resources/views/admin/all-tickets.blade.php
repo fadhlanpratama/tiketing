@@ -89,12 +89,22 @@
                         <span class="text-[11px] text-slate-400">Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</span>
                     </td>
                     <td class="p-4">
-                        <p class="font-bold text-slate-800">{{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
-                        <span class="text-[11px] text-slate-400">{{ $ticket->pelapor->divisi ?? '-' }}</span>
+                        @if($ticket->pelapor)
+                            <p class="font-bold text-slate-800">{{ $ticket->pelapor->nama_lengkap }}</p>
+                            <span class="text-[10px] text-slate-400">{{ $ticket->pelapor->divisi ?? '-' }}</span>
+                        @else
+                            <p class="font-bold text-slate-400 italic text-xs"><i class="fa-solid fa-user-slash me-1"></i>Akun Dihapus</p>
+                        @endif
                     </td>
                     <td class="p-4"> 
-                        <p class="font-semibold text-slate-700">{{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? '-' }}</p>
-                        <span class="text-[11px] text-slate-400">{{ optional($ticket->pj)->divisi ?? '-' }}</span>
+                        @if($ticket->pj)
+                            <p class="font-semibold text-slate-700">{{ $ticket->pj->nama_lengkap }}</p>
+                            <span class="text-[11px] text-slate-400">{{ $ticket->pj->divisi ?? '-' }}</span>
+                        @elseif($ticket->pj_id)
+                            <p class="font-semibold text-slate-400 italic text-xs"><i class="fa-solid fa-user-slash me-1"></i>Akun Dihapus</p>
+                        @else
+                            <p class="font-semibold text-slate-400 text-xs">Belum ditunjuk</p>
+                        @endif
                     </td>
                     <td class="p-4">
                         @if(strtolower($ticket->prioritas) == 'tinggi')
@@ -149,8 +159,8 @@
             <div>
                 <h4 class="font-bold text-slate-800 text-xs">{{ $ticket->kategori }} — <span class="font-normal text-slate-600">{{ $ticket->sub_kategori }}</span></h4>
                 <div class="text-[11px] text-slate-500 mt-2 space-y-0.5">
-                    <p><i class="fa-solid fa-user me-1 text-slate-400"></i>Pelapor: {{ $ticket->pelapor->nama_lengkap ?? '-' }}</p>
-                    <p><i class="fa-solid fa-user-gear me-1 text-slate-400"></i>PJ: {{ optional($ticket->pj)->nama_lengkap ?? $ticket->penanggung_jawab ?? 'Belum ditunjuk' }}</p>
+                    <p><i class="fa-solid fa-user me-1 text-slate-400"></i>Pelapor: {{ $ticket->pelapor->nama_lengkap ?? 'Akun Dihapus' }}</p>
+                    <p><i class="fa-solid fa-user-gear me-1 text-slate-400"></i>PJ: {{ $ticket->pj->nama_lengkap ?? ($ticket->pj_id ? 'Akun Dihapus' : 'Belum ditunjuk') }}</p>
                     <p><i class="fa-solid fa-layer-group me-1 text-slate-400"></i>Prioritas: <span class="font-bold text-slate-700">{{ $ticket->prioritas }}</span></p>
                     <p><i class="fa-regular fa-clock me-1 text-slate-400"></i>Diajukan: {{ $ticket->created_at->format('Y-m-d, H:i') }} WIB</p>
                 </div>
