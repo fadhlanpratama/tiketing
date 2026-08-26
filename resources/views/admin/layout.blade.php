@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESDM Tiketing - @yield('title', 'Dashboard Admin')</title>
+    <title>ESDM - Tiketing - @yield('title', 'Dashboard Admin')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -115,7 +115,7 @@
                         @endif
                     </button>
 
-                    <div id="notifMenuAdmin" class="hidden absolute right-0 mt-3 w-80 max-w-[90vw] bg-white border border-slate-200 shadow-2xl rounded-2xl z-50 overflow-hidden text-slate-800">
+                    <div id="notifMenuAdmin" class="hidden fixed sm:absolute left-2 right-2 sm:left-auto sm:right-0 top-24 sm:top-auto sm:mt-3 w-auto sm:w-80 sm:max-w-[90vw] bg-white border border-slate-200 shadow-2xl rounded-2xl z-50 overflow-hidden text-slate-800">
                         <div class="p-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
                             <p class="text-xs font-bold text-[#0a2540] uppercase tracking-wide">Notifikasi Admin</p>
                             <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Terbaru</span>

@@ -7,24 +7,6 @@
 @section('content')
 <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-visible">
 
-    @if(session('success'))
-        <div class="m-5 p-4 bg-emerald-900/90 text-white rounded-2xl shadow-md flex items-center gap-3">
-            <div class="w-8 h-8 bg-emerald-500 text-white rounded-xl flex items-center justify-center text-sm shrink-0">
-                <i class="fa-solid fa-check"></i>
-            </div>
-            <p class="text-xs sm:text-sm font-semibold">{{ session('success') }}</p>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="m-5 p-4 bg-rose-900/90 text-white rounded-2xl shadow-md flex items-center gap-3">
-            <div class="w-8 h-8 bg-rose-500 text-white rounded-xl flex items-center justify-center text-sm shrink-0">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <p class="text-xs sm:text-sm font-semibold">{{ session('error') }}</p>
-        </div>
-    @endif
-
     <!-- Header & Filter -->
     <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

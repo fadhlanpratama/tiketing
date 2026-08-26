@@ -13,7 +13,7 @@
         </div>
         <div class="text-xs">
             <p class="font-bold">Petunjuk Penunjukan PJ / Verifikasi Tiket:</p>
-            <p class="text-amber-800/90 mt-0.5">Silakan **klik baris/row tiket** pada tabel di bawah ini untuk masuk ke halaman detail tiket lalu menunjuk Teknisi/PJ atau mengubah status ke Closed.</p>
+            <p class="text-amber-800/90 mt-0.5">Silakan *klik baris/row tiket* pada tabel di bawah ini untuk masuk ke halaman detail tiket lalu menunjuk Teknisi/PJ atau mengubah status ke Closed.</p>
         </div>
     </div>
 

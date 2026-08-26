@@ -42,7 +42,7 @@ class PasswordResetController extends Controller
          if ($user && $user->status == 'rejected') {
             return response()->json([
                 'success' => false,
-                'message' => 'Akun Anda telah ditolak oleh Admin.',
+                'message' => 'Akun Anda telah ditolak / dinonaktifkan oleh Admin.',
             ], 403);
         }
 
