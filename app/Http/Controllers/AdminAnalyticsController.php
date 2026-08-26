@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Ticket;
 
 class AdminAnalyticsController extends Controller
@@ -15,14 +16,36 @@ class AdminAnalyticsController extends Controller
 
     public function index(Request $request)
     {
+        $filters = $request->only(['tanggal_dari', 'tanggal_sampai', 'status', 'prioritas', 'kategori']);
+        
+        $cacheKey = 'admin-dashboard:' . md5(json_encode($filters));
+
+        // Cache hasil kalkulasi selama 60 detik
+        $analytics = Cache::remember($cacheKey, now()->addSeconds(60), function () use ($request) {
+            return $this->calculateAnalytics($request);
+        });
+
+        // Cache daftar kategori selama 10 menit
+        $daftarKategori = Cache::remember('admin-dashboard:categories', now()->addMinutes(10), function () {
+            return Ticket::distinct()->pluck('kategori');
+        });
+
+        return view('admin.dashboard', array_merge($analytics, [
+            'daftarKategori' => $daftarKategori,
+            'filters'        => $filters,
+        ]));
+    }
+
+    private function calculateAnalytics(Request $request): array
+    {
         $query = Ticket::query();
 
         // ===== FILTER: Tanggal Masuk =====
         if ($request->filled('tanggal_dari')) {
-            $query->whereDate('created_at', '>=', $request->tanggal_dari);
+            $query->where('created_at', '>=', $request->date('tanggal_dari')->startOfDay());
         }
         if ($request->filled('tanggal_sampai')) {
-            $query->whereDate('created_at', '<=', $request->tanggal_sampai);
+            $query->where('created_at', '<=', $request->date('tanggal_sampai')->endOfDay());
         }
 
         // ===== FILTER: Status =====
@@ -36,7 +59,7 @@ class AdminAnalyticsController extends Controller
 
         // ===== FILTER: Prioritas =====
         if ($request->filled('prioritas') && $request->prioritas !== 'All') {
-            $query->whereRaw('LOWER(prioritas) = ?', [strtolower($request->prioritas)]);
+            $query->where('prioritas', $request->prioritas);
         }
 
         // ===== FILTER: Kategori =====
@@ -46,33 +69,37 @@ class AdminAnalyticsController extends Controller
 
         $base = $query;
 
-        // ===== 1. KPI: Total Tiket =====
-        $totalTiket = (clone $base)->count();
+        // ===== OPTIMASI KPI =====
+        $kpi = (clone $base)
+            ->selectRaw("
+                COUNT(*) as total_tiket,
+                AVG(CASE WHEN status IN ('Resolved', 'Closed') AND tanggal_selesai IS NOT NULL 
+                         THEN TIMESTAMPDIFF(HOUR, created_at, tanggal_selesai) 
+                         ELSE NULL END) as avg_jam,
+                COUNT(CASE WHEN status IN ('Resolved', 'Closed') OR sla_status = 'Terlambat' 
+                           THEN 1 ELSE NULL END) as total_evaluasi_sla,
+                COUNT(CASE WHEN sla_status = 'Terlambat' 
+                           THEN 1 ELSE NULL END) as sla_terlambat
+            ")
+            ->first();
 
-        // ===== 2. KPI: Rata-rata Waktu Penyelesaian (hari) =====
-        $avgResolutionHours = (clone $base)
-            ->whereIn('status', ['Resolved', 'Closed'])
-            ->whereNotNull('tanggal_selesai')
-            ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, tanggal_selesai)) as avg_jam')
-            ->value('avg_jam');
-
+        $totalTiket = $kpi->total_tiket ?? 0;
+        $avgResolutionHours = $kpi->avg_jam;
         $avgResolutionDays = $avgResolutionHours ? round($avgResolutionHours / 24, 1) : 0;
 
-        // ===== 3 & 4. KPI: SLA Compliance % dan Persen Overdue =====
-        $tiketEvaluasiSlaQuery = (clone $base)->where(function ($q) {
-            $q->whereIn('status', ['Resolved', 'Closed'])
-              ->orWhere('sla_status', 'Terlambat');
-        });
-
-        $totalTiketEvaluasiSla = $tiketEvaluasiSlaQuery->count();
-        $slaTerlambat = (clone $base)->where('sla_status', 'Terlambat')->count();
+        $totalTiketEvaluasiSla = $kpi->total_evaluasi_sla ?? 0;
+        $slaTerlambat = $kpi->sla_terlambat ?? 0;
 
         if ($totalTiketEvaluasiSla > 0) {
             $persenOverdue = round(($slaTerlambat / $totalTiketEvaluasiSla) * 100, 1);
             $slaCompliance = round((($totalTiketEvaluasiSla - $slaTerlambat) / $totalTiketEvaluasiSla) * 100, 1);
+            $donutOverdue  = $slaTerlambat;
+            $donutOnTime   = max($totalTiketEvaluasiSla - $slaTerlambat, 0);
         } else {
             $slaCompliance = 100;
             $persenOverdue = 0;
+            $donutOverdue  = 0;
+            $donutOnTime   = $totalTiket;
         }
 
         // ===== 5. Chart: Total Tiket by Kategori =====
@@ -89,24 +116,10 @@ class AdminAnalyticsController extends Controller
             ->orderBy('bulan')
             ->get();
 
-       // ===== 7. Donut: Status Overdue vs On Time (Fallback jika filter Open/Dibatalkan) =====
-        if ($totalTiketEvaluasiSla > 0) {
-            $donutOverdue = $slaTerlambat;
-            $donutOnTime  = max($totalTiketEvaluasiSla - $slaTerlambat, 0);
-        } else {
-            $donutOverdue = 0;
-            $donutOnTime  = $totalTiket; 
-        }
-
-        // ===== 8. Tabel Matrix: Bulan x Hari =====
+        // ===== 7. Tabel Matrix: Bulan x Hari =====
         $daysMap = [
-            0 => 'Monday',
-            1 => 'Tuesday',
-            2 => 'Wednesday',
-            3 => 'Thursday',
-            4 => 'Friday',
-            5 => 'Saturday',
-            6 => 'Sunday'
+            0 => 'Monday', 1 => 'Tuesday', 2 => 'Wednesday',
+            3 => 'Thursday', 4 => 'Friday', 5 => 'Saturday', 6 => 'Sunday'
         ];
 
         $selectDays = collect($daysMap)->map(function ($name, $num) {
@@ -119,9 +132,7 @@ class AdminAnalyticsController extends Controller
             ->orderBy('bulan')
             ->get();
 
-        $daftarKategori = Ticket::select('kategori')->distinct()->pluck('kategori');
-
-        return view('admin.dashboard', [
+        return [
             'totalTiket'        => $totalTiket,
             'avgResolutionDays' => $avgResolutionDays,
             'slaCompliance'     => $slaCompliance,
@@ -132,8 +143,6 @@ class AdminAnalyticsController extends Controller
             'donutOnTime'       => $donutOnTime,
             'tabelBulanHari'    => $tabelBulanHari,
             'days'              => array_values($daysMap),
-            'daftarKategori'    => $daftarKategori,
-            'filters'           => $request->only(['tanggal_dari', 'tanggal_sampai', 'status', 'prioritas', 'kategori']),
-        ]);
+        ];
     }
 }
