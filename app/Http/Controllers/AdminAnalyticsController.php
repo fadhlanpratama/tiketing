@@ -74,12 +74,17 @@ class AdminAnalyticsController extends Controller
             ->selectRaw("
                 COUNT(*) as total_tiket,
                 AVG(CASE WHEN status IN ('Resolved', 'Closed') AND tanggal_selesai IS NOT NULL 
-                         THEN TIMESTAMPDIFF(HOUR, created_at, tanggal_selesai) 
-                         ELSE NULL END) as avg_jam,
-                COUNT(CASE WHEN status IN ('Resolved', 'Closed') OR sla_status = 'Terlambat' 
-                           THEN 1 ELSE NULL END) as total_evaluasi_sla,
-                COUNT(CASE WHEN sla_status = 'Terlambat' 
-                           THEN 1 ELSE NULL END) as sla_terlambat
+                        THEN TIMESTAMPDIFF(HOUR, created_at, tanggal_selesai) 
+                        ELSE NULL END) as avg_jam,
+                COUNT(CASE WHEN status IN ('Resolved', 'Closed', 'In Progress') 
+                        THEN 1 ELSE NULL END) as total_evaluasi_sla,
+                COUNT(CASE 
+                        WHEN status IN ('Resolved', 'Closed') AND sla_status = 'Terlambat' THEN 1
+                        WHEN status = 'In Progress' 
+                                AND waktu_mulai_dikerjakan IS NOT NULL
+                                AND DATE_ADD(waktu_mulai_dikerjakan, INTERVAL sla_target_menit MINUTE) < NOW() THEN 1
+                        ELSE NULL 
+                    END) as sla_terlambat
             ")
             ->first();
 
