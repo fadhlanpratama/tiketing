@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 use App\Models\Ticket;
 
 class AdminAnalyticsController extends Controller
@@ -16,13 +17,70 @@ class AdminAnalyticsController extends Controller
 
     public function index(Request $request)
     {
-        $filters = $request->only(['tanggal_dari', 'tanggal_sampai', 'status', 'prioritas', 'kategori']);
-        
-        $cacheKey = 'admin-dashboard:' . md5(json_encode($filters));
+        $filters = $request->only(['status', 'prioritas', 'kategori']);
+        $bulanParam = $request->input('bulan');
 
-        // Cache hasil kalkulasi selama 60 detik
-        $analytics = Cache::remember($cacheKey, now()->addSeconds(60), function () use ($request) {
-            return $this->calculateAnalytics($request);
+        try {
+            $bulanAktif = $bulanParam
+                ? Carbon::createFromFormat('Y-m', $bulanParam)->startOfMonth()
+                : now()->startOfMonth();
+        } catch (\Exception $e) {
+            $bulanAktif = now()->startOfMonth();
+        }
+
+        $isBulanBerjalan = $bulanAktif->isSameMonth(now());
+        $periodStart = $isBulanBerjalan
+            ? now()->startOfDay()
+            : $bulanAktif->copy()->startOfMonth();
+        $periodEnd   = $bulanAktif->copy()->endOfMonth();
+        $periodLabel = $bulanAktif->translatedFormat('F Y');
+        $defaultPeriodStart = $periodStart->copy();
+        $defaultPeriodEnd   = $periodEnd->copy();
+        $tanggalDariInput   = $request->input('tanggal_dari');
+        $tanggalSampaiInput = $request->input('tanggal_sampai');
+        $adaFilterTanggal   = false;
+
+        if ($request->filled('tanggal_dari') || $request->filled('tanggal_sampai')) {
+            try {
+                $customDari = $request->filled('tanggal_dari')
+                    ? Carbon::parse($tanggalDariInput)->startOfDay()
+                    : $defaultPeriodStart->copy();
+
+                $customSampai = $request->filled('tanggal_sampai')
+                    ? Carbon::parse($tanggalSampaiInput)->endOfDay()
+                    : $defaultPeriodEnd->copy();
+
+                if ($customDari->greaterThan($customSampai)) {
+                    $tmp = $customDari;
+                    $customDari = $customSampai->copy()->startOfDay();
+                    $customSampai = $tmp->copy()->endOfDay();
+                }
+
+                $samaDenganDefault = $customDari->toDateString() === $defaultPeriodStart->toDateString()
+                    && $customSampai->toDateString() === $defaultPeriodEnd->toDateString();
+
+                if (!$samaDenganDefault) {
+                    $periodStart = $customDari;
+                    $periodEnd   = $customSampai;
+                    $periodLabel = $periodStart->isSameDay($periodEnd)
+                        ? $periodStart->translatedFormat('d M Y')
+                        : $periodStart->translatedFormat('d M Y') . ' – ' . $periodEnd->translatedFormat('d M Y');
+                    $adaFilterTanggal = true;
+                }
+            } catch (\Exception $e) {
+            }
+        }
+
+        $isPeriodeBerjalan = $periodEnd->greaterThanOrEqualTo(now()->startOfDay());
+        $cacheDuration = $isPeriodeBerjalan ? now()->addSeconds(60) : now()->addDay();
+
+        $cacheKeyParts = array_merge($filters, [
+            'periode' => $periodStart->toDateString() . '_' . $periodEnd->toDateString(),
+        ]);
+        $cacheKey = 'admin-dashboard:' . md5(json_encode($cacheKeyParts));
+
+        $analytics = Cache::remember($cacheKey, $cacheDuration, function () use ($request, $periodStart, $periodEnd) {
+            return $this->calculateAnalytics($request, $periodStart, $periodEnd);
         });
 
         // Cache daftar kategori selama 10 menit
@@ -30,23 +88,36 @@ class AdminAnalyticsController extends Controller
             return Ticket::distinct()->pluck('kategori');
         });
 
+        $bulanSebelumnya = $bulanAktif->copy()->subMonth()->format('Y-m');
+        $bulanBerikutnyaObj = $bulanAktif->copy()->addMonth();
+        $bisaMaju = $bulanBerikutnyaObj->lte(now()->startOfMonth());
+        $isDefaultView = $isBulanBerjalan && !$adaFilterTanggal;
+        $tanggalRangeLabel = $periodStart->isSameDay($periodEnd)
+            ? $periodStart->translatedFormat('d M Y')
+            : $periodStart->translatedFormat('d M Y') . ' – ' . $periodEnd->translatedFormat('d M Y');
+
         return view('admin.dashboard', array_merge($analytics, [
-            'daftarKategori' => $daftarKategori,
-            'filters'        => $filters,
+            'daftarKategori'    => $daftarKategori,
+            'filters'           => $filters,
+            'periodLabel'       => $periodLabel,
+            'isDefaultView'     => $isDefaultView,
+            'bulanSebelumnya'   => $bulanSebelumnya,
+            'bulanBerikutnya'   => $bulanBerikutnyaObj->format('Y-m'),
+            'bisaMaju'          => $bisaMaju,
+            'adaFilterTanggal'  => $adaFilterTanggal,
+            'tanggalRangeLabel' => $tanggalRangeLabel,
+            'tanggalDariInput'  => $request->filled('tanggal_dari') ? $tanggalDariInput : $periodStart->toDateString(),
+            'tanggalSampaiInput' => $request->filled('tanggal_sampai') ? $tanggalSampaiInput : $periodEnd->toDateString(),
+            'batasMin'          => $bulanAktif->copy()->startOfMonth()->toDateString(),
+            'batasMax'          => $bulanAktif->copy()->endOfMonth()->toDateString(),
         ]));
     }
 
-    private function calculateAnalytics(Request $request): array
+    private function calculateAnalytics(Request $request, Carbon $periodStart, Carbon $periodEnd): array
     {
-        $query = Ticket::query();
-
-        // ===== FILTER: Tanggal Masuk =====
-        if ($request->filled('tanggal_dari')) {
-            $query->where('created_at', '>=', $request->date('tanggal_dari')->startOfDay());
-        }
-        if ($request->filled('tanggal_sampai')) {
-            $query->where('created_at', '<=', $request->date('tanggal_sampai')->endOfDay());
-        }
+        $query = Ticket::query()
+            ->where('created_at', '>=', $periodStart)
+            ->where('created_at', '<=', $periodEnd);
 
         // ===== FILTER: Status =====
         if ($request->filled('status') && $request->status !== 'All') {

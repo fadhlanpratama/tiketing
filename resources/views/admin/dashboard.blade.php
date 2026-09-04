@@ -8,25 +8,65 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 mb-6 w-full max-w-full">
         <form id="filterForm" method="GET" action="{{ route('admin.dashboard') }}" class="space-y-4">
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-                
-                <!-- Tanggal Dari -->
-                <div class="min-w-0 w-full">
+            <input type="hidden" name="bulan" value="{{ request('bulan') }}">
+            <div class="flex flex-col sm:grid sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+                <div class="min-w-0 w-full sm:col-span-2 order-1">
                     <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5 truncate">
-                        <i class="fa-regular fa-calendar-minus mr-1 text-slate-400"></i> Tanggal Dari
+                        <i class="fa-regular fa-calendar mr-1 text-slate-400"></i> Periode
                     </label>
-                    <input type="date" name="tanggal_dari" value="{{ $filters['tanggal_dari'] ?? '' }}"
-                        class="w-full max-w-full min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 font-medium focus:bg-white focus:ring-2 focus:ring-amber-400 focus:border-transparent transition outline-none">
+                    <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 h-[42px]">
+                        <a href="{{ route('admin.dashboard', array_merge(request()->except(['bulan', 'page', 'tanggal_dari', 'tanggal_sampai']), ['bulan' => $bulanSebelumnya])) }}"
+                           class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-200 transition text-slate-500 shrink-0">
+                            <i class="fa-solid fa-chevron-left text-xs"></i>
+                        </a>
+
+                        <span class="flex-1 text-center text-xs font-bold text-slate-700 truncate">
+                            {{ \Carbon\Carbon::parse(request('bulan', now()->format('Y-m')))->translatedFormat('F Y') }}
+                        </span>
+
+                        @if($bisaMaju)
+                        <a href="{{ route('admin.dashboard', array_merge(request()->except(['bulan', 'page', 'tanggal_dari', 'tanggal_sampai']), ['bulan' => $bulanBerikutnya])) }}"
+                           class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-200 transition text-slate-500 shrink-0">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </a>
+                        @else
+                        <span class="w-9 h-9 flex items-center justify-center text-slate-300 shrink-0">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </span>
+                        @endif
+                    </div>
                 </div>
 
-                <!-- Tanggal Sampai -->
-                <div class="min-w-0 w-full">
+                <!-- 2. Filter Tanggal  -->
+                <div class="min-w-0 w-full sm:col-span-2 order-2 xl:order-4">
                     <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5 truncate">
-                        <i class="fa-regular fa-calendar-plus mr-1 text-slate-400"></i> Tanggal Sampai
+                        <i class="fa-regular fa-calendar-check mr-1 text-slate-400"></i> Filter Tanggal (opsional)
                     </label>
-                    <input type="date" name="tanggal_sampai" value="{{ $filters['tanggal_sampai'] ?? '' }}"
-                        class="w-full max-w-full min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-700 font-medium focus:bg-white focus:ring-2 focus:ring-amber-400 focus:border-transparent transition outline-none">
+
+                    <input type="hidden" name="tanggal_dari" id="tanggalDariHidden" value="{{ $tanggalDariInput }}">
+                    <input type="hidden" name="tanggal_sampai" id="tanggalSampaiHidden" value="{{ $tanggalSampaiInput }}">
+
+                    <button type="button" id="dateRangeTrigger"
+                        class="relative w-full h-[42px] flex items-center justify-center bg-slate-50 border border-slate-200 rounded-xl px-9 text-xs text-slate-700 font-bold focus:bg-white focus:ring-2 focus:ring-amber-400 outline-none cursor-pointer">
+                        <span id="dateRangeLabel" class="truncate text-center">{{ $tanggalRangeLabel }}</span>
+                        <i class="fa-regular fa-calendar text-slate-400 text-[11px] absolute right-3.5"></i>
+                    </button>
+
+                    <div id="dateRangePanel"
+                        data-min="{{ $batasMin }}" data-max="{{ $batasMax }}"
+                        class="hidden mt-2 w-full max-w-full bg-white border border-slate-200 rounded-xl p-3 shadow-sm">
+                        <div class="text-center text-xs font-bold text-slate-700 mb-2" id="calendarMonthLabel"></div>
+                        <div class="grid grid-cols-7 gap-1 text-center text-[10px] text-slate-400 font-bold mb-1" id="calendarWeekdays"></div>
+                        <div class="grid grid-cols-7 gap-1 place-items-center" id="calendarDays"></div>
+                        <div class="flex items-center justify-between mt-3 pt-2 border-t border-slate-100">
+                            <button type="button" id="dateRangeReset" class="text-[11px] font-semibold text-red-500 hover:underline">
+                                Reset
+                            </button>
+                            <button type="button" id="dateRangeApply" class="text-[11px] font-bold text-white bg-[#0a2540] px-4 py-1.5 rounded-lg hover:bg-slate-800 transition">
+                                Selesai
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Dropdown Status Tiket -->
@@ -34,14 +74,14 @@
                     $statusOpts = ['All' => 'Semua Status', 'Open' => 'Open', 'In Progress' => 'In Progress', 'Resolved' => 'Resolved', 'Closed' => 'Closed', 'Dibatalkan' => 'Dibatalkan Pelapor']; 
                     $currentStatus = $filters['status'] ?? 'All';
                 @endphp
-                <div class="min-w-0 w-full relative custom-dropdown">
+                <div class="min-w-0 w-full relative custom-dropdown order-3 xl:order-2">
                     <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5 truncate">
                         <i class="fa-solid fa-signal mr-1 text-slate-400"></i> Status Tiket
                     </label>
                     
                     <input type="hidden" name="status" id="inputStatus" value="{{ $currentStatus }}">
                     
-                    <button type="button" class="dropdown-btn w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-700 font-medium flex items-center justify-between transition focus:bg-white focus:ring-2 focus:ring-amber-400 outline-none cursor-pointer">
+                    <button type="button" class="dropdown-btn w-full h-[42px] bg-slate-50 border border-slate-200 rounded-xl px-3.5 text-xs text-slate-700 font-medium flex items-center justify-between transition focus:bg-white focus:ring-2 focus:ring-amber-400 outline-none cursor-pointer">
                         <span class="dropdown-label truncate">{{ $statusOpts[$currentStatus] ?? 'Semua Status' }}</span>
                         <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200"></i>
                     </button>
@@ -59,19 +99,19 @@
                     </div>
                 </div>
 
-                <!-- Dropdown Prioritas -->
+                <!-- 4. Dropdown Prioritas -> Mobile Order 4 -->
                 @php 
                     $prioOpts = ['All' => 'Semua Prioritas', 'Rendah' => 'Rendah', 'Sedang' => 'Sedang', 'Tinggi' => 'Tinggi']; 
                     $currentPrio = $filters['prioritas'] ?? 'All';
                 @endphp
-                <div class="min-w-0 w-full relative custom-dropdown">
+                <div class="min-w-0 w-full relative custom-dropdown order-4 xl:order-3">
                     <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5 truncate">
                         <i class="fa-solid fa-layer-group mr-1 text-slate-400"></i> Prioritas
                     </label>
 
                     <input type="hidden" name="prioritas" id="inputPrioritas" value="{{ $currentPrio }}">
 
-                    <button type="button" class="dropdown-btn w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-700 font-medium flex items-center justify-between transition focus:bg-white focus:ring-2 focus:ring-amber-400 outline-none cursor-pointer">
+                    <button type="button" class="dropdown-btn w-full h-[42px] bg-slate-50 border border-slate-200 rounded-xl px-3.5 text-xs text-slate-700 font-medium flex items-center justify-between transition focus:bg-white focus:ring-2 focus:ring-amber-400 outline-none cursor-pointer">
                         <span class="dropdown-label truncate">{{ $prioOpts[$currentPrio] ?? 'Semua Prioritas' }}</span>
                         <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200"></i>
                     </button>
@@ -135,7 +175,7 @@
                 </div>
             </div>
             <p class="text-[11px] text-slate-300/80 mt-3 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-circle-info text-[10px]"></i> Total tiket pada periode filter
+                <i class="fa-solid fa-circle-info text-[10px]"></i> Total tiket periode: {{ \Carbon\Carbon::parse(request('bulan', now()->format('Y-m')))->translatedFormat('F Y') }}
             </p>
         </div>
 
@@ -280,6 +320,143 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+    // ===== KALENDER CUSTOM UNTUK "PERSEMPIT TANGGAL" =====
+    (function () {
+        const trigger  = document.getElementById('dateRangeTrigger');
+        const panel    = document.getElementById('dateRangePanel');
+        const label    = document.getElementById('dateRangeLabel');
+        const hiddenDari   = document.getElementById('tanggalDariHidden');
+        const hiddenSampai = document.getElementById('tanggalSampaiHidden');
+        const monthLabelEl = document.getElementById('calendarMonthLabel');
+        const weekdaysEl   = document.getElementById('calendarWeekdays');
+        const daysEl       = document.getElementById('calendarDays');
+        const resetBtn = document.getElementById('dateRangeReset');
+        const applyBtn = document.getElementById('dateRangeApply');
+
+        if (!trigger || !panel) return;
+
+        const minDate = panel.dataset.min;
+        const maxDate = panel.dataset.max;
+
+        let pendingStart = hiddenDari.value || null;
+        let pendingEnd   = hiddenSampai.value || null;
+
+        const namaBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+        const namaHari  = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+
+        function parseYMD(s) {
+            const [y, m, d] = s.split('-').map(Number);
+            return new Date(y, m - 1, d);
+        }
+        function toYMD(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+        function formatTampil(s) {
+            const d = parseYMD(s);
+            return `${d.getDate()} ${namaBulan[d.getMonth()].substring(0, 3)} ${d.getFullYear()}`;
+        }
+
+        function updateLabel() {
+            if (pendingStart && pendingEnd) {
+                label.textContent = pendingStart === pendingEnd
+                    ? formatTampil(pendingStart)
+                    : `${formatTampil(pendingStart)} – ${formatTampil(pendingEnd)}`;
+            } else if (pendingStart) {
+                label.textContent = formatTampil(pendingStart);
+            } else {
+                label.textContent = 'Pilih tanggal';
+            }
+        }
+
+        function renderCalendar() {
+            const ref = parseYMD(minDate);
+            const year = ref.getFullYear();
+            const month = ref.getMonth();
+
+            monthLabelEl.textContent = `${namaBulan[month]} ${year}`;
+            weekdaysEl.innerHTML = namaHari.map(h => `<span>${h}</span>`).join('');
+
+            const firstDay = new Date(year, month, 1);
+            const offset = firstDay.getDay();
+            const totalHari = new Date(year, month + 1, 0).getDate();
+
+            let html = '';
+            for (let i = 0; i < offset; i++) {
+                html += `<span></span>`;
+            }
+
+            for (let d = 1; d <= totalHari; d++) {
+                const dateObj = new Date(year, month, d);
+                const ymd = toYMD(dateObj);
+                const disabled = ymd < minDate || ymd > maxDate;
+
+                let classes = 'w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium transition';
+                if (disabled) {
+                    classes += ' text-slate-300 cursor-not-allowed';
+                } else {
+                    classes += ' text-slate-700 hover:bg-amber-100 cursor-pointer';
+                    if (pendingStart && pendingEnd && ymd > pendingStart && ymd < pendingEnd) {
+                        classes += ' bg-amber-50';
+                    }
+                    if (ymd === pendingStart || ymd === pendingEnd) {
+                        classes += ' bg-amber-400 text-[#0a2540] font-bold';
+                    }
+                }
+
+                html += `<button type="button" data-date="${ymd}" ${disabled ? 'disabled' : ''} class="${classes}">${d}</button>`;
+            }
+
+            daysEl.innerHTML = html;
+
+            daysEl.querySelectorAll('button[data-date]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const ymd = btn.dataset.date;
+                    if (!pendingStart || (pendingStart && pendingEnd)) {
+                        pendingStart = ymd;
+                        pendingEnd = null;
+                    } else if (ymd < pendingStart) {
+                        pendingEnd = pendingStart;
+                        pendingStart = ymd;
+                    } else {
+                        pendingEnd = ymd;
+                    }
+                    renderCalendar();
+                    updateLabel();
+                });
+            });
+        }
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            panel.classList.toggle('hidden');
+        });
+
+        panel.addEventListener('click', (e) => e.stopPropagation());
+
+        document.addEventListener('click', () => {
+            panel.classList.add('hidden');
+        });
+
+        resetBtn.addEventListener('click', () => {
+            pendingStart = null;
+            pendingEnd = null;
+            renderCalendar();
+            updateLabel();
+        });
+
+        applyBtn.addEventListener('click', () => {
+            hiddenDari.value = pendingStart || '';
+            hiddenSampai.value = pendingEnd || pendingStart || '';
+            panel.classList.add('hidden');
+        });
+
+        renderCalendar();
+    })();
+</script>
 <script>
     document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
         const btn = dropdown.querySelector('.dropdown-btn');
