@@ -79,6 +79,7 @@ class TicketManageController extends Controller
             ->update([
                 'pj_id' => $pj->id,
                 'penanggung_jawab' => $pj->nama_lengkap,
+                'assigned_at' => now(),
                 'user_notif_assigned_read' => false,
                 'pj_notif_assigned_read' => false,
             ]);
@@ -86,6 +87,8 @@ class TicketManageController extends Controller
         if (!$updated) {
             return back()->with('error', 'Tiket sudah diproses atau tidak lagi berstatus Open.');
         }
+
+        Ticket::findOrFail($id)->recordStatusHistory('assigned', 'Open', 'Open', session('user_id'), 'admin');
 
         return redirect()->route('admin.tickets.index')
             ->with('success', 'Tiket #' . str_pad($id, 5, '0', STR_PAD_LEFT) . ' berhasil ditugaskan ke PJ: ' . $pj->nama_lengkap);
@@ -98,6 +101,7 @@ class TicketManageController extends Controller
             ->update([
                 'status' => 'Closed',
                 'closed_by' => 'admin',
+                'closed_at' => now(),
                 'user_notif_admin_closed_read' => false,
                 'pj_notif_admin_closed_read' => false,
             ]);
@@ -105,6 +109,8 @@ class TicketManageController extends Controller
         if (!$updated) {
             return back()->with('error', 'Tiket sudah ditutup atau tidak lagi berstatus Resolved.');
         }
+
+        Ticket::findOrFail($id)->recordStatusHistory('closed', 'Resolved', 'Closed', session('user_id'), 'admin');
 
         return redirect()->route('admin.tickets.index')
             ->with('success', 'Tiket #' . str_pad($id, 5, '0', STR_PAD_LEFT) . ' resmi ditutup (Closed).');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Ticket;
 
@@ -141,27 +142,58 @@ class AdminAnalyticsController extends Controller
         $base = $query;
 
         // ===== OPTIMASI KPI =====
+        $historyEvent = function (string $eventType) {
+            return DB::table('ticket_status_histories')
+                ->select('ticket_id', DB::raw('MIN(occurred_at) as occurred_at'))
+                ->where('event_type', $eventType)
+                ->groupBy('ticket_id');
+        };
+
         $kpi = (clone $base)
+            ->leftJoinSub($historyEvent('created'), 'history_created', 'history_created.ticket_id', '=', 'tickets.id')
+            ->leftJoinSub($historyEvent('assigned'), 'history_assigned', 'history_assigned.ticket_id', '=', 'tickets.id')
+            ->leftJoinSub($historyEvent('started'), 'history_started', 'history_started.ticket_id', '=', 'tickets.id')
+            ->leftJoinSub($historyEvent('resolved'), 'history_resolved', 'history_resolved.ticket_id', '=', 'tickets.id')
+            ->leftJoinSub($historyEvent('closed'), 'history_closed', 'history_closed.ticket_id', '=', 'tickets.id')
             ->selectRaw("
                 COUNT(*) as total_tiket,
-                AVG(CASE WHEN status IN ('Resolved', 'Closed') AND tanggal_selesai IS NOT NULL 
-                        THEN TIMESTAMPDIFF(HOUR, created_at, tanggal_selesai) 
-                        ELSE NULL END) as avg_jam,
-                COUNT(CASE WHEN status IN ('Resolved', 'Closed', 'In Progress') 
+                AVG(CASE WHEN (status = 'Resolved' OR (status = 'Closed' AND (closed_by = 'admin' OR closed_by IS NULL)))
+                        AND history_created.occurred_at IS NOT NULL
+                        AND (history_resolved.occurred_at IS NOT NULL OR history_closed.occurred_at IS NOT NULL)
+                    THEN TIMESTAMPDIFF(MINUTE, history_created.occurred_at,
+                        COALESCE(history_closed.occurred_at, history_resolved.occurred_at))
+                    ELSE NULL END) as avg_total_menit,
+                AVG(CASE WHEN history_created.occurred_at IS NOT NULL AND history_assigned.occurred_at IS NOT NULL
+                    THEN TIMESTAMPDIFF(MINUTE, history_created.occurred_at, history_assigned.occurred_at)
+                    ELSE NULL END) as avg_antrian_menit,
+                AVG(CASE WHEN history_assigned.occurred_at IS NOT NULL AND history_started.occurred_at IS NOT NULL
+                    THEN TIMESTAMPDIFF(MINUTE, history_assigned.occurred_at, history_started.occurred_at)
+                    ELSE NULL END) as avg_tunggu_pj_menit,
+                AVG(CASE WHEN history_started.occurred_at IS NOT NULL AND history_resolved.occurred_at IS NOT NULL
+                    THEN TIMESTAMPDIFF(MINUTE, history_started.occurred_at, history_resolved.occurred_at)
+                    ELSE NULL END) as avg_sla_menit,
+                AVG(CASE WHEN history_resolved.occurred_at IS NOT NULL AND history_closed.occurred_at IS NOT NULL
+                    THEN TIMESTAMPDIFF(MINUTE, history_resolved.occurred_at, history_closed.occurred_at)
+                    ELSE NULL END) as avg_tunggu_closed_menit,
+                COUNT(CASE WHEN status IN ('Resolved', 'In Progress')
+                    OR (status = 'Closed' AND (closed_by = 'admin' OR closed_by IS NULL))
                         THEN 1 ELSE NULL END) as total_evaluasi_sla,
                 COUNT(CASE 
-                        WHEN status IN ('Resolved', 'Closed') AND sla_status = 'Terlambat' THEN 1
+                    WHEN (status = 'Resolved' OR (status = 'Closed' AND (closed_by = 'admin' OR closed_by IS NULL)))
+                        AND history_started.occurred_at IS NOT NULL
+                        AND history_resolved.occurred_at IS NOT NULL
+                        AND TIMESTAMPDIFF(MINUTE, history_started.occurred_at, history_resolved.occurred_at) > sla_target_menit THEN 1
                         WHEN status = 'In Progress' 
-                                AND waktu_mulai_dikerjakan IS NOT NULL
-                                AND DATE_ADD(waktu_mulai_dikerjakan, INTERVAL sla_target_menit MINUTE) < NOW() THEN 1
+                        AND history_started.occurred_at IS NOT NULL
+                            AND DATE_ADD(history_started.occurred_at, INTERVAL sla_target_menit MINUTE) < NOW() THEN 1
                         ELSE NULL 
                     END) as sla_terlambat
             ")
             ->first();
 
         $totalTiket = $kpi->total_tiket ?? 0;
-        $avgResolutionHours = $kpi->avg_jam;
-        $avgResolutionDays = $avgResolutionHours ? round($avgResolutionHours / 24, 1) : 0;
+        $avgTotalMinutes = $kpi->avg_total_menit;
+        $avgResolutionDays = $avgTotalMinutes ? round($avgTotalMinutes / 1440, 1) : 0;
 
         $totalTiketEvaluasiSla = $kpi->total_evaluasi_sla ?? 0;
         $slaTerlambat = $kpi->sla_terlambat ?? 0;
@@ -211,6 +243,10 @@ class AdminAnalyticsController extends Controller
         return [
             'totalTiket'        => $totalTiket,
             'avgResolutionDays' => $avgResolutionDays,
+            'avgAntrianHours'   => $this->formatAverageHours($kpi->avg_antrian_menit),
+            'avgTungguPjHours'  => $this->formatAverageHours($kpi->avg_tunggu_pj_menit),
+            'avgSlaHours'       => $this->formatAverageHours($kpi->avg_sla_menit),
+            'avgTungguClosedHours' => $this->formatAverageHours($kpi->avg_tunggu_closed_menit),
             'slaCompliance'     => $slaCompliance,
             'persenOverdue'     => $persenOverdue,
             'tiketByKategori'   => $tiketByKategori,
@@ -220,5 +256,10 @@ class AdminAnalyticsController extends Controller
             'tabelBulanHari'    => $tabelBulanHari,
             'days'              => array_values($daysMap),
         ];
+    }
+
+    private function formatAverageHours(?float $minutes): string
+    {
+        return $minutes === null ? '-' : number_format($minutes / 60, 1, ',', '.') . ' jam';
     }
 }

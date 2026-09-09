@@ -200,6 +200,7 @@ class TicketController extends Controller
         }
 
         $ticket->save();
+        $ticket->recordStatusHistory('created', null, 'Open', $ticket->user_id, 'user', $ticket->created_at);
 
         return redirect()->route('user.dashboard')->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil dibuat!');
     }
@@ -365,6 +366,7 @@ class TicketController extends Controller
         $ticket->pj_notif_closed_read = false;
         $ticket->admin_notif_user_closed_read = false;
         $ticket->save();
+        $ticket->recordStatusHistory('cancelled', $ticket->getOriginal('status'), 'Closed', $userId, 'user', $ticket->updated_at);
 
         $ticket->collaborators()->update(['closed_notif_read' => false]);
 

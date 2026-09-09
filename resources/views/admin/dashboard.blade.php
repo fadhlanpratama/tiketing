@@ -183,7 +183,7 @@
         <div class="relative overflow-hidden bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm min-w-0">
             <div class="flex items-start justify-between">
                 <div class="min-w-0">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block truncate">Rata-rata Waktu Solusi</span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block truncate">Rata-rata Siklus Tiket</span>
                     <p class="text-3xl font-black text-slate-800 mt-1 truncate">{{ $avgResolutionDays }} <span class="text-sm font-semibold text-slate-500">Hari</span></p>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shrink-0">
@@ -191,7 +191,7 @@
                 </div>
             </div>
             <p class="text-[11px] text-slate-400 mt-3 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-bolt text-amber-500 text-[10px]"></i> Estimasi pengerjaan tiket
+                <i class="fa-solid fa-bolt text-amber-500 text-[10px]"></i> Dibuat sampai resolved/closed
             </p>
         </div>
 
@@ -224,6 +224,33 @@
             </div>
             <div class="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
                 <div class="bg-rose-500 h-full rounded-full" style="width: {{ min(100, max(0, $persenOverdue)) }}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-stopwatch text-amber-500"></i> Rincian Akumulasi Waktu
+            </h3>
+            <span class="text-[11px] text-slate-400">Rata-rata tiket yang sudah melewati fase terkait</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                <p class="text-[11px] font-bold text-slate-400 uppercase">Dibuat → PJ dipilih</p>
+                <p class="text-lg font-black text-slate-800 mt-1">{{ $avgAntrianHours }}</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                <p class="text-[11px] font-bold text-slate-400 uppercase">PJ dipilih → mulai</p>
+                <p class="text-lg font-black text-slate-800 mt-1">{{ $avgTungguPjHours }}</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                <p class="text-[11px] font-bold text-slate-400 uppercase">Mulai → resolved (SLA)</p>
+                <p class="text-lg font-black text-slate-800 mt-1">{{ $avgSlaHours }}</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                <p class="text-[11px] font-bold text-slate-400 uppercase">Resolved → closed</p>
+                <p class="text-lg font-black text-slate-800 mt-1">{{ $avgTungguClosedHours }}</p>
             </div>
         </div>
     </div>

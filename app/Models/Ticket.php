@@ -30,7 +30,9 @@ class Ticket extends Model
         'status',
         'penanggung_jawab',
         'pj_id',
+        'assigned_at',
         'tanggal_selesai',
+        'closed_at',
         'hasil_resolved_foto',
         'survei_kepuasan',
         'closed_by',
@@ -46,13 +48,42 @@ class Ticket extends Model
         'tanggal_selesai' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'assigned_at' => 'datetime',
         'waktu_mulai_dikerjakan' => 'datetime',
+        'closed_at' => 'datetime',
         'admin_notif_new_ticket_read' => 'boolean',
     ];
 
     public function messages(): HasMany
     {
         return $this->hasMany(TicketMessage::class, 'ticket_id')->orderBy('created_at', 'asc');
+    }
+
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(TicketStatusHistory::class)->orderBy('occurred_at');
+    }
+
+    public function recordStatusHistory(
+        string $eventType,
+        ?string $fromStatus,
+        ?string $toStatus,
+        ?int $actorId,
+        ?string $actorRole,
+        $occurredAt = null
+    ): TicketStatusHistory {
+        if ($actorRole === 'admin' && $actorId === null) {
+            throw new \InvalidArgumentException('Admin actor ID wajib diisi saat mencatat perubahan tiket.');
+        }
+
+        return $this->statusHistories()->create([
+            'event_type' => $eventType,
+            'from_status' => $fromStatus,
+            'to_status' => $toStatus,
+            'actor_id' => $actorId,
+            'actor_role' => $actorRole,
+            'occurred_at' => $occurredAt ?? now(),
+        ]);
     }
 
     public function pelapor(): BelongsTo

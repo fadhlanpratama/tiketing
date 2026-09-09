@@ -224,6 +224,8 @@ class PjController extends Controller
             return back()->with('error', 'Tiket sudah diproses oleh pengguna lain.');
         }
 
+        $ticket->recordStatusHistory('started', 'Open', 'In Progress', $pjId, 'pj', $waktuMulai);
+
         return redirect()->route('pj.dashboard')
             ->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' mulai dikerjakan.');
     }
@@ -273,6 +275,10 @@ class PjController extends Controller
         $updated = Ticket::where('id', $ticket->id)
             ->where('status', 'In Progress')
             ->update($updates);
+
+        if ($updated) {
+            $ticket->recordStatusHistory('resolved', 'In Progress', 'Resolved', $pjId, 'pj', $tanggalSelesai);
+        }
 
         if (!$updated) {
             Storage::disk('public')->delete($path);
