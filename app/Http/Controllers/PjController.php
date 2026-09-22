@@ -318,12 +318,13 @@ class PjController extends Controller
             $path = $request->file('foto')->store('ticket_messages', 'public');
         }
 
+        $isOwner = $ticket->pj_id == $pjId;
         $message = $ticket->messages()->create([
-            'sender_type'  => 'pj',
+            'sender_type'  => $isOwner ? 'pj' : 'collaborator',
             'sender_nama'  => $namaPj,
             'pesan'        => $request->filled('pesan') ? strip_tags($request->pesan) : null,
             'foto'         => $path,
-            'read_by_pj'   => $ticket->pj_id == $pjId,
+            'read_by_pj'   => $isOwner,
             'read_by_user' => false,
         ]);
 
@@ -331,15 +332,20 @@ class PjController extends Controller
             ->where('pj_id', '!=', $pjId)
             ->pluck('pj_id');
 
-        if ($ticket->pj_id != $pjId) {
+        if ($isOwner) {
+            $recipientIds = $ticket->collaborators()->pluck('pj_id');
+        } else {
             $recipientIds->push($ticket->pj_id);
         }
 
         $message->recipients()->createMany(
-            $recipientIds->unique()->map(fn ($userId) => [
-                'user_id' => $userId,
-                'read' => false,
-            ])->values()->all()
+            $recipientIds
+                ->unique()
+                ->reject(fn ($userId) => (int) $userId === (int) $pjId)
+                ->map(fn ($userId) => [
+                    'user_id' => $userId,
+                    'read' => false,
+                ])->values()->all()
         );
 
         return back()->with('success', 'Pesan terkirim.');
