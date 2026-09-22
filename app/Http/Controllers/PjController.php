@@ -280,6 +280,7 @@ class PjController extends Controller
 
         if ($updated) {
             \App\Models\TicketNotificationStatus::markRead($ticket, $ticket->user_id, 'user', 'resolved', false);
+            \App\Models\TicketNotificationStatus::markRead($ticket, null, 'admin', 'resolved', false);
             $ticket->recordStatusHistory('resolved', 'In Progress', 'Resolved', $pjId, 'pj', $tanggalSelesai);
         }
 

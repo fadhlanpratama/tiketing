@@ -208,6 +208,12 @@ class AppServiceProvider extends ServiceProvider
             if (!$adminId) return;
 
             $notifResolvedAdmin = Ticket::where('status', 'Resolved')
+                ->whereHas('notificationStatuses', function ($query) {
+                    $query->where('role', 'admin')
+                        ->whereNull('user_id')
+                        ->where('key', 'resolved')
+                        ->where('read', false);
+                })
                 ->with('pelapor')
                 ->latest('updated_at')
                 ->take(10)

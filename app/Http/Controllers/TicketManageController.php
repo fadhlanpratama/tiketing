@@ -134,6 +134,10 @@ class TicketManageController extends Controller
             \App\Models\TicketNotificationStatus::markRead($ticket, null, 'admin', 'user_closed', true);
         }
 
+        if ($ticket->status === 'Resolved') {
+            \App\Models\TicketNotificationStatus::markRead($ticket, null, 'admin', 'resolved', true);
+        }
+
         \App\Models\TicketNotificationStatus::markRead($ticket, null, 'admin', 'new_ticket', true);
 
         $activePjs = Users::where('role', 'pj')

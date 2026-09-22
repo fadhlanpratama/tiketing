@@ -64,6 +64,7 @@ return new class extends Migration
             }
 
             $rows[] = ['ticket_id' => $ticket->id, 'user_id' => null, 'role' => 'admin', 'key' => 'new_ticket', 'read' => (bool) ($ticket->admin_notif_new_ticket_read ?? false)];
+            $rows[] = ['ticket_id' => $ticket->id, 'user_id' => null, 'role' => 'admin', 'key' => 'resolved', 'read' => false];
             $rows[] = ['ticket_id' => $ticket->id, 'user_id' => null, 'role' => 'admin', 'key' => 'user_closed', 'read' => (bool) ($ticket->admin_notif_user_closed_read ?? true)];
 
             foreach ($rows as $row) {
