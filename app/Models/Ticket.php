@@ -36,8 +36,6 @@ class Ticket extends Model
         'hasil_resolved_foto',
         'survei_kepuasan',
         'closed_by',
-        'admin_notif_user_closed_read',
-        'admin_notif_new_ticket_read',
     ];
 
     protected $hidden = [
@@ -51,7 +49,6 @@ class Ticket extends Model
         'assigned_at' => 'datetime',
         'waktu_mulai_dikerjakan' => 'datetime',
         'closed_at' => 'datetime',
-        'admin_notif_new_ticket_read' => 'boolean',
     ];
 
     public function messages(): HasMany
@@ -99,6 +96,11 @@ class Ticket extends Model
     public function collaborators()
     {
         return $this->hasMany(TicketCollaborator::class, 'ticket_id');
+    }
+
+    public function notificationStatuses(): HasMany
+    {
+        return $this->hasMany(TicketNotificationStatus::class, 'ticket_id');
     }
 
     public function isCollaborator(int $pjId): bool

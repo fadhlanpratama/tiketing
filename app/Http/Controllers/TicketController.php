@@ -193,13 +193,13 @@ class TicketController extends Controller
         }
 
         $ticket->nomor_bmn = $request->filled('nomor_bmn') ? strip_tags($request->nomor_bmn) : 'Non-BMN';
-        $ticket->admin_notif_new_ticket_read = false;
 
         if ($request->hasFile('attachment_foto')) {
             $ticket->attachment_foto = $request->file('attachment_foto')->store('tickets_attachment', 'public');
         }
 
         $ticket->save();
+        \App\Models\TicketNotificationStatus::markRead($ticket, null, 'admin', 'new_ticket', false);
         $ticket->recordStatusHistory('created', null, 'Open', $ticket->user_id, 'user', $ticket->created_at);
 
         return redirect()->route('user.dashboard')->with('success', 'Tiket #' . str_pad($ticket->id, 5, '0', STR_PAD_LEFT) . ' berhasil dibuat!');
@@ -215,35 +215,20 @@ class TicketController extends Controller
             ->where('read_by_user', false)
             ->update(['read_by_user' => true]);
 
-        $needsSave = false;
-
-        // Notif: tiket Resolved oleh PJ
-        if ($ticket->status === 'Resolved' && !$ticket->user_notif_resolved_read) {
-            $ticket->user_notif_resolved_read = true;
-            $needsSave = true;
+        if ($ticket->status === 'Resolved') {
+            \App\Models\TicketNotificationStatus::markRead($ticket, $userId, 'user', 'resolved', true);
         }
 
-        // Notif: PJ sudah ditentukan admin
-        if (!$ticket->user_notif_assigned_read) {
-            $ticket->user_notif_assigned_read = true;
-            $needsSave = true;
+        if ($ticket->pj_id || $ticket->penanggung_jawab) {
+            \App\Models\TicketNotificationStatus::markRead($ticket, $userId, 'user', 'assigned', true);
         }
 
-        // Notif: tiket mulai dikerjakan (In Progress)
-        if ($ticket->status === 'In Progress' && !$ticket->user_notif_inprogress_read) {
-            $ticket->user_notif_inprogress_read = true;
-            $needsSave = true;
+        if ($ticket->status === 'In Progress') {
+            \App\Models\TicketNotificationStatus::markRead($ticket, $userId, 'user', 'in_progress', true);
         }
 
-        // Notif: tiket ditutup admin
-        if ($ticket->status === 'Closed' && $ticket->closed_by === 'admin' && !$ticket->user_notif_admin_closed_read) {
-            $ticket->user_notif_admin_closed_read = true;
-            $needsSave = true;
-        }
-
-        if ($needsSave) {
-            $ticket->timestamps = false;
-            $ticket->save();
+        if ($ticket->status === 'Closed' && $ticket->closed_by === 'admin') {
+            \App\Models\TicketNotificationStatus::markRead($ticket, $userId, 'user', 'admin_closed', true);
         }
 
         return view('user.detail', compact('ticket'));
@@ -363,9 +348,10 @@ class TicketController extends Controller
         $ticket->status     = 'Closed';
         $ticket->closed_by  = 'user';
         $ticket->tanggal_selesai = now();
-        $ticket->pj_notif_closed_read = false;
-        $ticket->admin_notif_user_closed_read = false;
         $ticket->save();
+
+        \App\Models\TicketNotificationStatus::markRead($ticket, $ticket->pj_id, 'pj', 'user_closed', false);
+        \App\Models\TicketNotificationStatus::markRead($ticket, null, 'admin', 'user_closed', false);
         $ticket->recordStatusHistory('cancelled', $ticket->getOriginal('status'), 'Closed', $userId, 'user', $ticket->updated_at);
 
         $ticket->collaborators()->update(['closed_notif_read' => false]);

@@ -63,7 +63,12 @@ class AppServiceProvider extends ServiceProvider
             $notifClosed = Ticket::whereIn('id', $ticketIdsPj)
                 ->where('status', 'Closed')
                 ->where('closed_by', 'user')
-                ->where('pj_notif_closed_read', false)
+                ->whereHas('notificationStatuses', function ($query) use ($pjId) {
+                    $query->where('role', 'pj')
+                        ->where('user_id', $pjId)
+                        ->where('key', 'user_closed')
+                        ->where('read', false);
+                })
                 ->latest('updated_at')
                 ->take(10)
                 ->get();
@@ -88,7 +93,12 @@ class AppServiceProvider extends ServiceProvider
                 ->get();
 
             $notifAssignedPj = Ticket::whereIn('id', $ticketIdsPj)
-                ->where('pj_notif_assigned_read', false)
+                ->whereHas('notificationStatuses', function ($query) use ($pjId) {
+                    $query->where('role', 'pj')
+                        ->where('user_id', $pjId)
+                        ->where('key', 'assigned')
+                        ->where('read', false);
+                })
                 ->latest('updated_at')
                 ->take(10)
                 ->get();
@@ -96,7 +106,12 @@ class AppServiceProvider extends ServiceProvider
             $notifAdminClosedPj = Ticket::whereIn('id', $ticketIdsPj)
                 ->where('status', 'Closed')
                 ->where('closed_by', 'admin')
-                ->where('pj_notif_admin_closed_read', false)
+                ->whereHas('notificationStatuses', function ($query) use ($pjId) {
+                    $query->where('role', 'pj')
+                        ->where('user_id', $pjId)
+                        ->where('key', 'admin_closed')
+                        ->where('read', false);
+                })
                 ->latest('updated_at')
                 ->take(10)
                 ->get();
@@ -127,13 +142,23 @@ class AppServiceProvider extends ServiceProvider
 
             $notifResolved = Ticket::whereIn('id', $ticketIdsUser)
                 ->where('status', 'Resolved')
-                ->where('user_notif_resolved_read', false)
+                ->whereHas('notificationStatuses', function ($query) use ($userId) {
+                    $query->where('role', 'user')
+                        ->where('user_id', $userId)
+                        ->where('key', 'resolved')
+                        ->where('read', false);
+                })
                 ->latest('tanggal_selesai')
                 ->take(10)
                 ->get();
 
             $notifAssignedUser = Ticket::whereIn('id', $ticketIdsUser)
-                ->where('user_notif_assigned_read', false)
+                ->whereHas('notificationStatuses', function ($query) use ($userId) {
+                    $query->where('role', 'user')
+                        ->where('user_id', $userId)
+                        ->where('key', 'assigned')
+                        ->where('read', false);
+                })
                 ->whereNotNull('penanggung_jawab')
                 ->where('penanggung_jawab', '!=', '')
                 ->latest('updated_at')
@@ -142,7 +167,12 @@ class AppServiceProvider extends ServiceProvider
 
             $notifInProgress = Ticket::whereIn('id', $ticketIdsUser)
                 ->where('status', 'In Progress')
-                ->where('user_notif_inprogress_read', false)
+                ->whereHas('notificationStatuses', function ($query) use ($userId) {
+                    $query->where('role', 'user')
+                        ->where('user_id', $userId)
+                        ->where('key', 'in_progress')
+                        ->where('read', false);
+                })
                 ->latest('updated_at')
                 ->take(10)
                 ->get();
@@ -150,7 +180,12 @@ class AppServiceProvider extends ServiceProvider
             $notifAdminClosedUser = Ticket::whereIn('id', $ticketIdsUser)
                 ->where('status', 'Closed')
                 ->where('closed_by', 'admin')
-                ->where('user_notif_admin_closed_read', false)
+                ->whereHas('notificationStatuses', function ($query) use ($userId) {
+                    $query->where('role', 'user')
+                        ->where('user_id', $userId)
+                        ->where('key', 'admin_closed')
+                        ->where('read', false);
+                })
                 ->latest('updated_at')
                 ->take(10)
                 ->get();
@@ -184,7 +219,12 @@ class AppServiceProvider extends ServiceProvider
                 ->get();
 
             $notifNewTicketsAdmin = Ticket::where('status', 'Open')
-                ->where('admin_notif_new_ticket_read', false)
+                ->whereHas('notificationStatuses', function ($query) {
+                    $query->where('role', 'admin')
+                        ->whereNull('user_id')
+                        ->where('key', 'new_ticket')
+                        ->where('read', false);
+                })
                 ->with('pelapor')
                 ->latest('created_at')
                 ->take(10)
@@ -192,7 +232,12 @@ class AppServiceProvider extends ServiceProvider
 
             $notifUserClosedAdmin = Ticket::where('status', 'Closed')
                 ->where('closed_by', 'user')
-                ->where(function($q) { $q->where('admin_notif_user_closed_read', false)->orWhereNull('admin_notif_user_closed_read'); })
+                ->whereHas('notificationStatuses', function ($query) {
+                    $query->where('role', 'admin')
+                        ->whereNull('user_id')
+                        ->where('key', 'user_closed')
+                        ->where('read', false);
+                })
                 ->with('pelapor')
                 ->latest('updated_at')
                 ->take(10)

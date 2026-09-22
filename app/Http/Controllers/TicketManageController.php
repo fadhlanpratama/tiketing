@@ -80,9 +80,13 @@ class TicketManageController extends Controller
                 'pj_id' => $pj->id,
                 'penanggung_jawab' => $pj->nama_lengkap,
                 'assigned_at' => now(),
-                'user_notif_assigned_read' => false,
-                'pj_notif_assigned_read' => false,
             ]);
+
+        if ($updated) {
+            $ticket = Ticket::findOrFail($id);
+            \App\Models\TicketNotificationStatus::markRead($ticket, $ticket->user_id, 'user', 'assigned', false);
+            \App\Models\TicketNotificationStatus::markRead($ticket, $pj->id, 'pj', 'assigned', false);
+        }
 
         if (!$updated) {
             return back()->with('error', 'Tiket sudah diproses atau tidak lagi berstatus Open.');
@@ -102,9 +106,15 @@ class TicketManageController extends Controller
                 'status' => 'Closed',
                 'closed_by' => 'admin',
                 'closed_at' => now(),
-                'user_notif_admin_closed_read' => false,
-                'pj_notif_admin_closed_read' => false,
             ]);
+
+        if ($updated) {
+            $ticket = Ticket::findOrFail($id);
+            \App\Models\TicketNotificationStatus::markRead($ticket, $ticket->user_id, 'user', 'admin_closed', false);
+            if ($ticket->pj_id) {
+                \App\Models\TicketNotificationStatus::markRead($ticket, $ticket->pj_id, 'pj', 'admin_closed', false);
+            }
+        }
 
         if (!$updated) {
             return back()->with('error', 'Tiket sudah ditutup atau tidak lagi berstatus Resolved.');
@@ -120,19 +130,11 @@ class TicketManageController extends Controller
     {
         $ticket = Ticket::with('pelapor', 'messages', 'collaborators.pj')->findOrFail($id);
 
-        if ($ticket->status === 'Closed'
-            && $ticket->closed_by === 'user'
-            && !$ticket->admin_notif_user_closed_read) {
-            $ticket->admin_notif_user_closed_read = true;
-            $ticket->timestamps = false;
-            $ticket->save();
+        if ($ticket->status === 'Closed' && $ticket->closed_by === 'user') {
+            \App\Models\TicketNotificationStatus::markRead($ticket, null, 'admin', 'user_closed', true);
         }
 
-        if (!$ticket->admin_notif_new_ticket_read) {
-            $ticket->admin_notif_new_ticket_read = true;
-            $ticket->timestamps = false;
-            $ticket->save();
-        }
+        \App\Models\TicketNotificationStatus::markRead($ticket, null, 'admin', 'new_ticket', true);
 
         $activePjs = Users::where('role', 'pj')
             ->where('status', 'active')

@@ -217,8 +217,11 @@ class PjController extends Controller
                 'waktu_mulai_dikerjakan' => $waktuMulai,
                 'sla_target_menit' => Ticket::getSlaTargetMenitByPrioritas($ticket->prioritas),
                 'sla_status' => 'Berjalan',
-                'user_notif_inprogress_read' => false,
             ]);
+
+        if ($updated) {
+            \App\Models\TicketNotificationStatus::markRead($ticket, $ticket->user_id, 'user', 'in_progress', false);
+        }
 
         if (!$updated) {
             return back()->with('error', 'Tiket sudah diproses oleh pengguna lain.');
@@ -252,7 +255,6 @@ class PjController extends Controller
             'status' => 'Resolved',
             'tanggal_selesai' => $tanggalSelesai,
             'hasil_resolved_foto' => $path,
-            'user_notif_resolved_read' => false,
         ];
 
         if ($ticket->waktu_mulai_dikerjakan && $ticket->sla_target_menit) {
@@ -277,6 +279,7 @@ class PjController extends Controller
             ->update($updates);
 
         if ($updated) {
+            \App\Models\TicketNotificationStatus::markRead($ticket, $ticket->user_id, 'user', 'resolved', false);
             $ticket->recordStatusHistory('resolved', 'In Progress', 'Resolved', $pjId, 'pj', $tanggalSelesai);
         }
 
@@ -367,23 +370,16 @@ class PjController extends Controller
                     ->update(['read' => true]);
             });
 
-        $needsSave = false;
-
         if ($isOwner) {
-            if ($ticket->status === 'Closed' && $ticket->closed_by === 'user' && !$ticket->pj_notif_closed_read) {
-                $ticket->pj_notif_closed_read = true;
-                $needsSave = true;
+            if ($ticket->status === 'Closed' && $ticket->closed_by === 'user') {
+                \App\Models\TicketNotificationStatus::markRead($ticket, $pjId, 'pj', 'user_closed', true);
             }
 
-            if ($ticket->status === 'Closed' && $ticket->closed_by === 'admin' && !$ticket->pj_notif_admin_closed_read) {
-                $ticket->pj_notif_admin_closed_read = true;
-                $needsSave = true;
+            if ($ticket->status === 'Closed' && $ticket->closed_by === 'admin') {
+                \App\Models\TicketNotificationStatus::markRead($ticket, $pjId, 'pj', 'admin_closed', true);
             }
 
-            if (!$ticket->pj_notif_assigned_read) {
-                $ticket->pj_notif_assigned_read = true;
-                $needsSave = true;
-            }
+            \App\Models\TicketNotificationStatus::markRead($ticket, $pjId, 'pj', 'assigned', true);
         } else {
             $collaborator = $ticket->collaborators()->where('pj_id', $pjId)->first();
             if ($collaborator && (!$collaborator->invitation_read || !$collaborator->closed_notif_read)) {
@@ -393,11 +389,6 @@ class PjController extends Controller
                 }
                 $collaborator->save();
             }
-        }
-
-        if ($needsSave) {
-            $ticket->timestamps = false;
-            $ticket->save();
         }
 
         $prioritas = strtolower($ticket->prioritas);
