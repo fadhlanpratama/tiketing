@@ -86,15 +86,15 @@ class PjController extends Controller
                 $q->where(function ($subQ) {
                     $subQ->where('closed_by', '!=', 'user')
                         ->orWhereNull('closed_by');
+                })
+                ->whereHas('sla', function ($sub) {
+                    $sub->where('status', 'Terlambat')
+                        ->orWhere(function ($or) {
+                            $or->whereNotNull('started_at')
+                                ->whereNotNull('target_minutes')
+                                ->whereRaw('DATE_ADD(started_at, INTERVAL target_minutes MINUTE) < NOW()');
+                        });
                 });
-            })
-            ->where(function ($q) {
-                $q->where(function ($qq) {
-                    $qq->where('status', 'In Progress')
-                        ->whereNotNull('waktu_mulai_dikerjakan')
-                        ->whereNotNull('sla_target_menit')
-                        ->whereRaw('TIMESTAMPADD(MINUTE, sla_target_menit, waktu_mulai_dikerjakan) < NOW()');
-                })->orWhere('sla_status', 'Terlambat');
             });
 
         $slaTerlambat = (clone $overdueQuery)->count();
@@ -214,12 +214,18 @@ class PjController extends Controller
             ->where('status', 'Open')
             ->update([
                 'status' => 'In Progress',
-                'waktu_mulai_dikerjakan' => $waktuMulai,
-                'sla_target_menit' => Ticket::getSlaTargetMenitByPrioritas($ticket->prioritas),
-                'sla_status' => 'Berjalan',
             ]);
 
         if ($updated) {
+            $ticket->sla()->updateOrCreate(
+                ['ticket_id' => $ticket->id],
+                [
+                    'started_at' => $waktuMulai,
+                    'target_minutes' => Ticket::getSlaTargetMenitByPrioritas($ticket->prioritas),
+                    'status' => 'Berjalan',
+                ]
+            );
+
             \App\Models\TicketNotificationStatus::markRead($ticket, $ticket->user_id, 'user', 'in_progress', false);
         }
 
@@ -257,16 +263,19 @@ class PjController extends Controller
             'hasil_resolved_foto' => $path,
         ];
 
-        if ($ticket->waktu_mulai_dikerjakan && $ticket->sla_target_menit) {
-            $deadline = $ticket->waktu_mulai_dikerjakan->copy()->addMinutes($ticket->sla_target_menit);
+        $sla = $ticket->sla()->first();
+        if ($sla && $sla->started_at && $sla->target_minutes) {
+            $deadline = $sla->started_at->copy()->addMinutes($sla->target_minutes);
 
             if ($tanggalSelesai->greaterThan($deadline)) {
-                $updates['sla_lebih_menit'] = $deadline->diffInMinutes($tanggalSelesai);
-                $updates['sla_status'] = 'Terlambat';
+                $sla->elapsed_minutes = $deadline->diffInMinutes($tanggalSelesai);
+                $sla->status = 'Terlambat';
             } else {
-                $updates['sla_lebih_menit'] = 0;
-                $updates['sla_status'] = 'Tepat Waktu';
+                $sla->elapsed_minutes = 0;
+                $sla->status = 'Tepat Waktu';
             }
+
+            $sla->save();
         }
 
         if ($request->filled('catatan_penyelesaian')) {
@@ -517,15 +526,15 @@ class PjController extends Controller
                 $q->where(function ($subQ) {
                     $subQ->where('closed_by', '!=', 'user')
                         ->orWhereNull('closed_by');
+                })
+                ->whereHas('sla', function ($sub) {
+                    $sub->where('status', 'Terlambat')
+                        ->orWhere(function ($or) {
+                            $or->whereNotNull('started_at')
+                                ->whereNotNull('target_minutes')
+                                ->whereRaw('DATE_ADD(started_at, INTERVAL target_minutes MINUTE) < NOW()');
+                        });
                 });
-            })
-            ->where(function ($q) {
-                $q->where(function ($qq) {
-                    $qq->where('status', 'In Progress')
-                        ->whereNotNull('waktu_mulai_dikerjakan')
-                        ->whereNotNull('sla_target_menit')
-                        ->whereRaw('TIMESTAMPADD(MINUTE, sla_target_menit, waktu_mulai_dikerjakan) < NOW()');
-                })->orWhere('sla_status', 'Terlambat');
             })
             ->count();
 

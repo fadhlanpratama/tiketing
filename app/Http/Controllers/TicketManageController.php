@@ -167,15 +167,15 @@ class TicketManageController extends Controller
                 $q->where(function ($subQ) {
                     $subQ->where('closed_by', '!=', 'user')
                         ->orWhereNull('closed_by');
+                })
+                ->whereHas('sla', function ($sub) {
+                    $sub->where('status', 'Terlambat')
+                        ->orWhere(function ($or) {
+                            $or->whereNotNull('started_at')
+                                ->whereNotNull('target_minutes')
+                                ->whereRaw('DATE_ADD(started_at, INTERVAL target_minutes MINUTE) < NOW()');
+                        });
                 });
-            })
-            ->where(function ($q) {
-                $q->where(function ($qq) {
-                    $qq->where('status', 'In Progress')
-                        ->whereNotNull('waktu_mulai_dikerjakan')
-                        ->whereNotNull('sla_target_menit')
-                        ->whereRaw('TIMESTAMPADD(MINUTE, sla_target_menit, waktu_mulai_dikerjakan) < NOW()');
-                })->orWhere('sla_status', 'Terlambat');
             })
             ->count();
 

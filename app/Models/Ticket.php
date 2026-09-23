@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\Concerns\HasSla;
 
 class Ticket extends Model
@@ -47,7 +48,6 @@ class Ticket extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'assigned_at' => 'datetime',
-        'waktu_mulai_dikerjakan' => 'datetime',
         'closed_at' => 'datetime',
     ];
 
@@ -96,6 +96,11 @@ class Ticket extends Model
     public function collaborators()
     {
         return $this->hasMany(TicketCollaborator::class, 'ticket_id');
+    }
+
+    public function sla(): HasOne
+    {
+        return $this->hasOne(TicketSla::class, 'ticket_id');
     }
 
     public function notificationStatuses(): HasMany

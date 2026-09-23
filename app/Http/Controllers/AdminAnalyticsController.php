@@ -117,8 +117,8 @@ class AdminAnalyticsController extends Controller
     private function calculateAnalytics(Request $request, Carbon $periodStart, Carbon $periodEnd): array
     {
         $query = Ticket::query()
-            ->where('created_at', '>=', $periodStart)
-            ->where('created_at', '<=', $periodEnd);
+            ->where('tickets.created_at', '>=', $periodStart)
+            ->where('tickets.created_at', '<=', $periodEnd);
 
         // ===== FILTER: Status =====
         if ($request->filled('status') && $request->status !== 'All') {
@@ -150,6 +150,7 @@ class AdminAnalyticsController extends Controller
         };
 
         $kpi = (clone $base)
+            ->leftJoin('ticket_slas', 'ticket_slas.ticket_id', '=', 'tickets.id')
             ->leftJoinSub($historyEvent('created'), 'history_created', 'history_created.ticket_id', '=', 'tickets.id')
             ->leftJoinSub($historyEvent('assigned'), 'history_assigned', 'history_assigned.ticket_id', '=', 'tickets.id')
             ->leftJoinSub($historyEvent('started'), 'history_started', 'history_started.ticket_id', '=', 'tickets.id')
@@ -157,7 +158,7 @@ class AdminAnalyticsController extends Controller
             ->leftJoinSub($historyEvent('closed'), 'history_closed', 'history_closed.ticket_id', '=', 'tickets.id')
             ->selectRaw("
                 COUNT(*) as total_tiket,
-                AVG(CASE WHEN (status = 'Resolved' OR (status = 'Closed' AND (closed_by = 'admin' OR closed_by IS NULL)))
+                AVG(CASE WHEN (tickets.status = 'Resolved' OR (tickets.status = 'Closed' AND (tickets.closed_by = 'admin' OR tickets.closed_by IS NULL)))
                         AND history_created.occurred_at IS NOT NULL
                         AND (history_resolved.occurred_at IS NOT NULL OR history_closed.occurred_at IS NOT NULL)
                     THEN TIMESTAMPDIFF(MINUTE, history_created.occurred_at,
@@ -175,17 +176,17 @@ class AdminAnalyticsController extends Controller
                 AVG(CASE WHEN history_resolved.occurred_at IS NOT NULL AND history_closed.occurred_at IS NOT NULL
                     THEN TIMESTAMPDIFF(MINUTE, history_resolved.occurred_at, history_closed.occurred_at)
                     ELSE NULL END) as avg_tunggu_closed_menit,
-                COUNT(CASE WHEN status IN ('Resolved', 'In Progress')
-                    OR (status = 'Closed' AND (closed_by = 'admin' OR closed_by IS NULL))
+                COUNT(CASE WHEN tickets.status IN ('Resolved', 'In Progress')
+                    OR (tickets.status = 'Closed' AND (tickets.closed_by = 'admin' OR tickets.closed_by IS NULL))
                         THEN 1 ELSE NULL END) as total_evaluasi_sla,
                 COUNT(CASE 
-                    WHEN (status = 'Resolved' OR (status = 'Closed' AND (closed_by = 'admin' OR closed_by IS NULL)))
+                    WHEN (tickets.status = 'Resolved' OR (tickets.status = 'Closed' AND (tickets.closed_by = 'admin' OR tickets.closed_by IS NULL)))
                         AND history_started.occurred_at IS NOT NULL
                         AND history_resolved.occurred_at IS NOT NULL
-                        AND TIMESTAMPDIFF(MINUTE, history_started.occurred_at, history_resolved.occurred_at) > sla_target_menit THEN 1
-                        WHEN status = 'In Progress' 
+                        AND TIMESTAMPDIFF(MINUTE, history_started.occurred_at, history_resolved.occurred_at) > ticket_slas.target_minutes THEN 1
+                        WHEN tickets.status = 'In Progress' 
                         AND history_started.occurred_at IS NOT NULL
-                            AND DATE_ADD(history_started.occurred_at, INTERVAL sla_target_menit MINUTE) < NOW() THEN 1
+                            AND DATE_ADD(history_started.occurred_at, INTERVAL ticket_slas.target_minutes MINUTE) < NOW() THEN 1
                         ELSE NULL 
                     END) as sla_terlambat
             ")
@@ -219,7 +220,7 @@ class AdminAnalyticsController extends Controller
 
         // ===== 6. Chart: Total Tiket by Bulan =====
         $tiketByBulan = (clone $base)
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, COUNT(*) as total")
+            ->selectRaw("DATE_FORMAT(tickets.created_at, '%Y-%m') as bulan, COUNT(*) as total")
             ->groupBy('bulan')
             ->orderBy('bulan')
             ->get();
@@ -231,11 +232,11 @@ class AdminAnalyticsController extends Controller
         ];
 
         $selectDays = collect($daysMap)->map(function ($name, $num) {
-            return "SUM(CASE WHEN WEEKDAY(created_at) = {$num} THEN 1 ELSE 0 END) as `{$name}`";
+            return "SUM(CASE WHEN WEEKDAY(tickets.created_at) = {$num} THEN 1 ELSE 0 END) as `{$name}`";
         })->implode(', ');
 
         $tabelBulanHari = (clone $base)
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, {$selectDays}, COUNT(*) as total")
+            ->selectRaw("DATE_FORMAT(tickets.created_at, '%Y-%m') as bulan, {$selectDays}, COUNT(*) as total")
             ->groupBy('bulan')
             ->orderBy('bulan')
             ->get();

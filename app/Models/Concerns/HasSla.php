@@ -30,13 +30,36 @@ trait HasSla
         return self::slaTargetMenitMap()[$prioritas] ?? null;
     }
 
+    public function getWaktuMulaiDikerjakanAttribute(): ?Carbon
+    {
+        return $this->sla()->value('started_at');
+    }
+
+    public function getSlaTargetMenitAttribute(): ?int
+    {
+        return $this->sla()->value('target_minutes');
+    }
+
+    public function getSlaLebihMenitAttribute(): ?int
+    {
+        return $this->sla()->value('elapsed_minutes');
+    }
+
+    public function getSlaStatusAttribute(): ?string
+    {
+        return $this->sla()->value('status');
+    }
+
     public function getSlaDeadlineAttribute(): ?Carbon
     {
-        if (!$this->waktu_mulai_dikerjakan || !$this->sla_target_menit) {
+        $startedAt = $this->waktu_mulai_dikerjakan;
+        $targetMinutes = $this->sla_target_menit;
+
+        if (!$startedAt || !$targetMinutes) {
             return null;
         }
 
-        return $this->waktu_mulai_dikerjakan->copy()->addMinutes($this->sla_target_menit);
+        return $startedAt->copy()->addMinutes($targetMinutes);
     }
 
     public function getSlaLebihMenitLiveAttribute(): ?int
