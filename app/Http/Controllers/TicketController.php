@@ -338,6 +338,7 @@ class TicketController extends Controller
         $namaUser = session('nama_lengkap', 'Pelapor');
         $tanggal  = now()->format('d-m-Y H:i');
         $alasan   = strip_tags($request->alasan_tutup);
+        $previousStatus = $ticket->status;
 
         $log = "\n\n--- Ditutup oleh Pelapor ---\n"
             . "Nama    : {$namaUser}\n"
@@ -350,9 +351,11 @@ class TicketController extends Controller
         $ticket->tanggal_selesai = now();
         $ticket->save();
 
+        $ticket->sla()->update(['status' => 'Dibatalkan']);
+
         \App\Models\TicketNotificationStatus::markRead($ticket, $ticket->pj_id, 'pj', 'user_closed', false);
         \App\Models\TicketNotificationStatus::markRead($ticket, null, 'admin', 'user_closed', false);
-        $ticket->recordStatusHistory('cancelled', $ticket->getOriginal('status'), 'Closed', $userId, 'user', $ticket->updated_at);
+        $ticket->recordStatusHistory('cancelled', $previousStatus, 'Closed', $userId, 'user', $ticket->updated_at);
 
         $ticket->collaborators()->update(['closed_notif_read' => false]);
 
