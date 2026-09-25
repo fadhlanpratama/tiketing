@@ -337,24 +337,21 @@ class PjController extends Controller
             'read_by_user' => false,
         ]);
 
-        $recipientIds = $ticket->collaborators()
-            ->where('pj_id', '!=', $pjId)
-            ->pluck('pj_id');
+        $recipientIds = $ticket->collaborators()->pluck('pj_id');
 
-        if ($isOwner) {
-            $recipientIds = $ticket->collaborators()->pluck('pj_id');
-        } else {
+        if (!$isOwner) {
             $recipientIds->push($ticket->pj_id);
         }
 
         $message->recipients()->createMany(
             $recipientIds
                 ->unique()
-                ->reject(fn ($userId) => (int) $userId === (int) $pjId)
                 ->map(fn ($userId) => [
                     'user_id' => $userId,
-                    'read' => false,
-                ])->values()->all()
+                    'read' => (int) $userId === (int) $pjId,
+                ])
+                ->values()
+                ->all()
         );
 
         return back()->with('success', 'Pesan terkirim.');

@@ -211,7 +211,7 @@ class TicketController extends Controller
         $ticket = Ticket::where('id', $id)->where('user_id', $userId)->with(['pj', 'collaborators.pj'])->firstOrFail();
 
         $ticket->messages()
-            ->where('sender_type', 'pj')
+            ->whereIn('sender_type', ['pj', 'collaborator'])
             ->where('read_by_user', false)
             ->update(['read_by_user' => true]);
 

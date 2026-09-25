@@ -134,7 +134,7 @@ class AppServiceProvider extends ServiceProvider
             $ticketIdsUser = Ticket::where('user_id', $userId)->pluck('id');
 
             $notifMessagesUser = TicketMessage::whereIn('ticket_id', $ticketIdsUser)
-                ->where('sender_type', 'pj')
+                ->whereIn('sender_type', ['pj', 'collaborator'])
                 ->where('read_by_user', false)
                 ->latest()
                 ->take(10)
