@@ -123,20 +123,20 @@ class AdminAnalyticsController extends Controller
         // ===== FILTER: Status =====
         if ($request->filled('status') && $request->status !== 'All') {
             if ($request->status === 'Dibatalkan') {
-                $query->where('status', 'Closed')->where('closed_by', 'user');
+                $query->where('tickets.status', 'Closed')->where('tickets.closed_by', 'user');
             } else {
-                $query->where('status', $request->status);
+                $query->where('tickets.status', $request->status);
             }
         }
 
         // ===== FILTER: Prioritas =====
         if ($request->filled('prioritas') && $request->prioritas !== 'All') {
-            $query->where('prioritas', $request->prioritas);
+            $query->where('tickets.prioritas', $request->prioritas);
         }
 
         // ===== FILTER: Kategori =====
         if ($request->filled('kategori')) {
-            $query->whereIn('kategori', (array) $request->kategori);
+            $query->whereIn('tickets.kategori', (array) $request->kategori);
         }
 
         $base = $query;
@@ -158,24 +158,24 @@ class AdminAnalyticsController extends Controller
             ->leftJoinSub($historyEvent('closed'), 'history_closed', 'history_closed.ticket_id', '=', 'tickets.id')
             ->selectRaw("
                 COUNT(*) as total_tiket,
-                AVG(CASE WHEN (tickets.status = 'Resolved' OR (tickets.status = 'Closed' AND (tickets.closed_by = 'admin' OR tickets.closed_by IS NULL)))
+                COALESCE(AVG(CASE WHEN (tickets.status = 'Resolved' OR (tickets.status = 'Closed' AND (tickets.closed_by = 'admin' OR tickets.closed_by IS NULL)))
                         AND history_created.occurred_at IS NOT NULL
                         AND (history_resolved.occurred_at IS NOT NULL OR history_closed.occurred_at IS NOT NULL)
                     THEN TIMESTAMPDIFF(MINUTE, history_created.occurred_at,
                         COALESCE(history_closed.occurred_at, history_resolved.occurred_at))
-                    ELSE NULL END) as avg_total_menit,
-                AVG(CASE WHEN history_created.occurred_at IS NOT NULL AND history_assigned.occurred_at IS NOT NULL
+                    ELSE NULL END), 0) as avg_total_menit,
+                COALESCE(AVG(CASE WHEN history_created.occurred_at IS NOT NULL AND history_assigned.occurred_at IS NOT NULL
                     THEN TIMESTAMPDIFF(MINUTE, history_created.occurred_at, history_assigned.occurred_at)
-                    ELSE NULL END) as avg_antrian_menit,
-                AVG(CASE WHEN history_assigned.occurred_at IS NOT NULL AND history_started.occurred_at IS NOT NULL
+                    ELSE NULL END), 0) as avg_antrian_menit,
+                COALESCE(AVG(CASE WHEN history_assigned.occurred_at IS NOT NULL AND history_started.occurred_at IS NOT NULL
                     THEN TIMESTAMPDIFF(MINUTE, history_assigned.occurred_at, history_started.occurred_at)
-                    ELSE NULL END) as avg_tunggu_pj_menit,
-                AVG(CASE WHEN history_started.occurred_at IS NOT NULL AND history_resolved.occurred_at IS NOT NULL
+                    ELSE NULL END), 0) as avg_tunggu_pj_menit,
+                COALESCE(AVG(CASE WHEN history_started.occurred_at IS NOT NULL AND history_resolved.occurred_at IS NOT NULL
                     THEN TIMESTAMPDIFF(MINUTE, history_started.occurred_at, history_resolved.occurred_at)
-                    ELSE NULL END) as avg_sla_menit,
-                AVG(CASE WHEN history_resolved.occurred_at IS NOT NULL AND history_closed.occurred_at IS NOT NULL
+                    ELSE NULL END), 0) as avg_sla_menit,
+                COALESCE(AVG(CASE WHEN history_resolved.occurred_at IS NOT NULL AND history_closed.occurred_at IS NOT NULL
                     THEN TIMESTAMPDIFF(MINUTE, history_resolved.occurred_at, history_closed.occurred_at)
-                    ELSE NULL END) as avg_tunggu_closed_menit,
+                    ELSE NULL END), 0) as avg_tunggu_closed_menit,
                 COUNT(CASE WHEN tickets.status IN ('Resolved', 'In Progress')
                     OR (tickets.status = 'Closed' AND (tickets.closed_by = 'admin' OR tickets.closed_by IS NULL))
                         THEN 1 ELSE NULL END) as total_evaluasi_sla,
