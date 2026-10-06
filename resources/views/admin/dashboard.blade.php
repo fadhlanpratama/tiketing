@@ -399,6 +399,17 @@
             }
         }
 
+        function submitDateFilter() {
+            hiddenDari.value = pendingStart || '';
+            hiddenSampai.value = pendingEnd || pendingStart || '';
+            panel.classList.add('hidden');
+
+            const form = document.getElementById('filterForm');
+            if (form) {
+                form.submit();
+            }
+        }
+
         function renderCalendar() {
             const ref = parseYMD(minDate);
             const year = ref.getFullYear();
@@ -453,6 +464,10 @@
                     }
                     renderCalendar();
                     updateLabel();
+
+                    if (pendingStart && pendingEnd) {
+                        submitDateFilter();
+                    }
                 });
             });
         }
@@ -473,12 +488,13 @@
             pendingEnd = null;
             renderCalendar();
             updateLabel();
+            submitDateFilter();
         });
 
         applyBtn.addEventListener('click', () => {
-            hiddenDari.value = pendingStart || '';
-            hiddenSampai.value = pendingEnd || pendingStart || '';
-            panel.classList.add('hidden');
+            if (pendingStart || pendingEnd) {
+                submitDateFilter();
+            }
         });
 
         renderCalendar();
